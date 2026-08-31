@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: mlingo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mlingo
+      POSTGRES_USER: mlingo
+      POSTGRES_PASSWORD: mlingo_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

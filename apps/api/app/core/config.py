@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     environment: str = "development"
     database_url: str = "postgresql://mlingo:mlingo_dev_password@localhost:5432/mlingo"
+    frontend_origin: str = "http://localhost:3000"
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="MLINGO_", extra="ignore")
 

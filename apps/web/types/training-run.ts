@@ -6,7 +6,7 @@ export type TrainingState = {
   bias: number;
   loss: number;
   gradients: number[];
-  bias_gradient: number;
+  bias_gradient: number | null;
   predictions: number[];
   metrics: { mean_squared_error: number };
 };

@@ -275,6 +275,119 @@ button:disabled {
   width: 100%;
 }
 
+.training-signals {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.training-signals-heading {
+  align-items: start;
+  display: flex;
+  justify-content: space-between;
+}
+
+.training-signals-heading h2 {
+  color: #0f172a;
+  font-size: 1.15rem;
+  margin: 0.2rem 0 0;
+}
+
+.training-signals-heading>span {
+  color: #64748b;
+  font: 0.7rem var(--font-geist-mono);
+  padding-top: 0.25rem;
+}
+
+.training-signals ul {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.training-signals li {
+  border-left: 0.25rem solid #cbd5e1;
+}
+
+.training-signals li.signal-info {
+  border-color: #0f766e;
+}
+
+.training-signals li.signal-warning {
+  border-color: #f97316;
+}
+
+.training-signals li.signal-success {
+  border-color: #16a34a;
+}
+
+.training-signals button {
+  align-items: start;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  width: 100%;
+}
+
+.training-signals button:hover,
+.training-signals button:focus-visible {
+  background: #f8fafc;
+}
+
+.signal-icon {
+  align-items: center;
+  background: #f1f5f9;
+  border-radius: 999px;
+  color: #0f766e;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-weight: 800;
+  height: 1.5rem;
+  justify-content: center;
+  width: 1.5rem;
+}
+
+.signal-warning .signal-icon {
+  color: #c2410c;
+}
+
+.signal-success .signal-icon {
+  color: #15803d;
+}
+
+.training-signals strong,
+.training-signals small,
+.training-signals em {
+  display: block;
+}
+
+.training-signals strong {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.training-signals small {
+  color: #0f766e;
+  font: 0.7rem var(--font-geist-mono);
+  margin-top: 0.2rem;
+}
+
+.training-signals em {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
 .timeline-labels {
   color: #64748b;
   display: flex;

@@ -15,6 +15,20 @@ def train_linear_regression(dataset: RegressionDataset, configuration: TrainingC
     weights = np.array(configuration.initial_weights or (0.0,) * feature_count, dtype=np.float64)
     bias = float(configuration.initial_bias)
     history: list[TrainingState] = []
+    initial_predictions = predict(dataset.features, weights, bias)
+    initial_mse = mean_squared_error(initial_predictions, dataset.targets)
+    history.append(
+        TrainingState(
+            0,
+            tuple(float(value) for value in weights),
+            bias,
+            initial_mse,
+            (),
+            None,
+            tuple(float(value) for value in initial_predictions),
+            RegressionMetrics(initial_mse),
+        )
+    )
     for step in range(1, configuration.epochs + 1):
         errors = predict(dataset.features, weights, bias) - dataset.targets
         weight_gradients, bias_gradient = gradients(dataset.features, errors)

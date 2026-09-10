@@ -26,13 +26,13 @@ class RegressionMetrics:
 
 @dataclass(frozen=True)
 class TrainingState:
-    """Immutable snapshot captured after one parameter update."""
+    """Immutable model snapshot, including the pre-update state at step zero."""
     step: int
     weights: tuple[float, ...]
     bias: float
     loss: float
     gradients: tuple[float, ...]
-    bias_gradient: float
+    bias_gradient: float | None
     predictions: tuple[float, ...]
     metrics: RegressionMetrics
 

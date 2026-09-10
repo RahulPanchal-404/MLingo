@@ -6,6 +6,7 @@ export async function createTrainingRun(request: TrainingRunRequest): Promise<Tr
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
+    signal: AbortSignal.timeout(15_000),
   });
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {

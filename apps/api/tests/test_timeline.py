@@ -15,7 +15,7 @@ def _run(epochs: int = 3) -> TrainingRun:
 def test_initial_playhead_selects_first_recorded_state() -> None:
     timeline = TimelineController(_run())
 
-    assert timeline.state.current_step == 1
+    assert timeline.state.current_step == 0
     assert timeline.state.total_steps == 3
     assert timeline.current_training_state == _run().history[0]
     assert timeline.is_at_start
@@ -24,7 +24,7 @@ def test_initial_playhead_selects_first_recorded_state() -> None:
 def test_jump_clamps_outside_steps_and_selects_requested_state() -> None:
     timeline = TimelineController(_run())
 
-    assert timeline.jump_to_step(-10).current_step == 1
+    assert timeline.jump_to_step(-10).current_step == 0
     assert timeline.jump_to_step(99).current_step == 3
     selected = timeline.jump_to_step(2).selected_training_state
     assert selected is not None
@@ -34,12 +34,12 @@ def test_jump_clamps_outside_steps_and_selects_requested_state() -> None:
 def test_step_navigation_and_start_end_behavior() -> None:
     timeline = TimelineController(_run())
 
-    assert timeline.step_backward().current_step == 1
-    assert timeline.step_forward().current_step == 2
+    assert timeline.step_backward().current_step == 0
+    assert timeline.step_forward().current_step == 1
     assert timeline.jump_to_end().current_step == 3
     assert timeline.is_at_end
     assert timeline.step_forward().current_step == 3
-    assert timeline.jump_to_start().current_step == 1
+    assert timeline.jump_to_start().current_step == 0
 
 
 def test_playback_state_and_speed_validation() -> None:
@@ -84,5 +84,5 @@ def test_single_state_history_cannot_move_outside_its_state() -> None:
     timeline = TimelineController(_run(epochs=1))
 
     assert timeline.step_forward().current_step == 1
-    assert timeline.step_backward().current_step == 1
-    assert timeline.is_at_start and timeline.is_at_end
+    assert timeline.step_backward().current_step == 0
+    assert timeline.is_at_start

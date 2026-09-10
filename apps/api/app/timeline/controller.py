@@ -21,7 +21,7 @@ class TimelineController:
     def state(self) -> TimelineState:
         return TimelineState(
             current_step=self._current_step,
-            total_steps=len(self._steps),
+            total_steps=self._steps[-1] if self._steps else 0,
             is_playing=self._is_playing,
             playback_speed=self._playback_speed,
             markers=tuple(self._markers.values()),

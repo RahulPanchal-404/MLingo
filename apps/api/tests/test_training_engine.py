@@ -24,8 +24,13 @@ def test_synthetic_dataset_is_seeded_and_has_expected_line_without_noise() -> No
 def test_linear_regression_records_each_epoch_and_converges() -> None:
     run = train_linear_regression(_dataset(), TrainingConfig(learning_rate=0.1, epochs=200), run_id="run-1")
 
-    assert len(run.history) == 200
-    assert run.markers == tuple(range(1, 201))
+    assert len(run.history) == 201
+    assert run.markers == tuple(range(201))
+    assert run.history[0].step == 0
+    assert run.history[0].weights == (0.0,)
+    assert run.history[0].bias == 0.0
+    assert run.history[0].gradients == ()
+    assert run.history[0].bias_gradient is None
     assert run.history[-1].loss < run.history[0].loss
     assert run.history[-1].weights[0] == pytest.approx(3.0, abs=0.01)
     assert run.history[-1].bias == pytest.approx(-1.0, abs=0.01)
@@ -37,6 +42,29 @@ def test_training_is_deterministic_with_fixed_configuration() -> None:
 
     first = train_linear_regression(_dataset(), configuration, run_id="same-run")
     second = train_linear_regression(_dataset(), configuration, run_id="same-run")
+
+    assert first == second
+
+
+def test_initial_state_matches_configured_model() -> None:
+    configuration = TrainingConfig(learning_rate=0.05, epochs=20, initial_weights=(0.25,), initial_bias=0.5)
+    run = train_linear_regression(_dataset(), configuration)
+    initial = run.history[0]
+
+    expected_predictions = 0.25 * _dataset().features[:, 0] + 0.5
+    expected_loss = float(np.mean((expected_predictions - _dataset().targets) ** 2))
+    assert initial.step == 0
+    assert initial.weights == configuration.initial_weights
+    assert initial.bias == configuration.initial_bias
+    assert initial.predictions == pytest.approx(tuple(expected_predictions))
+    assert initial.loss == pytest.approx(expected_loss)
+
+
+def test_initial_state_is_deterministic() -> None:
+    configuration = TrainingConfig(learning_rate=0.05, epochs=20, initial_weights=(0.25,), initial_bias=0.5)
+
+    first = train_linear_regression(_dataset(), configuration).history[0]
+    second = train_linear_regression(_dataset(), configuration).history[0]
 
     assert first == second
 

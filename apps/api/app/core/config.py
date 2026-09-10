@@ -14,6 +14,20 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="MLINGO_", extra="ignore")
 
+    @property
+    def cors_origins(self) -> list[str]:
+        origins = [self.frontend_origin]
+        if self.environment == "development":
+            origins.extend(
+                [
+                    "http://localhost:3000",
+                    "http://127.0.0.1:3000",
+                    "http://localhost:3001",
+                    "http://127.0.0.1:3001",
+                ]
+            )
+        return list(dict.fromkeys(origins))
+
 
 @lru_cache
 def get_settings() -> Settings:

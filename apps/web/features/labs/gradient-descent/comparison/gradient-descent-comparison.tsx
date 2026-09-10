@@ -38,7 +38,7 @@ export function GradientDescentComparison() {
       const timeline = useTrainingTimeline(runA, comparison?.sharedStepCount);
       const stateA = timeline.selectedTrainingState;
       const stateB = comparison?.runB.history[timeline.currentStep] ?? null;
-      const eventMarkers = useMemo(() => detectTrainingEventMarkers(runA?.history ?? []).filter((marker) => marker.step < (comparison?.sharedStepCount ?? 0)), [runA, comparison?.sharedStepCount]);
+      const eventMarkers = useMemo(() => detectTrainingEventMarkers(runA).filter((marker) => marker.step < (comparison?.sharedStepCount ?? 0)), [runA, comparison?.sharedStepCount]);
       const markers = [...eventMarkers, ...userMarkers];
       const isLoading = loadingStage !== null;
 

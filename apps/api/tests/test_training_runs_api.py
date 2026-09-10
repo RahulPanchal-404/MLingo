@@ -27,8 +27,10 @@ def test_create_training_run_returns_serializable_history() -> None:
     assert len(body["dataset_points"]) == 8
     assert body["training"] == _payload()["training"]
     assert body["total_steps"] == 5
-    assert len(body["history"]) == 5
-    assert body["history"][0]["step"] == 1
+    assert len(body["history"]) == 6
+    assert body["history"][0]["step"] == 0
+    assert body["history"][0]["bias_gradient"] is None
+    assert body["history"][0]["gradients"] == []
     assert isinstance(body["history"][0]["weights"][0], float)
     assert isinstance(body["history"][0]["predictions"], list)
     assert body["metadata"] == {"feature_count": "1", "sample_count": "8"}

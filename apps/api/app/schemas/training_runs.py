@@ -71,7 +71,7 @@ class TrainingStateResponse(BaseModel):
     bias: float
     loss: float
     gradients: list[float]
-    bias_gradient: float
+    bias_gradient: float | None
     predictions: list[float]
     metrics: RegressionMetricsResponse
 

@@ -47,11 +47,12 @@ export function ComparisonRunPanel({ label, run, state, currentStep }: Compariso
       );
 }
 
-function Metric({ label, value, change }: { label: string; value: number; change?: number }) {
+function Metric({ label, value, change }: { label: string; value: number | null | undefined; change?: number }) {
       return <div><dt>{label}</dt><dd>{formatNumber(value)}</dd><small>{change === undefined ? "No previous frame." : formatDelta(change)}</small></div>;
 }
 
-function formatNumber(value: number): string {
+function formatNumber(value: number | null | undefined): string {
+      if (value == null) return "N/A";
       return value.toLocaleString(undefined, { maximumFractionDigits: 5 });
 }
 

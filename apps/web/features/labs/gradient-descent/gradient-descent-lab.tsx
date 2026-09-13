@@ -6,10 +6,10 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
+import { diagnosticEventsToTimelineMarkers } from "@/features/timeline/event-markers";
 import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
 import { RegressionPlot } from "@/features/labs/gradient-descent/regression-plot";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
-import { detectTrainingEventMarkers } from "@/features/timeline/event-markers";
 import { getFrameChanges } from "@/features/timeline/frame-changes";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TimelineMarker } from "@/features/timeline/types";
@@ -34,7 +34,7 @@ export function GradientDescentLab() {
       const state = timeline.selectedTrainingState;
       const frameChanges = getFrameChanges(run?.history ?? [], timeline.currentStep);
       const diagnostics = useMemo(() => run ? analyzeTrainingRun(run) : [], [run]);
-      const eventMarkers = useMemo(() => detectTrainingEventMarkers(run), [run]);
+      const eventMarkers = useMemo(() => diagnosticEventsToTimelineMarkers(diagnostics), [diagnostics]);
       const markers = [...eventMarkers, ...userMarkers];
 
       const requestTraining = useCallback(async (request: TrainingRunRequest) => {

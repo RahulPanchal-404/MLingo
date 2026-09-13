@@ -16,6 +16,7 @@ export function analyzeTrainingRun(run: TrainingRun): DiagnosticEvent[] {
       const history = run.history;
       if (history.length < 2) return [];
 
+      // Each detector returns only its first match, so the timeline gets one event per type.
       const events: DiagnosticEvent[] = [];
       const rapid = findRapidLossDecrease(history);
       if (rapid) events.push(rapid);
@@ -76,9 +77,10 @@ function findIncreasingTrend(history: TrainingState[], increaseCount: number, in
 function findNearConvergence(history: TrainingState[]): DiagnosticEvent | null {
       for (let index = 1; index < history.length; index += 1) {
             const state = history[index];
-            const gradients = [state.gradients[0], state.bias_gradient].map(finite).filter((value): value is number => value !== null);
-            if (gradients.length > 0 && gradients.every((gradient) => Math.abs(gradient) <= DIAGNOSTIC_THRESHOLDS.convergenceGradient)) {
-                  return event("convergence", index, "near_convergence", "Near convergence", "Available parameter gradients are close to zero.", "success", { gradientMagnitudes: gradients.map(Math.abs), weightGradient: finite(state.gradients[0]) ?? "unavailable", biasGradient: finite(state.bias_gradient) ?? "unavailable" });
+            const weightGradient = finite(state.gradients[0]);
+            const biasGradient = finite(state.bias_gradient);
+            if (weightGradient !== null && biasGradient !== null && Math.abs(weightGradient) <= DIAGNOSTIC_THRESHOLDS.convergenceGradient && Math.abs(biasGradient) <= DIAGNOSTIC_THRESHOLDS.convergenceGradient) {
+                  return event("convergence", index, "near_convergence", "Near convergence", "Weight and bias gradients are close to zero.", "success", { gradientMagnitudes: [Math.abs(weightGradient), Math.abs(biasGradient)], weightGradient, biasGradient });
             }
       }
       return null;

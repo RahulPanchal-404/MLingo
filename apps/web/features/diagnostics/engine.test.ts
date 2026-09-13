@@ -34,6 +34,11 @@ describe("analyzeTrainingRun", () => {
             expect(diagnostic.evidence).toMatchObject({ previousLoss: 10, currentLoss: 8, relativeLossChange: 0.2 });
       });
 
+      it("deduplicates repeated matches by diagnostic type", () => {
+            const diagnostics = analyzeTrainingRun(makeRun([10, 8, 6, 4]));
+            expect(diagnostics.filter((diagnostic) => diagnostic.type === "rapid_loss_decrease")).toHaveLength(1);
+      });
+
       it("detects and deduplicates a plateau window", () => {
             const diagnostics = analyzeTrainingRun(makeRun([1, 1.001, 1.0005, 1.001, 1.0008, 1.0009]));
             const plateaus = diagnostics.filter((diagnostic) => diagnostic.type === "possible_plateau");
@@ -51,9 +56,14 @@ describe("analyzeTrainingRun", () => {
             expect(diagnostics.find((diagnostic) => diagnostic.type === "possible_divergence")).toMatchObject({ step: 4, evidence: { consecutiveIncreases: 3, lossValues: [8, 9, 10, 12] } });
       });
 
-      it("detects near convergence from available gradients", () => {
+      it("detects near convergence when both gradients are available", () => {
             const diagnostics = analyzeTrainingRun(makeRun([10, 5], [[1, 1], [0.01, 0.02]]));
             expect(diagnostics.find((diagnostic) => diagnostic.type === "near_convergence")).toMatchObject({ step: 1, evidence: { weightGradient: 0.01, biasGradient: 0.02 } });
+      });
+
+      it("does not detect near convergence when one gradient is missing", () => {
+            const diagnostics = analyzeTrainingRun(makeRun([10, 5], [[1, 1], [0.01, null]]));
+            expect(diagnostics.find((diagnostic) => diagnostic.type === "near_convergence")).toBeUndefined();
       });
 
       it("does not label normal monotonic convergence as instability or divergence", () => {

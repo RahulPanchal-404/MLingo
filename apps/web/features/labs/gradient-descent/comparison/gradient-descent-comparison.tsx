@@ -6,7 +6,8 @@ import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { ComparisonRunPanel } from "@/features/labs/gradient-descent/comparison-run-panel";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { createRunComparison } from "@/features/comparison/types";
-import { detectTrainingEventMarkers } from "@/features/timeline/event-markers";
+import { analyzeTrainingRun } from "@/features/diagnostics/engine";
+import { diagnosticEventsToTimelineMarkers } from "@/features/timeline/event-markers";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
@@ -38,7 +39,8 @@ export function GradientDescentComparison() {
       const timeline = useTrainingTimeline(runA, comparison?.sharedStepCount);
       const stateA = timeline.selectedTrainingState;
       const stateB = comparison?.runB.history[timeline.currentStep] ?? null;
-      const eventMarkers = useMemo(() => detectTrainingEventMarkers(runA).filter((marker) => marker.step < (comparison?.sharedStepCount ?? 0)), [runA, comparison?.sharedStepCount]);
+      const diagnosticsA = useMemo(() => runA ? analyzeTrainingRun(runA) : [], [runA]);
+      const eventMarkers = useMemo(() => diagnosticEventsToTimelineMarkers(diagnosticsA).filter((marker) => marker.step < (comparison?.sharedStepCount ?? 0)), [diagnosticsA, comparison?.sharedStepCount]);
       const markers = [...eventMarkers, ...userMarkers];
       const isLoading = loadingStage !== null;
 

@@ -46,6 +46,18 @@ def test_training_is_deterministic_with_fixed_configuration() -> None:
     assert first == second
 
 
+def test_break_mode_learning_rate_produces_instability_pattern() -> None:
+    synthetic = make_linear_regression_dataset(samples=32, slope=2.0, intercept=1.0, noise=0.0, seed=0)
+    dataset = RegressionDataset(features=synthetic.features.reshape(-1, 1), targets=synthetic.targets, name="break-mode")
+    run = train_linear_regression(dataset, TrainingConfig(learning_rate=1.25, epochs=50, initial_weights=(0.0,), initial_bias=0.0), run_id="break-mode")
+    losses = [state.loss for state in run.history]
+
+    assert losses[0] > losses[1]
+    assert losses[1] < losses[2] < losses[3]
+    assert (losses[2] - losses[1]) / losses[1] >= 0.02
+    assert (losses[3] - losses[2]) / losses[2] >= 0.02
+
+
 def test_initial_state_matches_configured_model() -> None:
     configuration = TrainingConfig(learning_rate=0.05, epochs=20, initial_weights=(0.25,), initial_bias=0.5)
     run = train_linear_regression(_dataset(), configuration)

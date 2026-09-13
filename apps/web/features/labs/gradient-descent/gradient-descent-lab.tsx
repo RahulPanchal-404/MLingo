@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
+import { BreakModePanel } from "@/features/challenges/break-mode-panel";
+import { BREAK_MODE_LEARNING_RATE, type BreakModeChallenge } from "@/features/challenges/types";
 import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { diagnosticEventsToTimelineMarkers } from "@/features/timeline/event-markers";
@@ -21,8 +23,11 @@ const defaultRequest: TrainingRunRequest = {
       training: { learning_rate: 0.1, epochs: 50, initial_weight: 0, initial_bias: 0 },
 };
 
-export function GradientDescentLab() {
-      const [configuration, setConfiguration] = useState(defaultRequest);
+type GradientDescentLabProps = { breakMode?: BreakModeChallenge };
+
+export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) {
+      const initialRequest = useMemo(() => breakMode ? { ...defaultRequest, training: { ...defaultRequest.training, learning_rate: BREAK_MODE_LEARNING_RATE } } : defaultRequest, [breakMode]);
+      const [configuration, setConfiguration] = useState(initialRequest);
       const [run, setRun] = useState<TrainingRun | null>(null);
       const [error, setError] = useState<string | null>(null);
       const [isLoading, setIsLoading] = useState(true);
@@ -53,9 +58,9 @@ export function GradientDescentLab() {
       }, []);
 
       useEffect(() => {
-            const initialRequest = window.setTimeout(() => void requestTraining(defaultRequest), 0);
-            return () => window.clearTimeout(initialRequest);
-      }, [requestTraining]);
+            const initialRequestTimer = window.setTimeout(() => void requestTraining(initialRequest), 0);
+            return () => window.clearTimeout(initialRequestTimer);
+      }, [initialRequest, requestTraining]);
 
       const submit = (event: FormEvent<HTMLFormElement>) => {
             event.preventDefault();
@@ -82,7 +87,7 @@ export function GradientDescentLab() {
                         </div>
                         <form className="training-form" onSubmit={submit}>
                               <div className="form-heading"><div><p className="eyebrow">Experiment setup</p><h2>Record a new run</h2></div><span className="run-status">{isLoading ? "Recording" : run ? "Ready" : "Waiting"}</span></div>
-                              <NumberControl label="Learning rate" max="1" min="0.001" onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, learning_rate: value } }))} step="0.001" value={configuration.training.learning_rate} />
+                              <NumberControl label="Learning rate" max={breakMode ? "2" : "1"} min="0.001" onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, learning_rate: value } }))} step="0.001" value={configuration.training.learning_rate} />
                               <NumberControl label="Epochs" max="300" min="1" onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, epochs: Math.round(value) } }))} step="1" value={configuration.training.epochs} />
                               <NumberControl label="Samples" max="100" min="1" onChange={(value) => setConfiguration((current) => ({ ...current, dataset: { ...current.dataset, samples: Math.round(value) } }))} step="1" value={configuration.dataset.samples} />
                               <NumberControl label="Noise" max="2" min="0" onChange={(value) => setConfiguration((current) => ({ ...current, dataset: { ...current.dataset, noise: value } }))} step="0.05" value={configuration.dataset.noise} />
@@ -91,6 +96,7 @@ export function GradientDescentLab() {
                   </section>
 
                   <div className="lab-secondary-action"><span>Ready to inspect another experiment?</span><Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link></div>
+                  {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} />}
                   {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
                   {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
                   {!isLoading && !error && run && (

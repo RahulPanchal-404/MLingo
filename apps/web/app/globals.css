@@ -282,6 +282,80 @@ button:disabled {
   padding: 1.1rem 1.25rem;
 }
 
+.break-mode-panel {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 0.75rem;
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.25rem;
+}
+
+.break-mode-heading {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.break-mode-heading h2 {
+  color: #134e4a;
+  font-size: 1.25rem;
+  margin: 0.25rem 0 0;
+}
+
+.break-mode-panel>p {
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.break-mode-status {
+  border-radius: 999px;
+  color: #115e59;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  text-align: right;
+}
+
+.break-mode-status.success,
+.break-mode-feedback.success {
+  color: #166534;
+}
+
+.break-mode-status.incorrect-marker,
+.break-mode-feedback.incorrect-marker {
+  color: #9a3412;
+}
+
+.break-mode-objective {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.break-mode-objective dt {
+  color: #0f766e;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.break-mode-objective dd {
+  color: #134e4a;
+  margin: 0.2rem 0 0;
+}
+
+.break-mode-feedback {
+  border-top: 1px solid #ccfbf1;
+  color: #475569;
+  font-size: 0.9rem;
+  padding-top: 0.8rem;
+}
+
 .training-signals-heading {
   align-items: start;
   display: flex;

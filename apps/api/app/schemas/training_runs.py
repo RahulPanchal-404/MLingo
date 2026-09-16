@@ -1,7 +1,7 @@
 from math import isfinite
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.ml.training.types import TrainingRun
 
@@ -36,9 +36,15 @@ class TrainingConfigurationRequest(BaseModel):
 
 
 class CreateTrainingRunRequest(BaseModel):
-    algorithm: Literal["linear_regression"] = "linear_regression"
+    algorithm: Literal["linear_regression", "logistic_regression"] = "linear_regression"
     dataset: SyntheticDatasetRequest = Field(default_factory=SyntheticDatasetRequest)
     training: TrainingConfigurationRequest = Field(default_factory=TrainingConfigurationRequest)
+
+    @model_validator(mode="after")
+    def validate_algorithm_dataset(self) -> "CreateTrainingRunRequest":
+        if self.algorithm == "logistic_regression" and self.dataset.samples <= 1:
+            raise ValueError("logistic_regression requires at least two samples")
+        return self
 
 
 class DatasetConfigurationResponse(BaseModel):
@@ -50,8 +56,11 @@ class DatasetConfigurationResponse(BaseModel):
 
 
 class DatasetPointResponse(BaseModel):
-    feature: float
-    target: float
+    feature: float | None = None
+    target: float | None = None
+    x1: float | None = None
+    x2: float | None = None
+    label: int | None = None
 
 
 class TrainingConfigurationResponse(BaseModel):
@@ -62,7 +71,9 @@ class TrainingConfigurationResponse(BaseModel):
 
 
 class RegressionMetricsResponse(BaseModel):
-    mean_squared_error: float
+    mean_squared_error: float | None = None
+    binary_cross_entropy: float | None = None
+    accuracy: float | None = None
 
 
 class TrainingStateResponse(BaseModel):
@@ -80,7 +91,7 @@ class TrainingRunResponse(BaseModel):
     id: str
     algorithm: str
     dataset: DatasetConfigurationResponse
-    dataset_points: list[DatasetPointResponse]
+    dataset_points: list[dict[str, float | int]]
     training: TrainingConfigurationResponse
     total_steps: int
     history: list[TrainingStateResponse]
@@ -92,13 +103,13 @@ class TrainingRunResponse(BaseModel):
         cls,
         run: TrainingRun,
         request: CreateTrainingRunRequest,
-        dataset_points: tuple[tuple[float, float], ...],
+        dataset_points: tuple[dict[str, float | int], ...],
     ) -> "TrainingRunResponse":
         return cls(
             id=run.id,
             algorithm=run.algorithm,
             dataset=DatasetConfigurationResponse(**request.dataset.model_dump()),
-            dataset_points=[DatasetPointResponse(feature=feature, target=target) for feature, target in dataset_points],
+            dataset_points=list(dataset_points),
             training=TrainingConfigurationResponse(**request.training.model_dump()),
             total_steps=run.total_steps,
             history=[
@@ -110,7 +121,7 @@ class TrainingRunResponse(BaseModel):
                     gradients=list(state.gradients),
                     bias_gradient=state.bias_gradient,
                     predictions=list(state.predictions),
-                    metrics=RegressionMetricsResponse(mean_squared_error=state.metrics.mean_squared_error),
+                    metrics=RegressionMetricsResponse(mean_squared_error=getattr(state.metrics, "mean_squared_error", None), binary_cross_entropy=getattr(state.metrics, "binary_cross_entropy", None), accuracy=getattr(state.metrics, "accuracy", None)),
                 )
                 for state in run.history
             ],

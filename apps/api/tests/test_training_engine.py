@@ -1,9 +1,11 @@
 import numpy as np
 import pytest
 
+from app.ml.algorithms.logistic_regression import binary_cross_entropy, sigmoid
+from app.ml.datasets.classification import make_logistic_regression_dataset
 from app.ml.datasets.synthetic import make_linear_regression_dataset
-from app.ml.training.trainer import train_linear_regression
-from app.ml.training.types import RegressionDataset, TrainingConfig
+from app.ml.training.trainer import train_linear_regression, train_logistic_regression
+from app.ml.training.types import ClassificationDataset, RegressionDataset, TrainingConfig
 
 
 def _dataset(*, slope: float = 3.0, intercept: float = -1.0) -> RegressionDataset:
@@ -100,3 +102,38 @@ def test_synthetic_dataset_rejects_invalid_sample_or_noise_values() -> None:
         make_linear_regression_dataset(samples=0)
     with pytest.raises(ValueError, match="noise"):
         make_linear_regression_dataset(noise=-0.1)
+
+
+def test_logistic_dataset_is_deterministic_and_two_dimensional() -> None:
+    first = make_logistic_regression_dataset(samples=10, noise=0.1, seed=4)
+    second = make_logistic_regression_dataset(samples=10, noise=0.1, seed=4)
+
+    assert np.array_equal(first.features, second.features)
+    assert np.array_equal(first.targets, second.targets)
+    assert first.features.shape == (10, 2)
+    assert set(first.targets) == {0.0, 1.0}
+
+
+def test_logistic_sigmoid_and_loss_are_stable() -> None:
+    probabilities = sigmoid(np.array([-1000.0, 0.0, 1000.0]))
+
+    assert np.all(np.isfinite(probabilities))
+    assert np.all((probabilities >= 0) & (probabilities <= 1))
+    assert binary_cross_entropy(probabilities, np.array([0.0, 0.0, 1.0])) < 1.0
+
+
+def test_logistic_training_records_pre_update_state_and_improves_loss() -> None:
+    synthetic = make_logistic_regression_dataset(samples=64, noise=0.1, seed=0)
+    dataset = ClassificationDataset(synthetic.features, synthetic.targets, "simple-classification")
+    configuration = TrainingConfig(learning_rate=0.2, epochs=80, initial_weights=(0.0, 0.0), initial_bias=0.0)
+    run = train_logistic_regression(dataset, configuration, run_id="logistic-run")
+
+    assert len(run.history) == 81
+    assert run.history[0].step == 0
+    assert run.history[0].weights == (0.0, 0.0)
+    assert run.history[0].gradients == ()
+    assert run.history[0].bias_gradient is None
+    assert run.history[-1].loss < run.history[0].loss
+    assert run.history[-1].metrics.accuracy is not None
+    assert run.history[-1].metrics.accuracy > 0.95
+    assert len(run.history[-1].predictions) == 64

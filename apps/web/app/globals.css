@@ -1249,6 +1249,25 @@ button:disabled {
   stroke-linecap: round;
 }
 
+.decision-boundary {
+  stroke: #f97316;
+  stroke-dasharray: 6 4;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.class-zero-point {
+  fill: #0f766e;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+.class-one-point {
+  fill: #f97316;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
 .playhead-line {
   stroke: #f97316;
   stroke-width: 1.5;

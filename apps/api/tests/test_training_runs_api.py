@@ -68,3 +68,34 @@ def test_training_runs_cors_allows_only_configured_frontend_origin() -> None:
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
+
+
+def test_logistic_training_run_returns_classification_history() -> None:
+    payload = {
+        "algorithm": "logistic_regression",
+        "dataset": {"samples": 12, "noise": 0.1, "seed": 2},
+        "training": {"learning_rate": 0.2, "epochs": 4, "initial_weight": 0.0, "initial_bias": 0.0},
+    }
+
+    response = client.post("/api/v1/training-runs", json=payload)
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["algorithm"] == "logistic_regression.gradient_descent"
+    assert len(body["dataset_points"]) == 12
+    assert all(set(point) == {"x1", "x2", "label"} for point in body["dataset_points"])
+    assert len(body["history"]) == 5
+    assert body["history"][0]["gradients"] == []
+    assert body["history"][0]["bias_gradient"] is None
+    assert body["history"][-1]["metrics"]["binary_cross_entropy"] is not None
+    assert body["history"][-1]["metrics"]["accuracy"] is not None
+
+
+def test_logistic_training_rejects_single_sample_dataset() -> None:
+    payload = {
+        "algorithm": "logistic_regression",
+        "dataset": {"samples": 1, "noise": 0.1, "seed": 0},
+        "training": {"learning_rate": 0.2, "epochs": 4, "initial_weight": 0.0, "initial_bias": 0.0},
+    }
+
+    assert client.post("/api/v1/training-runs", json=payload).status_code == 422

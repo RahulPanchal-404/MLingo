@@ -20,8 +20,22 @@ class RegressionDataset:
 
 
 @dataclass(frozen=True)
+class ClassificationDataset:
+    features: NDArray
+    targets: NDArray
+    name: str = "in-memory-classification"
+
+
+@dataclass(frozen=True)
 class RegressionMetrics:
     mean_squared_error: float
+
+
+@dataclass(frozen=True)
+class TrainingMetrics:
+    mean_squared_error: float | None = None
+    binary_cross_entropy: float | None = None
+    accuracy: float | None = None
 
 
 @dataclass(frozen=True)
@@ -34,7 +48,7 @@ class TrainingState:
     gradients: tuple[float, ...]
     bias_gradient: float | None
     predictions: tuple[float, ...]
-    metrics: RegressionMetrics
+    metrics: TrainingMetrics | RegressionMetrics
 
 
 @dataclass(frozen=True)

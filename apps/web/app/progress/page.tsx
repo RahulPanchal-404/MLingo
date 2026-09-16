@@ -1,5 +1,4 @@
-import { SectionPage } from "@/components/layout/section-page";
+import { AppShell } from "@/components/layout/app-shell";
+import { ProgressPage } from "@/features/progress/progress-page";
 
-export default function ProgressPage() {
-  return <SectionPage title="Progress" description="Your learning progress will appear here." />;
-}
+export default function ProgressRoute() { return <AppShell><ProgressPage /></AppShell>; }

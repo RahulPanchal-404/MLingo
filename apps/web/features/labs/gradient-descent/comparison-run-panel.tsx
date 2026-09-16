@@ -19,7 +19,7 @@ export function ComparisonRunPanel({ label, run, state, currentStep }: Compariso
                               <p className="eyebrow">{label}</p>
                               <h2>{run.algorithm}</h2>
                         </div>
-                        <span>{run.training.epochs} frames</span>
+                        <span>{run.history.length} frames</span>
                   </div>
                   <dl className="run-configuration">
                         <div><dt>Learning rate</dt><dd>{run.training.learning_rate}</dd></div>

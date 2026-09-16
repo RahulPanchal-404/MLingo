@@ -104,7 +104,7 @@ export function GradientDescentComparison() {
                   {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>{loadingStage === "a" ? "Training Run A" : "Training Run B"}</strong><p>The two runs are recorded through the existing training API.</p></div></section>}
                   {!isLoading && !error && comparison && (
                         <>
-                              <div className="comparison-context"><strong>Shared step: {timeline.currentStep}</strong><span>Shared range: 0-{comparison.sharedStepCount}</span>{comparison.runA.history.length !== comparison.runB.history.length && <span>Comparison is limited to the shorter recorded history.</span>}</div>
+                              <div className="comparison-context"><strong>Shared step: {timeline.currentStep}</strong><span>Shared range: 0-{Math.max(comparison.sharedStepCount - 1, 0)}</span>{comparison.runA.history.length !== comparison.runB.history.length && <span>Comparison is limited to the shorter recorded history.</span>}</div>
                               <section className="comparison-grid" aria-label="Training run comparison">
                                     <ComparisonRunPanel currentStep={timeline.currentStep} label="Run A" run={comparison.runA} state={stateA} />
                                     <ComparisonRunPanel currentStep={timeline.currentStep} label="Run B" run={comparison.runB} state={stateB} />

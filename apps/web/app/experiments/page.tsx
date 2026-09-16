@@ -1,5 +1,4 @@
-import { SectionPage } from "@/components/layout/section-page";
+import { AppShell } from "@/components/layout/app-shell";
+import { ExperimentWorkspace } from "@/features/experiments/experiment-workspace";
 
-export default function ExperimentsPage() {
-  return <SectionPage title="Experiments" description="Training-run experiments and comparisons will appear here." />;
-}
+export default function ExperimentsPage() { return <AppShell><ExperimentWorkspace /></AppShell>; }

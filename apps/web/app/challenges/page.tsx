@@ -1,6 +1,6 @@
 import { SectionPage } from "@/components/layout/section-page";
 import Link from "next/link";
 
-export default function ChallengesPage() {
-  return <SectionPage title="Challenges" description="Practice reading model behavior from recorded training runs."><Link className="block max-w-xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-400" href="/challenges/gradient-descent-instability"><p className="eyebrow">Gradient descent</p><h2 className="mt-2 text-xl font-semibold text-slate-950">Make Gradient Descent Unstable</h2><p className="mt-2 text-slate-600">Adjust the learning rate, find the suspicious frame, and mark it on the timeline.</p></Link></SectionPage>;
-}
+const challenges = [{ href: "/challenges/gradient-descent-instability", title: "Make Gradient Descent Unstable", description: "Find the frame where loss begins rising after a decrease." }, { href: "/challenges/learning-slowdown", title: "Find the learning slowdown", description: "Find a recorded plateau where learning has slowed." }, { href: "/challenges/spot-divergence", title: "Spot divergence", description: "Find the region where optimization moves away from a good solution." }];
+
+export default function ChallengesPage() { return <SectionPage title="Challenges" description="Practice reading model behavior from recorded training runs."><div className="challenge-list">{challenges.map((challenge) => <Link className="challenge-card" href={challenge.href} key={challenge.href}><p className="eyebrow">Gradient descent</p><h2>{challenge.title}</h2><p>{challenge.description}</p></Link>)}</div></SectionPage>; }

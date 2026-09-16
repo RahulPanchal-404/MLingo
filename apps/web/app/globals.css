@@ -443,6 +443,291 @@ button:disabled {
   display: block;
 }
 
+.signal-explanation {
+  background: #f0fdfa;
+  border-top: 1px solid #ccfbf1;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0.7rem 0.75rem 0.8rem 3rem;
+}
+
+.learning-modes-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.learning-mode-panel,
+.experiment-form,
+.recorded-experiment,
+.progress-section {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.15rem;
+}
+
+.learning-mode-heading,
+.recorded-heading,
+.workspace-heading {
+  align-items: start;
+  display: flex;
+  justify-content: space-between;
+}
+
+.learning-mode-heading h2,
+.recorded-heading h2,
+.progress-section h2 {
+  color: #0f172a;
+  font-size: 1.1rem;
+  margin: 0.2rem 0 0;
+}
+
+.learning-mode-heading>span,
+.recorded-heading>span,
+.experiment-form-heading>span {
+  color: #64748b;
+  font: 0.7rem var(--font-geist-mono);
+}
+
+.equation-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 1rem 0;
+}
+
+.equation-list p {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.equation-list code,
+.code-mode-panel pre {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.3rem;
+  color: #0f766e;
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.equation-list span,
+.learning-mode-note {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.math-values,
+.experiment-summary {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.math-values dt,
+.experiment-summary dt,
+.progress-overview span {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+.math-values dd,
+.experiment-summary dd {
+  color: #0f172a;
+  font: 600 0.82rem var(--font-geist-mono);
+  margin: 0.2rem 0 0;
+}
+
+.learning-mode-note {
+  line-height: 1.5;
+  margin: 0.9rem 0 0;
+}
+
+.code-mode-panel pre {
+  color: #334155;
+  line-height: 1.7;
+  margin: 1rem 0 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.experiment-workspace,
+.progress-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.workspace-heading {
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.25rem;
+}
+
+.workspace-heading h1 {
+  color: #0f172a;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin: 0.35rem 0 0.7rem;
+}
+
+.workspace-heading p:not(.eyebrow) {
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 56ch;
+}
+
+.experiment-form {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.experiment-form-heading {
+  align-items: start;
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+}
+
+.experiment-form-heading h2 {
+  color: #0f172a;
+  font-size: 1.1rem;
+  margin: 0.2rem 0 0;
+}
+
+.experiment-form .primary-button {
+  grid-column: 1 / -1;
+}
+
+.recorded-experiment {
+  display: grid;
+  gap: 1rem;
+}
+
+.experiment-summary {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.challenge-list,
+.continue-links {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.challenge-card,
+.continue-links a {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: #0f172a;
+  padding: 1rem;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.challenge-card:hover,
+.challenge-card:focus-visible,
+.continue-links a:hover,
+.continue-links a:focus-visible {
+  background: #f0fdfa;
+  border-color: #5eead4;
+}
+
+.challenge-card h2 {
+  font-size: 1.05rem;
+  margin: 0.3rem 0;
+}
+
+.challenge-card p:last-child {
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.progress-overview {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.progress-overview div {
+  background: #0f172a;
+  border-radius: 0.5rem;
+  color: white;
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.progress-overview span {
+  color: #94a3b8;
+}
+
+.progress-overview strong {
+  font: 1.5rem var(--font-geist-mono);
+}
+
+.progress-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.concept-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.concept-list li {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  color: #166534;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.65rem;
+}
+
+@media (max-width: 767px) {
+
+  .learning-modes-grid,
+  .progress-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .experiment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .experiment-form-heading,
+  .experiment-form .primary-button {
+    grid-column: auto;
+  }
+
+  .workspace-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .math-values,
+  .experiment-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .training-signals strong {
   color: #0f172a;
   font-size: 0.9rem;

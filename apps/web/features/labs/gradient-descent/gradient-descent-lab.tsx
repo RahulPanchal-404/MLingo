@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { BreakModePanel } from "@/features/challenges/break-mode-panel";
@@ -10,12 +10,15 @@ import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { diagnosticEventsToTimelineMarkers } from "@/features/timeline/event-markers";
 import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
-import { RegressionPlot } from "@/features/labs/gradient-descent/regression-plot";
+import { CodeMode } from "@/features/labs/gradient-descent/code-mode";
+import { MathMode } from "@/features/labs/gradient-descent/math-mode";
+import { getRunYDomain, RegressionPlot } from "@/features/labs/gradient-descent/regression-plot";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { getFrameChanges } from "@/features/timeline/frame-changes";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
+import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 
 const defaultRequest: TrainingRunRequest = {
       algorithm: "linear_regression",
@@ -25,8 +28,19 @@ const defaultRequest: TrainingRunRequest = {
 
 type GradientDescentLabProps = { breakMode?: BreakModeChallenge };
 
+export type LearningRateInputConfig = {
+      min: "0.0001" | "0.001";
+      max: "1" | "1.30";
+      step: "0.001";
+};
+
+export function getLearningRateInputConfig(isBreakMode: boolean, allowSlowLearningRate = false): LearningRateInputConfig {
+      return isBreakMode ? { min: allowSlowLearningRate ? "0.0001" : "0.001", max: "1.30", step: "0.001" } : { min: "0.001", max: "1", step: "0.001" };
+}
+
 export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) {
-      const initialRequest = useMemo(() => breakMode ? { ...defaultRequest, training: { ...defaultRequest.training, learning_rate: BREAK_MODE_LEARNING_RATE } } : defaultRequest, [breakMode]);
+      const initialRequest = useMemo(() => breakMode ? { ...defaultRequest, training: { ...defaultRequest.training, learning_rate: breakMode.defaultLearningRate ?? BREAK_MODE_LEARNING_RATE } } : defaultRequest, [breakMode]);
+      const learningRateInput = getLearningRateInputConfig(Boolean(breakMode), breakMode?.defaultLearningRate === 0.0001);
       const [configuration, setConfiguration] = useState(initialRequest);
       const [run, setRun] = useState<TrainingRun | null>(null);
       const [error, setError] = useState<string | null>(null);
@@ -35,11 +49,13 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
       const [isMarkerFormOpen, setIsMarkerFormOpen] = useState(false);
       const [markerTitle, setMarkerTitle] = useState("");
       const [markerDescription, setMarkerDescription] = useState("");
+      const recordedRunId = useRef<string | null>(null);
       const timeline = useTrainingTimeline(run);
       const state = timeline.selectedTrainingState;
+      const regressionYDomain = useMemo(() => breakMode && run ? getRunYDomain(run.dataset_points, run.history) : undefined, [breakMode, run]);
       const frameChanges = getFrameChanges(run?.history ?? [], timeline.currentStep);
       const diagnostics = useMemo(() => run ? analyzeTrainingRun(run) : [], [run]);
-      const eventMarkers = useMemo(() => diagnosticEventsToTimelineMarkers(diagnostics), [diagnostics]);
+      const eventMarkers = useMemo(() => breakMode ? [] : diagnosticEventsToTimelineMarkers(diagnostics), [breakMode, diagnostics]);
       const markers = [...eventMarkers, ...userMarkers];
 
       const requestTraining = useCallback(async (request: TrainingRunRequest) => {
@@ -61,6 +77,14 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
             const initialRequestTimer = window.setTimeout(() => void requestTraining(initialRequest), 0);
             return () => window.clearTimeout(initialRequestTimer);
       }, [initialRequest, requestTraining]);
+      useEffect(() => {
+            if (!run) return;
+            if (recordedRunId.current === run.id) return;
+            recordedRunId.current = run.id;
+            const activity = readLearningActivity();
+            recordLearningActivity({ labsExplored: activity.labsExplored + 1 });
+            recordRunConcepts(["Gradient Descent", "Loss", "Learning Rate"]);
+      }, [run]);
 
       const submit = (event: FormEvent<HTMLFormElement>) => {
             event.preventDefault();
@@ -87,7 +111,7 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                         </div>
                         <form className="training-form" onSubmit={submit}>
                               <div className="form-heading"><div><p className="eyebrow">Experiment setup</p><h2>Record a new run</h2></div><span className="run-status">{isLoading ? "Recording" : run ? "Ready" : "Waiting"}</span></div>
-                              <NumberControl label="Learning rate" max={breakMode ? "2" : "1"} min="0.001" onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, learning_rate: value } }))} step="0.001" value={configuration.training.learning_rate} />
+                              <NumberControl label="Learning rate" max={learningRateInput.max} min={learningRateInput.min} onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, learning_rate: value } }))} step={learningRateInput.step} value={configuration.training.learning_rate} />
                               <NumberControl label="Epochs" max="300" min="1" onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, epochs: Math.round(value) } }))} step="1" value={configuration.training.epochs} />
                               <NumberControl label="Samples" max="100" min="1" onChange={(value) => setConfiguration((current) => ({ ...current, dataset: { ...current.dataset, samples: Math.round(value) } }))} step="1" value={configuration.dataset.samples} />
                               <NumberControl label="Noise" max="2" min="0" onChange={(value) => setConfiguration((current) => ({ ...current, dataset: { ...current.dataset, noise: value } }))} step="0.05" value={configuration.dataset.noise} />
@@ -101,12 +125,13 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                   {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
                   {!isLoading && !error && run && (
                         <>
-                              <section className="visual-grid" aria-label="Training visualizations"><RegressionPlot points={run.dataset_points} state={state} /><LossChart currentStep={timeline.currentStep} history={run.history} /></section>
+                              <section className="visual-grid" aria-label="Training visualizations"><RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} /><LossChart currentStep={timeline.currentStep} history={run.history} /></section>
                               <section className="state-panel" aria-label="Selected training state">
                                     <div className="state-heading"><p className="eyebrow">Selected frame</p><h2>{state ? `Step ${state.step}` : "No state selected"}</h2><p>{state ? "The visualizations are reading this exact training snapshot." : "This run has no recorded states."}</p></div>
                                     {state ? <dl><Metric change={frameChanges?.weight} label="Weight" value={state.weights[0]} /><Metric change={frameChanges?.bias} label="Bias" value={state.bias} /><Metric change={frameChanges?.loss} label="Loss / MSE" value={state.metrics.mean_squared_error} /><Metric change={frameChanges?.gradient} label="Weight gradient" value={state.gradients[0]} /><Metric label="Bias gradient" value={state.bias_gradient} /></dl> : <p className="empty-state">There is no state to inspect yet.</p>}
                               </section>
-                              <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />
+                              <section className="learning-modes-grid" aria-label="Selected frame learning modes"><MathMode learningRate={run.training.learning_rate} state={state} /><CodeMode learningRate={run.training.learning_rate} state={state} /></section>
+                              {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />}
                               {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
                               <TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} />
                         </>

@@ -8,7 +8,7 @@ export async function createTrainingRun(request: TrainingRunRequest): Promise<Tr
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request),
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(45_000),
     });
   } catch {
     throw new Error(`Could not connect to the MLingo API at ${apiBaseUrl}. Please ensure the backend service is running.`);

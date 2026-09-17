@@ -16,7 +16,12 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        origins = [self.frontend_origin]
+        configured_origins = [
+            origin.strip().rstrip("/")
+            for origin in self.frontend_origin.split(",")
+            if origin.strip()
+        ]
+        origins = list(configured_origins)
         if self.environment == "development":
             origins.extend(
                 [

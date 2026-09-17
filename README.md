@@ -135,6 +135,28 @@ npm run build
 
 ---
 
+## Deployment
+
+### Frontend (Vercel)
+- **Platform**: Vercel
+- **Root Directory**: `apps/web`
+- **Framework Preset**: Next.js
+- **Build Command**: `npm run build`
+- **Environment Variables**:
+  - `NEXT_PUBLIC_API_URL`: `https://<your-deployed-backend>/api/v1` *(must be configured in Vercel before building)*
+
+### Backend (Render Web Service)
+- **Platform**: Render (Web Service)
+- **Root Directory**: `apps/api`
+- **Runtime**: Python 3.13 / 3.12
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Environment Variables**:
+  - `MLINGO_ENVIRONMENT`: `production`
+  - `MLINGO_FRONTEND_ORIGIN`: `https://<your-deployed-frontend>.vercel.app`
+
+---
+
 ## Recommended 5–7 Minute Evaluator Demo Flow
 
 1. **Start at Landing Page (`/`)**: Note the clear learning path from foundations to labs and challenges.

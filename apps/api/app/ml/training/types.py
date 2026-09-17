@@ -6,10 +6,13 @@ from numpy.typing import NDArray
 
 @dataclass(frozen=True)
 class TrainingConfig:
-    learning_rate: float
-    epochs: int
+    learning_rate: float = 0.1
+    epochs: int = 10
     initial_weights: tuple[float, ...] | None = None
     initial_bias: float = 0.0
+    clusters: int | None = None
+    iterations: int | None = None
+    seed: int = 0
 
 
 @dataclass(frozen=True)
@@ -27,8 +30,19 @@ class ClassificationDataset:
 
 
 @dataclass(frozen=True)
+class ClusteringDataset:
+    points: NDArray
+    name: str = "in-memory-clustering"
+
+
+@dataclass(frozen=True)
 class RegressionMetrics:
     mean_squared_error: float
+
+
+@dataclass(frozen=True)
+class ClusteringMetrics:
+    inertia: float
 
 
 @dataclass(frozen=True)
@@ -36,19 +50,24 @@ class TrainingMetrics:
     mean_squared_error: float | None = None
     binary_cross_entropy: float | None = None
     accuracy: float | None = None
+    inertia: float | None = None
 
 
 @dataclass(frozen=True)
 class TrainingState:
     """Immutable model snapshot, including the pre-update state at step zero."""
     step: int
-    weights: tuple[float, ...]
-    bias: float
-    loss: float
-    gradients: tuple[float, ...]
-    bias_gradient: float | None
-    predictions: tuple[float, ...]
-    metrics: TrainingMetrics | RegressionMetrics
+    weights: tuple[float, ...] = ()
+    bias: float = 0.0
+    loss: float = 0.0
+    gradients: tuple[float, ...] = ()
+    bias_gradient: float | None = None
+    predictions: tuple[float, ...] = ()
+    metrics: TrainingMetrics | RegressionMetrics | ClusteringMetrics = TrainingMetrics()
+    centroids: tuple[tuple[float, float], ...] | None = None
+    cluster_assignments: tuple[int, ...] | None = None
+    inertia: float | None = None
+    centroid_movement: tuple[float, ...] | None = None
 
 
 @dataclass(frozen=True)

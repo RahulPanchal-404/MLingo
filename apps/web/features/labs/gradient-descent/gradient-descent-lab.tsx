@@ -16,6 +16,9 @@ import { getRunYDomain, RegressionPlot } from "@/features/labs/gradient-descent/
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { getFrameChanges } from "@/features/timeline/frame-changes";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
+import { MarkerForm } from "@/features/timeline/marker-form";
+import { generateTrainingInsights } from "@/features/insights/engine";
+import { TrainingInsights } from "@/features/insights/training-insights";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
@@ -55,6 +58,7 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
       const regressionYDomain = useMemo(() => breakMode && run ? getRunYDomain(run.dataset_points, run.history) : undefined, [breakMode, run]);
       const frameChanges = getFrameChanges(run?.history ?? [], timeline.currentStep);
       const diagnostics = useMemo(() => run ? analyzeTrainingRun(run) : [], [run]);
+      const insights = useMemo(() => run ? generateTrainingInsights(run, diagnostics) : [], [run, diagnostics]);
       const eventMarkers = useMemo(() => breakMode ? [] : diagnosticEventsToTimelineMarkers(diagnostics), [breakMode, diagnostics]);
       const markers = [...eventMarkers, ...userMarkers];
 
@@ -132,6 +136,7 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                               </section>
                               <section className="learning-modes-grid" aria-label="Selected frame learning modes"><MathMode learningRate={run.training.learning_rate} state={state} /><CodeMode learningRate={run.training.learning_rate} state={state} /></section>
                               {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />}
+                              {!breakMode && <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />}
                               {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
                               <TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} />
                         </>
@@ -155,8 +160,4 @@ function formatNumber(value: number | null | undefined): string {
 
 function formatDelta(value: number): string {
       return `${value >= 0 ? "+" : ""}${formatNumber(value)}`;
-}
-
-function MarkerForm({ step, title, description, onTitleChange, onDescriptionChange, onSave, onCancel }: { step: number; title: string; description: string; onTitleChange: (value: string) => void; onDescriptionChange: (value: string) => void; onSave: (event: FormEvent<HTMLFormElement>) => void; onCancel: () => void }) {
-      return <section aria-label="Add timeline marker" className="marker-form"><div><p className="eyebrow">Frame {step}</p><h2>Add marker</h2></div><form onSubmit={onSave}><label>Title<input autoFocus onChange={(event) => onTitleChange(event.target.value)} required value={title} /></label><label>Description <span>(optional)</span><textarea onChange={(event) => onDescriptionChange(event.target.value)} value={description} /></label><div className="marker-form-actions"><button onClick={onCancel} type="button">Cancel</button><button className="primary-button" type="submit">Save marker</button></div></form></section>;
 }

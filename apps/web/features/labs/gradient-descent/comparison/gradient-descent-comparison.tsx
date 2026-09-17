@@ -6,6 +6,8 @@ import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { ComparisonRunPanel } from "@/features/labs/gradient-descent/comparison-run-panel";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { createRunComparison } from "@/features/comparison/types";
+import { generateComparisonInsights } from "@/features/insights/engine";
+import { ComparisonInsights } from "@/features/insights/comparison-insights";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { diagnosticEventsToTimelineMarkers } from "@/features/timeline/event-markers";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
@@ -36,6 +38,7 @@ export function GradientDescentComparison() {
       const [markerTitle, setMarkerTitle] = useState("");
       const [markerDescription, setMarkerDescription] = useState("");
       const comparison = useMemo(() => runA && runB ? createRunComparison(runA, runB) : null, [runA, runB]);
+      const comparisonInsights = useMemo(() => runA && runB ? generateComparisonInsights(runA, runB) : [], [runA, runB]);
       const timeline = useTrainingTimeline(runA, comparison?.sharedStepCount);
       const stateA = timeline.selectedTrainingState;
       const stateB = comparison?.runB.history[timeline.currentStep] ?? null;
@@ -110,6 +113,7 @@ export function GradientDescentComparison() {
                                     <ComparisonRunPanel currentStep={timeline.currentStep} label="Run B" run={comparison.runB} state={stateB} />
                               </section>
                               <DifferencePanel stateA={stateA} stateB={stateB} />
+                              <ComparisonInsights insights={comparisonInsights} />
                               {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
                               <TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={comparison.sharedStepCount} />
                         </>

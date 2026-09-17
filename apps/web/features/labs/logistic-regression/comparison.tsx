@@ -1,26 +1,232 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { ClassificationPlot } from "@/features/labs/logistic-regression/classification-plot";
+import { ComparisonInsights } from "@/features/insights/comparison-insights";
+import { generateComparisonInsights } from "@/features/insights/engine";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
-const baseRequest: TrainingRunRequest = { algorithm: "logistic_regression", dataset: { samples: 64, noise: 0.1, seed: 0 }, training: { learning_rate: 0.1, epochs: 50, initial_weight: 0, initial_bias: 0 } };
+const baseRequest: TrainingRunRequest = {
+  algorithm: "logistic_regression",
+  dataset: { samples: 64, noise: 0.1, seed: 0 },
+  training: { learning_rate: 0.1, epochs: 50, initial_weight: 0, initial_bias: 0 },
+};
 
 export function LogisticComparison() {
-      const [runA, setRunA] = useState<TrainingRun | null>(null); const [runB, setRunB] = useState<TrainingRun | null>(null); const [learningRateA, setLearningRateA] = useState(0.1); const [learningRateB, setLearningRateB] = useState(0.5); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
-      const timeline = useTrainingTimeline(runA, runA && runB ? Math.min(runA.history.length, runB.history.length) : undefined);
-      const stateA = timeline.selectedTrainingState; const stateB = runB?.history[timeline.currentStep] ?? null;
-      const trainComparison = useCallback(async (rateA: number, rateB: number) => { setLoading(true); setError(null); try { const [nextA, nextB] = await Promise.all([createTrainingRun(makeRequest(rateA)), createTrainingRun(makeRequest(rateB))]); setRunA(nextA); setRunB(nextB); } catch (caught) { setError(caught instanceof Error ? caught.message : "The comparison could not be trained."); } finally { setLoading(false); } }, []);
-      useEffect(() => { const timer = window.setTimeout(() => void trainComparison(0.1, 0.5), 0); return () => window.clearTimeout(timer); }, [trainComparison]);
-      const run = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); void trainComparison(learningRateA, learningRateB); };
-      return <div className="lab-layout"><section className="lab-intro"><div className="lab-intro-copy"><p className="eyebrow">Lab 04 / shared classification review</p><h1>Two classifiers. One clock.</h1><p>Compare how different learning rates move the same logistic decision boundary.</p></div><form className="training-form" onSubmit={run}><div className="form-heading"><div><p className="eyebrow">Comparison setup</p><h2>Learning rates</h2></div><span className="run-status">{loading ? "Recording" : runA && runB ? "Ready" : "Waiting"}</span></div><NumberControl label="Run A learning rate" value={learningRateA} onChange={setLearningRateA} /><NumberControl label="Run B learning rate" value={learningRateB} onChange={setLearningRateB} /><button className="primary-button run-button" disabled={loading} type="submit">{loading ? "Training comparison..." : "Train comparison"}</button></form></section>{error && <section className="lab-alert" role="alert">{error}</section>}{!loading && runA && runB && <><div className="comparison-context"><strong>Shared step: {timeline.currentStep}</strong><span>Shared range: 0-{Math.max(Math.min(runA.history.length, runB.history.length) - 1, 0)}</span></div><section className="comparison-grid"><ComparisonPanel label="Run A" run={runA} state={stateA} currentStep={timeline.currentStep} /><ComparisonPanel label="Run B" run={runB} state={stateB} currentStep={timeline.currentStep} /></section><TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={[]} onAddMarker={() => undefined} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={() => undefined} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} /></>}</div>;
+  const [runA, setRunA] = useState<TrainingRun | null>(null);
+  const [runB, setRunB] = useState<TrainingRun | null>(null);
+  const [learningRateA, setLearningRateA] = useState(0.1);
+  const [learningRateB, setLearningRateB] = useState(0.5);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const sharedTotal = runA && runB ? Math.min(runA.history.length, runB.history.length) : undefined;
+  const timeline = useTrainingTimeline(runA, sharedTotal);
+  const stateA = timeline.selectedTrainingState;
+  const stateB = runB?.history[timeline.currentStep] ?? null;
+
+  const comparisonInsights = useMemo(
+    () => (runA && runB ? generateComparisonInsights(runA, runB) : []),
+    [runA, runB]
+  );
+
+  const trainComparison = useCallback(async (rateA: number, rateB: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [nextA, nextB] = await Promise.all([
+        createTrainingRun(makeRequest(rateA)),
+        createTrainingRun(makeRequest(rateB)),
+      ]);
+      setRunA(nextA);
+      setRunB(nextB);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The comparison could not be trained.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void trainComparison(0.1, 0.5), 0);
+    return () => window.clearTimeout(timer);
+  }, [trainComparison]);
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void trainComparison(learningRateA, learningRateB);
+  };
+
+  return (
+    <div className="lab-layout comparison-lab">
+      <section className="lab-intro comparison-intro">
+        <div className="lab-intro-copy">
+          <p className="eyebrow">Lab 02 / shared classification review</p>
+          <h1>Two classifiers. One clock.</h1>
+          <p>Compare how different learning rates move the same logistic decision boundary.</p>
+        </div>
+        <form className="comparison-form" onSubmit={submit}>
+          <div className="form-heading">
+            <div>
+              <p className="eyebrow">Comparison setup</p>
+              <h2>Learning rates</h2>
+            </div>
+            <span className="run-status">{loading ? "Recording" : runA && runB ? "Ready" : "Waiting"}</span>
+          </div>
+          <NumberControl label="Run A learning rate" value={learningRateA} onChange={setLearningRateA} />
+          <NumberControl label="Run B learning rate" value={learningRateB} onChange={setLearningRateB} />
+          <button className="primary-button run-button" disabled={loading} type="submit">
+            {loading ? "Training comparison..." : "Train comparison"}
+          </button>
+        </form>
+      </section>
+
+      {error && <section className="lab-alert" role="alert">{error}</section>}
+
+      {!loading && runA && runB && (
+        <>
+          <div className="comparison-context">
+            <strong>Shared step: {timeline.currentStep}</strong>
+            <span>Shared range: 0-{Math.max((sharedTotal ?? 1) - 1, 0)}</span>
+          </div>
+          <section className="comparison-grid" aria-label="Classifier comparison">
+            <ComparisonPanel label="Run A" run={runA} state={stateA} currentStep={timeline.currentStep} />
+            <ComparisonPanel label="Run B" run={runB} state={stateB} currentStep={timeline.currentStep} />
+          </section>
+          <LogisticDifferencePanel stateA={stateA} stateB={stateB} />
+          <ComparisonInsights insights={comparisonInsights} />
+          <TimelineControls
+            currentStep={timeline.currentStep}
+            isPlaying={timeline.isPlaying}
+            markers={[]}
+            onAddMarker={() => undefined}
+            onBackward={timeline.stepBackward}
+            onForward={timeline.stepForward}
+            onJump={timeline.jumpToStep}
+            onPlayToggle={timeline.togglePlay}
+            onRemoveMarker={() => undefined}
+            onReset={timeline.reset}
+            onSpeed={timeline.setPlaybackSpeed}
+            playbackSpeed={timeline.playbackSpeed}
+            reducedMotion={timeline.reducedMotion}
+            totalSteps={timeline.totalSteps}
+          />
+        </>
+      )}
+    </div>
+  );
 }
 
-function makeRequest(learningRate: number): TrainingRunRequest { return { ...baseRequest, training: { ...baseRequest.training, learning_rate: learningRate } }; }
-function NumberControl({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) { return <label className="number-control"><span>{label}</span><input max="2" min="0.001" onChange={(event) => onChange(Number(event.target.value))} required step="0.001" type="number" value={value} /></label>; }
-function ComparisonPanel({ label, run, state, currentStep }: { label: string; run: TrainingRun; state: TrainingRun["history"][number] | null; currentStep: number }) { return <section className="comparison-run-panel"><div className="comparison-run-heading"><div><p className="eyebrow">{label}</p><h2>Logistic regression</h2></div><span>{run.history.length} frames</span></div><div className="comparison-charts"><ClassificationPlot points={run.dataset_points} state={state} /><LossChart currentStep={currentStep} history={run.history} label="Binary Cross-Entropy" /></div><div className="comparison-state"><h3>{state ? `Step ${state.step}` : "No state available"}</h3>{state && <dl className="comparison-metrics"><div><dt>Accuracy</dt><dd>{state.metrics.accuracy?.toLocaleString(undefined, { maximumFractionDigits: 5 }) ?? "N/A"}</dd></div><div><dt>BCE</dt><dd>{state.loss.toLocaleString(undefined, { maximumFractionDigits: 5 })}</dd></div></dl>}</div></section>; }
+function makeRequest(learningRate: number): TrainingRunRequest {
+  return { ...baseRequest, training: { ...baseRequest.training, learning_rate: learningRate } };
+}
+
+function NumberControl({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  return (
+    <label className="number-control">
+      <span>{label}</span>
+      <input
+        max="2"
+        min="0.001"
+        onChange={(event) => onChange(Number(event.target.value))}
+        required
+        step="0.001"
+        type="number"
+        value={value}
+      />
+    </label>
+  );
+}
+
+function ComparisonPanel({
+  label,
+  run,
+  state,
+  currentStep,
+}: {
+  label: string;
+  run: TrainingRun;
+  state: TrainingRun["history"][number] | null;
+  currentStep: number;
+}) {
+  return (
+    <section className="comparison-run-panel">
+      <div className="comparison-run-heading">
+        <div>
+          <p className="eyebrow">{label}</p>
+          <h2>Logistic regression (α = {run.training.learning_rate})</h2>
+        </div>
+        <span>{run.history.length} frames</span>
+      </div>
+      <div className="comparison-charts">
+        <ClassificationPlot points={run.dataset_points} state={state} />
+        <LossChart currentStep={currentStep} history={run.history} label="Binary Cross-Entropy" />
+      </div>
+      <div className="comparison-state">
+        <h3>{state ? `Step ${state.step}` : "No state available"}</h3>
+        {state && (
+          <dl className="comparison-metrics">
+            <div>
+              <dt>Accuracy</dt>
+              <dd>{state.metrics.accuracy !== null && state.metrics.accuracy !== undefined ? `${Math.round(state.metrics.accuracy * 100)}%` : "N/A"}</dd>
+            </div>
+            <div>
+              <dt>BCE</dt>
+              <dd>{state.loss.toLocaleString(undefined, { maximumFractionDigits: 5 })}</dd>
+            </div>
+          </dl>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function LogisticDifferencePanel({
+  stateA,
+  stateB,
+}: {
+  stateA: TrainingRun["history"][number] | null;
+  stateB: TrainingRun["history"][number] | null;
+}) {
+  return (
+    <section className="difference-panel" aria-label="Metric differences">
+      <div>
+        <p className="eyebrow">Run B - Run A</p>
+        <h2>Current differences</h2>
+      </div>
+      {stateA && stateB ? (
+        <dl>
+          <Difference
+            label="Accuracy difference"
+            value={((stateB.metrics.accuracy ?? 0) - (stateA.metrics.accuracy ?? 0)) * 100}
+            unit="%"
+          />
+          <Difference label="BCE difference" value={stateB.loss - stateA.loss} />
+          <Difference label="Weight 1 difference" value={(stateB.weights[0] ?? 0) - (stateA.weights[0] ?? 0)} />
+          <Difference label="Weight 2 difference" value={(stateB.weights[1] ?? 0) - (stateA.weights[1] ?? 0)} />
+          <Difference label="Bias difference" value={stateB.bias - stateA.bias} />
+        </dl>
+      ) : (
+        <p className="empty-state">Both runs need a selected state to compare.</p>
+      )}
+    </section>
+  );
+}
+
+function Difference({ label, value, unit = "" }: { label: string; value: number; unit?: string }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd className={value < 0 ? "difference-lower" : value > 0 ? "difference-higher" : ""}>
+        {value >= 0 ? "+" : ""}
+        {value.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+        {unit}
+      </dd>
+    </div>
+  );
+}

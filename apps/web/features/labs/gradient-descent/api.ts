@@ -2,12 +2,17 @@ import { apiBaseUrl } from "@/lib/api";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
 export async function createTrainingRun(request: TrainingRunRequest): Promise<TrainingRun> {
-  const response = await fetch(`${apiBaseUrl}/training-runs`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request),
-    signal: AbortSignal.timeout(15_000),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/training-runs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch {
+    throw new Error(`Could not connect to the MLingo API at ${apiBaseUrl}. Please ensure the backend service is running.`);
+  }
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const detail = isRecord(body) && typeof body.detail === "string" ? body.detail : "Check the settings and try again.";

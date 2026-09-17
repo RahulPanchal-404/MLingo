@@ -99,3 +99,23 @@ def test_logistic_training_rejects_single_sample_dataset() -> None:
     }
 
     assert client.post("/api/v1/training-runs", json=payload).status_code == 422
+
+
+def test_kmeans_training_run_returns_cluster_history() -> None:
+    payload = {
+        "algorithm": "kmeans",
+        "dataset": {"samples": 30, "noise": 0.1, "seed": 3},
+        "training": {"clusters": 3, "iterations": 6, "seed": 0},
+    }
+
+    response = client.post("/api/v1/training-runs", json=payload)
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["algorithm"] == "kmeans"
+    assert len(body["dataset_points"]) == 30
+    assert len(body["history"]) == 7
+    assert body["history"][0]["step"] == 0
+    assert body["history"][0]["inertia"] >= 0
+    assert body["history"][0]["centroids"]
+    assert body["history"][-1]["cluster_assignments"]

@@ -2,11 +2,12 @@ from uuid import uuid4
 
 import numpy as np
 
+from app.ml.algorithms.kmeans import assign_clusters, inertia, initialize_centroids, update_centroids
 from app.ml.algorithms.linear_regression import predict
 from app.ml.algorithms.logistic_regression import binary_cross_entropy, predict_proba
 from app.ml.metrics.regression import mean_squared_error
 from app.ml.training.gradient_descent import gradients
-from app.ml.training.types import ClassificationDataset, RegressionDataset, RegressionMetrics, TrainingConfig, TrainingMetrics, TrainingRun, TrainingState
+from app.ml.training.types import ClusteringDataset, ClusteringMetrics, ClassificationDataset, RegressionDataset, RegressionMetrics, TrainingConfig, TrainingMetrics, TrainingRun, TrainingState
 
 
 def train_linear_regression(dataset: RegressionDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:
@@ -70,6 +71,57 @@ def train_logistic_regression(dataset: ClassificationDataset, configuration: Tra
     return TrainingRun(run_id or str(uuid4()), "logistic_regression.gradient_descent", dataset.name, configuration, configuration.epochs, tuple(history), tuple(state.step for state in history), {"feature_count": str(feature_count), "sample_count": str(dataset.features.shape[0])})
 
 
+def train_kmeans(dataset: ClusteringDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:
+    cluster_count = configuration.clusters or 3
+    iteration_count = configuration.iterations or configuration.epochs or 1
+    _validate_kmeans_inputs(dataset, configuration, cluster_count=cluster_count, iteration_count=iteration_count)
+    points = np.asarray(dataset.points, dtype=np.float64)
+    centroids = initialize_centroids(points, clusters=cluster_count, seed=configuration.seed)
+    history: list[TrainingState] = []
+    initial_assignments = assign_clusters(points, centroids)
+    initial_inertia = inertia(points, centroids, initial_assignments)
+    history.append(
+        TrainingState(
+            0,
+            (),
+            0.0,
+            float(initial_inertia),
+            (),
+            None,
+            (),
+            ClusteringMetrics(float(initial_inertia)),
+            tuple(tuple(float(value) for value in row) for row in centroids),
+            tuple(int(index) for index in initial_assignments),
+            float(initial_inertia),
+            None,
+        )
+    )
+    for step in range(1, iteration_count + 1):
+        previous_centroids = centroids.copy()
+        centroids = update_centroids(points, initial_assignments, centroids)
+        next_assignments = assign_clusters(points, centroids)
+        current_inertia = inertia(points, centroids, next_assignments)
+        centroid_movement = tuple(float(value) for value in np.linalg.norm(centroids - previous_centroids, axis=1))
+        history.append(
+            TrainingState(
+                step,
+                (),
+                0.0,
+                float(current_inertia),
+                (),
+                None,
+                (),
+                ClusteringMetrics(float(current_inertia)),
+                tuple(tuple(float(value) for value in row) for row in centroids),
+                tuple(int(index) for index in next_assignments),
+                float(current_inertia),
+                centroid_movement,
+            )
+        )
+        initial_assignments = next_assignments
+    return TrainingRun(run_id or str(uuid4()), "kmeans", dataset.name, configuration, iteration_count, tuple(history), tuple(state.step for state in history), {"cluster_count": str(cluster_count), "sample_count": str(points.shape[0])})
+
+
 def _validate_inputs(dataset: RegressionDataset, configuration: TrainingConfig) -> None:
     if dataset.features.ndim != 2 or dataset.features.shape[0] == 0 or dataset.features.shape[1] == 0:
         raise ValueError("features must be a non-empty two-dimensional matrix")
@@ -81,3 +133,14 @@ def _validate_inputs(dataset: RegressionDataset, configuration: TrainingConfig) 
         raise ValueError("learning_rate must be greater than zero")
     if configuration.initial_weights is not None and len(configuration.initial_weights) != dataset.features.shape[1]:
         raise ValueError("initial_weights must match the number of features")
+
+
+def _validate_kmeans_inputs(dataset: ClusteringDataset, configuration: TrainingConfig, *, cluster_count: int | None = None, iteration_count: int | None = None) -> None:
+    if dataset.points.ndim != 2 or dataset.points.shape[0] == 0 or dataset.points.shape[1] == 0:
+        raise ValueError("points must be a non-empty two-dimensional matrix")
+    if cluster_count is None or cluster_count <= 0:
+        raise ValueError("clusters must be greater than zero")
+    if iteration_count is None or iteration_count <= 0:
+        raise ValueError("iterations must be greater than zero")
+    if cluster_count > dataset.points.shape[0]:
+        raise ValueError("clusters cannot exceed the number of points")

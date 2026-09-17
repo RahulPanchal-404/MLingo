@@ -453,6 +453,115 @@ button:disabled {
   padding: 0.7rem 0.75rem 0.8rem 3rem;
 }
 
+.training-insights-panel,
+.comparison-insights-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.insights-list {
+  display: grid;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.insight-card {
+  border: 1px solid #e2e8f0;
+  border-left: 0.25rem solid #0f766e;
+  border-radius: 0.45rem;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: all 150ms ease;
+}
+
+.insight-card:hover {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+}
+
+.insight-card.insight-dynamics {
+  border-left-color: #f97316;
+}
+
+.insight-card.insight-convergence {
+  border-left-color: #16a34a;
+}
+
+.insight-card.insight-accuracy {
+  border-left-color: #0284c7;
+}
+
+.insight-card.insight-clustering {
+  border-left-color: #8b5cf6;
+}
+
+.insight-card.comparison-card {
+  border-left-color: #0f766e;
+}
+
+.insight-action-button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: block;
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  width: 100%;
+}
+
+.insight-action-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.static-insight {
+  padding: 0.75rem 0.9rem;
+}
+
+.insight-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.insight-title {
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.insight-step-badge {
+  background: #e6fffa;
+  border: 1px solid #99f6e4;
+  border-radius: 0.25rem;
+  color: #0f766e;
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+}
+
+.insight-desc {
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.insight-disclaimer {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
 .learning-modes-grid {
   display: grid;
   gap: 1rem;
@@ -1603,8 +1712,25 @@ button:disabled {
     align-items: start;
   }
 
+  .training-form,
+  .experiment-form,
+  .comparison-form {
+    grid-template-columns: 1fr;
+  }
+
+  .visual-grid,
+  .comparison-grid,
+  .learning-modes-grid {
+    grid-template-columns: 1fr;
+  }
+
   .state-panel {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .state-panel dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .timeline-heading {

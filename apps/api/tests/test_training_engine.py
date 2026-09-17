@@ -3,9 +3,10 @@ import pytest
 
 from app.ml.algorithms.logistic_regression import binary_cross_entropy, sigmoid
 from app.ml.datasets.classification import make_logistic_regression_dataset
+from app.ml.datasets.clustering import make_kmeans_dataset
 from app.ml.datasets.synthetic import make_linear_regression_dataset
-from app.ml.training.trainer import train_linear_regression, train_logistic_regression
-from app.ml.training.types import ClassificationDataset, RegressionDataset, TrainingConfig
+from app.ml.training.trainer import train_kmeans, train_linear_regression, train_logistic_regression
+from app.ml.training.types import ClassificationDataset, ClusteringDataset, RegressionDataset, TrainingConfig, TrainingState
 
 
 def _dataset(*, slope: float = 3.0, intercept: float = -1.0) -> RegressionDataset:
@@ -137,3 +138,27 @@ def test_logistic_training_records_pre_update_state_and_improves_loss() -> None:
     assert run.history[-1].metrics.accuracy is not None
     assert run.history[-1].metrics.accuracy > 0.95
     assert len(run.history[-1].predictions) == 64
+
+
+def test_kmeans_dataset_is_deterministic_and_has_clustered_points() -> None:
+    first = make_kmeans_dataset(samples=60, noise=0.1, seed=7, clusters=3)
+    second = make_kmeans_dataset(samples=60, noise=0.1, seed=7, clusters=3)
+
+    assert np.array_equal(first.points, second.points)
+    assert first.points.shape == (60, 2)
+    assert np.all(np.isfinite(first.points))
+    assert len(np.unique(np.round(first.points, 2), axis=0)) > 5
+
+
+def test_kmeans_training_records_initial_state_and_converges() -> None:
+    dataset = ClusteringDataset(points=make_kmeans_dataset(samples=60, noise=0.1, seed=7, clusters=3).points, name="clustered-demo")
+    run = train_kmeans(dataset, TrainingConfig(learning_rate=0.0, epochs=12, initial_weights=(0.0, 0.0), initial_bias=0.0), run_id="kmeans-run")
+
+    assert len(run.history) == 13
+    assert run.history[0].step == 0
+    assert run.history[0].centroids is not None
+    assert run.history[0].cluster_assignments is not None
+    assert run.history[-1].inertia <= run.history[0].inertia
+    assert run.history[-1].centroids is not None
+    assert len(run.history[-1].centroids) == 3
+    assert len(run.history[-1].cluster_assignments) == 60

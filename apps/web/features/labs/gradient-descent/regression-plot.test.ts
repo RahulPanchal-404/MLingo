@@ -29,9 +29,9 @@ describe("getDatasetYDomain", () => {
       it("keeps supplied domain and dataset point coordinates stable across states", () => {
             const points: DatasetPoint[] = [{ feature: -1, target: -1 }, { feature: 1, target: 3 }];
             const domain = getRunYDomain(points, [makeState(0, 0, 0), makeState(1, 4, 1)]);
-            const pointCoordinate = getPlotYCoordinate(points[0].target, domain);
+            const pointCoordinate = getPlotYCoordinate(Number(points[0].target), domain);
 
-            expect(getPlotYCoordinate(points[0].target, domain)).toBe(pointCoordinate);
+            expect(getPlotYCoordinate(Number(points[0].target), domain)).toBe(pointCoordinate);
             expect(getRunYDomain(points, [makeState(0, 0, 0), makeState(1, 4, 1)])).toEqual(domain);
       });
 

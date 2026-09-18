@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { TrainingRun } from "@/types/training-run";
 import { readLearningActivity, recordLearningActivity } from "@/features/progress/activity";
 import {
@@ -9,6 +9,7 @@ import {
   formatExperimentMetric,
   getSavedExperiments,
 } from "./experiment-storage";
+import { compareSavedExperiments } from "./explorer/sweep-engine";
 import type { ExperimentRecord } from "./types";
 
 export type MyExperimentsListProps = {
@@ -19,6 +20,7 @@ export type MyExperimentsListProps = {
 export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsListProps) {
   const [experiments, setExperiments] = useState<ExperimentRecord[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     const update = () => setExperiments(getSavedExperiments());
@@ -55,17 +57,47 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
   const handleDelete = (id: string) => {
     deleteExperiment(id);
     setConfirmDeleteId(null);
+    setSelectedIds((prev) => prev.filter((item) => item !== id));
   };
 
-  const getComparisonHref = (record: ExperimentRecord) => {
-    const algo = record.algorithm.toLowerCase();
+  const handleToggleSelect = (record: ExperimentRecord) => {
+    setSelectedIds((prev) => {
+      if (prev.includes(record.id)) {
+        return prev.filter((id) => id !== record.id);
+      }
+      // If previous selections exist from a different algorithm, reset selection to this algorithm
+      const existingSelected = experiments.filter((e) => prev.includes(e.id));
+      if (existingSelected.length > 0 && existingSelected[0].algorithm !== record.algorithm) {
+        return [record.id];
+      }
+      return [...prev, record.id];
+    });
+  };
+
+  const selectedRecords = useMemo(() => {
+    return experiments.filter((e) => selectedIds.includes(e.id));
+  }, [experiments, selectedIds]);
+
+  const analysis = useMemo(() => {
+    if (selectedRecords.length < 2) return null;
+    return compareSavedExperiments(selectedRecords);
+  }, [selectedRecords]);
+
+  const getComparisonHref = (recordA: ExperimentRecord, recordB?: ExperimentRecord) => {
+    const algo = recordA.algorithm.toLowerCase();
+    let path = "/labs/gradient-descent/compare";
     if (algo.startsWith("logistic")) {
-      return `/labs/logistic-regression/compare?loadA=${encodeURIComponent(record.id)}`;
+      path = "/labs/logistic-regression/compare";
+    } else if (algo.startsWith("kmeans")) {
+      path = "/labs/k-means/compare";
     }
-    if (algo.startsWith("kmeans")) {
-      return `/labs/k-means/compare?loadA=${encodeURIComponent(record.id)}`;
+
+    const params = new URLSearchParams();
+    params.set("loadA", recordA.id);
+    if (recordB) {
+      params.set("loadB", recordB.id);
     }
-    return `/labs/gradient-descent/compare?loadA=${encodeURIComponent(record.id)}`;
+    return `${path}?${params.toString()}`;
   };
 
   const formatDateTime = (iso: string) => {
@@ -104,16 +136,83 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
             Replay recorded training runs frame by frame or compare configurations without re-running models on the backend.
           </p>
         </div>
-        <span className="experiments-count-badge">
-          {experiments.length} saved {experiments.length === 1 ? "run" : "runs"}
-        </span>
+        <div className="experiments-heading-badges">
+          <span className="experiments-count-badge">
+            {experiments.length} saved {experiments.length === 1 ? "run" : "runs"}
+          </span>
+          {selectedIds.length > 0 && (
+            <button
+              className="secondary-button clear-selection-btn"
+              type="button"
+              onClick={() => setSelectedIds([])}
+            >
+              Clear selection ({selectedIds.length})
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Factual Multi-Run Comparative Analysis Panel */}
+      {analysis && (
+        <section className="saved-runs-analysis-panel" aria-label="Selected runs analysis">
+          <div className="analysis-panel-header">
+            <div>
+              <span className="eyebrow">Comparative Analysis</span>
+              <h3>Comparing {selectedRecords.length} Saved {analysis.algorithm} Runs</h3>
+            </div>
+            {selectedRecords.length >= 2 && (
+              <Link
+                className="primary-button compare-selected-btn"
+                href={getComparisonHref(selectedRecords[0], selectedRecords[1])}
+              >
+                Open in A/B Comparison Lab →
+              </Link>
+            )}
+          </div>
+
+          <div className="analysis-grid">
+            <div className="analysis-card">
+              <h4>Configuration Differences</h4>
+              <ul>
+                {analysis.differences.map((diff, idx) => (
+                  <li key={idx}>{diff}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="analysis-card">
+              <h4>Final Metric Results</h4>
+              <ul>
+                {analysis.metricComparison.map((m, idx) => (
+                  <li key={idx}>{m}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="analysis-card">
+              <h4>Diagnostic Trajectories</h4>
+              <ul>
+                {analysis.diagnosticNotes.map((d, idx) => (
+                  <li key={idx}>{d}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {analysis.insights.length > 0 && (
+            <div className="analysis-observations">
+              <strong>Factual Observations: </strong>
+              <span>{analysis.insights.join(" ")}</span>
+            </div>
+          )}
+        </section>
+      )}
 
       {experiments.length === 0 ? (
         <div className="empty-state-box">
           <p>No saved experiments in this browser yet.</p>
           <small>
-            Run an experiment above or complete a run in any of the three labs, then click &quot;Save experiment&quot; to inspect or compare it anytime.
+            Run an experiment above, execute a parameter sweep, or complete a run in any of the three labs, then click &quot;Save experiment&quot; to inspect or compare it anytime.
           </small>
         </div>
       ) : (
@@ -121,20 +220,30 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
           {experiments.map((record) => {
             const metric = formatExperimentMetric(record);
             const isCurrentlyActive = activeRunId === record.run.id;
+            const isSelected = selectedIds.includes(record.id);
 
             return (
               <article
                 key={record.id}
-                className={`experiment-card ${isCurrentlyActive ? "active-experiment-card" : ""}`}
+                className={`experiment-card ${isCurrentlyActive ? "active-experiment-card" : ""} ${isSelected ? "selected-experiment-card" : ""}`}
               >
                 <div className="experiment-card-top">
-                  <div className="card-title-group">
-                    <span className="algo-badge">{record.algorithm}</span>
-                    <h3 className="experiment-card-title">{record.title}</h3>
+                  <div className="card-selection-header">
+                    <label className="select-run-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelect(record)}
+                        aria-label={`Select ${record.title} for comparison`}
+                      />
+                      <span className="checkbox-custom" />
+                      <span className="algo-badge">{record.algorithm}</span>
+                    </label>
+                    <time className="experiment-date" dateTime={record.createdAt}>
+                      {formatDateTime(record.createdAt)}
+                    </time>
                   </div>
-                  <time className="experiment-date" dateTime={record.createdAt}>
-                    {formatDateTime(record.createdAt)}
-                  </time>
+                  <h3 className="experiment-card-title">{record.title}</h3>
                 </div>
 
                 <p className="experiment-config-line">{formatKeyConfig(record)}</p>
@@ -185,7 +294,7 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
                         onClick={() => handleDelete(record.id)}
                         type="button"
                       >
-                        Confirm Delete
+                        Confirm
                       </button>
                       <button
                         className="secondary-button card-action-btn"

@@ -23,7 +23,9 @@ import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import { ModelXRay } from "@/features/x-ray/model-x-ray";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
+import { setLabHandoffRun } from "@/features/experiments/experiment-storage";
 import { MyExperimentsList } from "@/features/experiments/my-experiments-list";
+import { ExperimentExplorer } from "@/features/experiments/explorer/experiment-explorer";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
 const defaultRequest: TrainingRunRequest = {
@@ -123,7 +125,7 @@ export function ExperimentWorkspace() {
         <div className="experiment-form-heading">
           <div>
             <p className="eyebrow">Algorithm-aware workspace</p>
-            <h2>Training configuration</h2>
+            <h2>Single run configuration</h2>
           </div>
           <span>{loading ? "Running" : "Ready"}</span>
         </div>
@@ -227,6 +229,20 @@ export function ExperimentWorkspace() {
             </div>
             <div className="recorded-heading-actions">
               <SaveExperimentButton run={run} />
+              <Link
+                className="secondary-button lab-handoff-link"
+                href={
+                  run.algorithm.startsWith("logistic")
+                    ? "/labs/logistic-regression"
+                    : run.algorithm === "kmeans"
+                    ? "/labs/k-means"
+                    : "/labs/gradient-descent"
+                }
+                onClick={() => setLabHandoffRun(run)}
+                title="Open this recorded run in the algorithm lab without re-running training"
+              >
+                Open in Lab →
+              </Link>
               <span>{run.total_steps} steps</span>
             </div>
           </div>
@@ -313,6 +329,14 @@ export function ExperimentWorkspace() {
           />
         </section>
       )}
+
+      <ExperimentExplorer
+        onInspectRun={(inspectedRun) => {
+          setRun(inspectedRun);
+          timeline.jumpToStep(0);
+        }}
+        inspectedRunId={run?.id}
+      />
 
       <MyExperimentsList
         activeRunId={run?.id}

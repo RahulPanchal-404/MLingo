@@ -59,13 +59,21 @@ export function LogisticComparison() {
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
         const loadAId = params.get("loadA") || params.get("experimentId");
-        if (loadAId) {
-          const saved = getSavedExperimentById(loadAId);
-          if (saved) {
-            setLearningRateA(saved.run.training.learning_rate);
-            void trainComparison(saved.run.training.learning_rate, 0.5, saved.run);
-            return;
-          }
+        const loadBId = params.get("loadB");
+        const savedA = loadAId ? getSavedExperimentById(loadAId) : null;
+        const savedB = loadBId ? getSavedExperimentById(loadBId) : null;
+
+        if (savedA && savedB) {
+          setLearningRateA(savedA.run.training.learning_rate);
+          setLearningRateB(savedB.run.training.learning_rate);
+          void trainComparison(savedA.run.training.learning_rate, savedB.run.training.learning_rate, savedA.run, savedB.run);
+          return;
+        }
+
+        if (savedA) {
+          setLearningRateA(savedA.run.training.learning_rate);
+          void trainComparison(savedA.run.training.learning_rate, 0.5, savedA.run);
+          return;
         }
       }
       void trainComparison(0.1, 0.5);

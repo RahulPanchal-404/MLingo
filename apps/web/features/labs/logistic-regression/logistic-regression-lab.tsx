@@ -20,6 +20,7 @@ import { generateTrainingInsights } from "@/features/insights/engine";
 import { TrainingInsights } from "@/features/insights/training-insights";
 import { ModelXRay } from "@/features/x-ray/model-x-ray";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
+import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import type { TimelineMarker } from "@/features/timeline/types";
 
 const defaultRequest: TrainingRunRequest = { algorithm: "logistic_regression", dataset: { samples: 64, noise: 0.1, seed: 0 }, training: { learning_rate: 0.2, epochs: 50, initial_weight: 0, initial_bias: 0 } };
@@ -45,7 +46,19 @@ export function LogisticRegressionLab() {
             try { setRun(await createTrainingRun(nextRequest)); } catch (caught) { setError(caught instanceof Error ? caught.message : "Training could not start."); } finally { setLoading(false); }
       }, []);
 
-      useEffect(() => { const timer = window.setTimeout(() => void requestTraining(defaultRequest), 0); return () => window.clearTimeout(timer); }, [requestTraining]);
+      useEffect(() => {
+            const timer = window.setTimeout(() => {
+                  const handoff = consumeLabHandoffRun();
+                  if (handoff && handoff.algorithm.toLowerCase().startsWith("logistic")) {
+                        setRequest({ algorithm: "logistic_regression", dataset: handoff.dataset, training: handoff.training });
+                        setRun(handoff);
+                        setLoading(false);
+                        return;
+                  }
+                  void requestTraining(defaultRequest);
+            }, 0);
+            return () => window.clearTimeout(timer);
+      }, [requestTraining]);
       useEffect(() => {
             if (!run || recordedRunId.current === run.id) return;
             recordedRunId.current = run.id;

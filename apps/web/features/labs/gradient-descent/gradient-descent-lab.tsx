@@ -19,6 +19,7 @@ import { MarkerForm } from "@/features/timeline/marker-form";
 import { generateTrainingInsights } from "@/features/insights/engine";
 import { TrainingInsights } from "@/features/insights/training-insights";
 import { ModelXRay } from "@/features/x-ray/model-x-ray";
+import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
@@ -78,7 +79,20 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
       }, []);
 
       useEffect(() => {
-            const initialRequestTimer = window.setTimeout(() => void requestTraining(initialRequest), 0);
+            const initialRequestTimer = window.setTimeout(() => {
+                  const handoff = consumeLabHandoffRun();
+                  if (handoff && handoff.algorithm.toLowerCase().startsWith("linear")) {
+                        setConfiguration({
+                              algorithm: "linear_regression",
+                              dataset: handoff.dataset,
+                              training: handoff.training,
+                        });
+                        setRun(handoff);
+                        setIsLoading(false);
+                        return;
+                  }
+                  void requestTraining(initialRequest);
+            }, 0);
             return () => window.clearTimeout(initialRequestTimer);
       }, [initialRequest, requestTraining]);
       useEffect(() => {

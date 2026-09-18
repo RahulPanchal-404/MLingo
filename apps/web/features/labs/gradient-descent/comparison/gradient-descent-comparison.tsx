@@ -76,25 +76,38 @@ export function GradientDescentComparison() {
                   if (typeof window !== "undefined") {
                         const params = new URLSearchParams(window.location.search);
                         const loadAId = params.get("loadA") || params.get("experimentId");
-                        if (loadAId) {
-                              const savedRecord = getSavedExperimentById(loadAId);
-                              if (savedRecord) {
-                                    setConfigurationA({
+                        const loadBId = params.get("loadB");
+                        const savedRecordA = loadAId ? getSavedExperimentById(loadAId) : null;
+                        const savedRecordB = loadBId ? getSavedExperimentById(loadBId) : null;
+
+                        if (savedRecordA && savedRecordB) {
+                              setConfigurationA({ algorithm: "linear_regression", dataset: savedRecordA.run.dataset, training: savedRecordA.run.training });
+                              setConfigurationB({ algorithm: "linear_regression", dataset: savedRecordB.run.dataset, training: savedRecordB.run.training });
+                              void requestComparison(
+                                    { algorithm: "linear_regression", dataset: savedRecordA.run.dataset, training: savedRecordA.run.training },
+                                    { algorithm: "linear_regression", dataset: savedRecordB.run.dataset, training: savedRecordB.run.training },
+                                    savedRecordA.run,
+                                    savedRecordB.run
+                              );
+                              return;
+                        }
+
+                        if (savedRecordA) {
+                              setConfigurationA({
+                                    algorithm: "linear_regression",
+                                    dataset: savedRecordA.run.dataset,
+                                    training: savedRecordA.run.training,
+                              });
+                              void requestComparison(
+                                    {
                                           algorithm: "linear_regression",
-                                          dataset: savedRecord.run.dataset,
-                                          training: savedRecord.run.training,
-                                    });
-                                    void requestComparison(
-                                          {
-                                                algorithm: "linear_regression",
-                                                dataset: savedRecord.run.dataset,
-                                                training: savedRecord.run.training,
-                                          },
-                                          defaultRunB,
-                                          savedRecord.run
-                                    );
-                                    return;
-                              }
+                                          dataset: savedRecordA.run.dataset,
+                                          training: savedRecordA.run.training,
+                                    },
+                                    defaultRunB,
+                                    savedRecordA.run
+                              );
+                              return;
                         }
                   }
                   void requestComparison(defaultRunA, defaultRunB);

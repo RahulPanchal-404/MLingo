@@ -18,6 +18,7 @@ import { generateTrainingInsights } from "@/features/insights/engine";
 import { TrainingInsights } from "@/features/insights/training-insights";
 import { ModelXRay } from "@/features/x-ray/model-x-ray";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
+import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
@@ -58,7 +59,16 @@ export function KMeansLab() {
       }, []);
 
       useEffect(() => {
-            const timer = window.setTimeout(() => void requestTraining(defaultRequest), 0);
+            const timer = window.setTimeout(() => {
+                  const handoff = consumeLabHandoffRun();
+                  if (handoff && handoff.algorithm.toLowerCase().startsWith("kmeans")) {
+                        setRequest({ algorithm: "kmeans", dataset: handoff.dataset, training: handoff.training });
+                        setRun(handoff);
+                        setLoading(false);
+                        return;
+                  }
+                  void requestTraining(defaultRequest);
+            }, 0);
             return () => window.clearTimeout(timer);
       }, [requestTraining]);
 

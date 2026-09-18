@@ -255,3 +255,43 @@ export function formatExperimentMetric(record: ExperimentRecord): ExperimentMetr
     primaryValue: formatNumber(lastState.loss),
   };
 }
+
+export const LAB_HANDOFF_KEY = "mlingo.lab_handoff.v1";
+
+function getSessionOrFallbackStorage(): Storage | null {
+  if (typeof window !== "undefined" && window.sessionStorage) {
+    return window.sessionStorage;
+  }
+  return getStorage();
+}
+
+export function setLabHandoffRun(run: TrainingRun): boolean {
+  const storage = getSessionOrFallbackStorage();
+  if (!storage) return false;
+  try {
+    storage.setItem(LAB_HANDOFF_KEY, JSON.stringify(run));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function consumeLabHandoffRun(): TrainingRun | null {
+  const storage = getSessionOrFallbackStorage();
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(LAB_HANDOFF_KEY);
+    if (!raw) return null;
+    storage.removeItem(LAB_HANDOFF_KEY);
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const run = parsed as Partial<TrainingRun>;
+    if (typeof run.id === "string" && Array.isArray(run.history) && Array.isArray(run.dataset_points)) {
+      return run as TrainingRun;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+

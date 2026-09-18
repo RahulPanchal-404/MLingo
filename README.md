@@ -50,12 +50,15 @@ When the playhead is at **Step $t$**, every view on screen synchronizes strictly
 ## Core Product Capabilities
 
 - **Interactive Labs**: Dedicated, single-algorithm environments for deep exploration.
+- **Model X-Ray**: Frame-by-frame inspection of weights, bias, gradients, parameter deltas, sample predictions, probabilities, and cluster distributions.
+- **Experiment Explorer (Parameter Sweeps)**: Run several experiments, vary one parameter, and inspect how the training process changes. Supports sweeps over learning rate (Linear & Logistic Regression) and cluster count $k$ (K-Means), complete with parameter-vs-metric curves, overlaid training trajectories, and factual comparative insights.
+- **Local Experiment History & Replay**: Save interesting runs to client-side storage, replay recordings frame by frame offline without re-running models on the backend, and compare multiple saved runs.
 - **Training Insights**: Pure deterministic observations ("What this run suggests") derived from recorded run metrics and diagnostics, with single-click navigation to the referenced frame.
 - **A/B Comparison Mode**: "Two experiments. One clock." Run two models side by side and scrub their histories with a shared synchronized playhead and factual, neutral difference analysis.
 - **Break Mode Challenges**: Pedagogical challenges where learners intentionally provoke anomalies (instability, learning slowdown, divergence) and identify suspicious frames with timeline markers.
 - **Algorithm-Aware Experiments Workspace**: Freely configure hyperparameters (learning rate, epochs, clusters, samples, noise, seed) across any supported algorithm.
 - **Curriculum (Learn)**: Bite-sized foundations linking directly to interactive lab experiences.
-- **Progress Tracking**: Session and browser-local tracking of labs explored, experiments executed, concepts touched, and challenges conquered.
+- **Progress Tracking**: Session and browser-local tracking of labs explored, experiments executed, parameter sweeps completed, concepts touched, and challenges conquered.
 
 ---
 

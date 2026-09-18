@@ -60,13 +60,21 @@ export function KMeansComparison() {
                   if (typeof window !== "undefined") {
                         const params = new URLSearchParams(window.location.search);
                         const loadAId = params.get("loadA") || params.get("experimentId");
-                        if (loadAId) {
-                              const saved = getSavedExperimentById(loadAId);
-                              if (saved) {
-                                    setClustersA(saved.run.training.clusters ?? 2);
-                                    void trainComparison(saved.run.training.clusters ?? 2, 3, saved.run);
-                                    return;
-                              }
+                        const loadBId = params.get("loadB");
+                        const savedA = loadAId ? getSavedExperimentById(loadAId) : null;
+                        const savedB = loadBId ? getSavedExperimentById(loadBId) : null;
+
+                        if (savedA && savedB) {
+                              setClustersA(savedA.run.training.clusters ?? 2);
+                              setClustersB(savedB.run.training.clusters ?? 3);
+                              void trainComparison(savedA.run.training.clusters ?? 2, savedB.run.training.clusters ?? 3, savedA.run, savedB.run);
+                              return;
+                        }
+
+                        if (savedA) {
+                              setClustersA(savedA.run.training.clusters ?? 2);
+                              void trainComparison(savedA.run.training.clusters ?? 2, 3, savedA.run);
+                              return;
                         }
                   }
                   void trainComparison(2, 3);

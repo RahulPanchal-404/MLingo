@@ -16,6 +16,8 @@ import { KMeansMathMode } from "@/features/labs/k-means/math-mode";
 import { KMeansCodeMode } from "@/features/labs/k-means/code-mode";
 import { generateTrainingInsights } from "@/features/insights/engine";
 import { TrainingInsights } from "@/features/insights/training-insights";
+import { ModelXRay } from "@/features/x-ray/model-x-ray";
+import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
@@ -113,8 +115,11 @@ export function KMeansLab() {
                   </section>
 
                   <div className="lab-secondary-action">
-                        <span>Compare alternative cluster counts?</span>
-                        <Link className="secondary-button" href="/labs/k-means/compare">Compare K-Means runs</Link>
+                        <span>Compare or save your clustering run?</span>
+                        <div className="lab-action-group">
+                              <SaveExperimentButton run={run} />
+                              <Link className="secondary-button" href="/labs/k-means/compare">Compare K-Means runs</Link>
+                        </div>
                   </div>
 
                   {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
@@ -125,22 +130,7 @@ export function KMeansLab() {
                                     <KMeansPlot points={run.dataset_points} state={state} />
                                     <LossChart currentStep={timeline.currentStep} history={run.history} label="Inertia" />
                               </section>
-                              <section className="state-panel" aria-label="Selected K-Means state">
-                                    <div className="state-heading">
-                                          <p className="eyebrow">Selected frame</p>
-                                          <h2>{state ? `Step ${state.step}` : "No state selected"}</h2>
-                                          <p>{state ? "All values here come from this exact cluster assignment snapshot." : "This run has no recorded states."}</p>
-                                    </div>
-                                    {state ? (
-                                          <dl>
-                                                <Metric label="Clusters" value={state.centroids?.length ?? 0} />
-                                                <Metric label="Inertia" value={state.inertia ?? state.loss} />
-                                                <Metric label="Centroid 1" value={state.centroids?.[0] ? state.centroids[0][0] : null} />
-                                                <Metric label="Centroid 2" value={state.centroids?.[1] ? state.centroids[1][1] : null} />
-                                                <Metric label="Centroid movement" value={state.centroid_movement?.reduce((sum, value) => sum + value, 0) ?? null} />
-                                          </dl>
-                                    ) : <p className="empty-state">There is no state to inspect yet.</p>}
-                              </section>
+                              <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
                               <section className="learning-modes-grid" aria-label="Selected K-Means frame learning modes">
                                     <KMeansMathMode state={state} />
                                     <KMeansCodeMode state={state} />
@@ -157,10 +147,6 @@ export function KMeansLab() {
 
 function NumberControl({ label, min, max, step, value, onChange }: { label: string; min: string; max: string; step: string; value: number; onChange: (value: number) => void }) {
       return <label className="number-control"><span>{label}</span><input aria-label={label} max={max} min={min} onChange={(event) => onChange(Number(event.target.value))} required step={step} type="number" value={value} /></label>;
-}
-
-function Metric({ label, value }: { label: string; value: number | null | undefined }) {
-      return <div><dt>{label}</dt><dd>{typeof value === "number" && Number.isFinite(value) ? value.toLocaleString(undefined, { maximumFractionDigits: 5 }) : "N/A"}</dd></div>;
 }
 
 export function KMeansPlot({ points, state }: { points: TrainingRun["dataset_points"]; state: TrainingRun["history"][number] | null }) {

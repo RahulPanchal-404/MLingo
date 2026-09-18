@@ -8,6 +8,7 @@ import { TimelineControls } from "@/features/labs/gradient-descent/timeline-cont
 import { ClassificationPlot } from "@/features/labs/logistic-regression/classification-plot";
 import { ComparisonInsights } from "@/features/insights/comparison-insights";
 import { generateComparisonInsights } from "@/features/insights/engine";
+import { getSavedExperimentById, useSavedExperiments } from "@/features/experiments/experiment-storage";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
@@ -24,6 +25,7 @@ export function LogisticComparison() {
   const [learningRateB, setLearningRateB] = useState(0.5);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const savedLogisticRuns = useSavedExperiments("logistic");
 
   const sharedTotal = runA && runB ? Math.min(runA.history.length, runB.history.length) : undefined;
   const timeline = useTrainingTimeline(runA, sharedTotal);
@@ -35,13 +37,13 @@ export function LogisticComparison() {
     [runA, runB]
   );
 
-  const trainComparison = useCallback(async (rateA: number, rateB: number) => {
+  const trainComparison = useCallback(async (rateA: number, rateB: number, preloadedA?: TrainingRun, preloadedB?: TrainingRun) => {
     setLoading(true);
     setError(null);
     try {
       const [nextA, nextB] = await Promise.all([
-        createTrainingRun(makeRequest(rateA)),
-        createTrainingRun(makeRequest(rateB)),
+        preloadedA ?? createTrainingRun(makeRequest(rateA)),
+        preloadedB ?? createTrainingRun(makeRequest(rateB)),
       ]);
       setRunA(nextA);
       setRunB(nextB);
@@ -53,7 +55,21 @@ export function LogisticComparison() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => void trainComparison(0.1, 0.5), 0);
+    const timer = window.setTimeout(() => {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const loadAId = params.get("loadA") || params.get("experimentId");
+        if (loadAId) {
+          const saved = getSavedExperimentById(loadAId);
+          if (saved) {
+            setLearningRateA(saved.run.training.learning_rate);
+            void trainComparison(saved.run.training.learning_rate, 0.5, saved.run);
+            return;
+          }
+        }
+      }
+      void trainComparison(0.1, 0.5);
+    }, 0);
     return () => window.clearTimeout(timer);
   }, [trainComparison]);
 
@@ -78,6 +94,48 @@ export function LogisticComparison() {
             </div>
             <span className="run-status">{loading ? "Recording" : runA && runB ? "Ready" : "Waiting"}</span>
           </div>
+          {savedLogisticRuns.length > 0 && (
+            <div className="saved-comparison-selectors">
+              <label className="number-control">
+                <span>Run A saved run</span>
+                <select
+                  aria-label="Load saved experiment for Run A"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const found = savedLogisticRuns.find((s) => s.id === e.target.value);
+                    if (found) {
+                      setRunA(found.run);
+                      setLearningRateA(found.run.training.learning_rate);
+                    }
+                  }}
+                >
+                  <option value="" disabled>Choose a saved classifier...</option>
+                  {savedLogisticRuns.map((exp) => (
+                    <option key={exp.id} value={exp.id}>{exp.title}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="number-control">
+                <span>Run B saved run</span>
+                <select
+                  aria-label="Load saved experiment for Run B"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const found = savedLogisticRuns.find((s) => s.id === e.target.value);
+                    if (found) {
+                      setRunB(found.run);
+                      setLearningRateB(found.run.training.learning_rate);
+                    }
+                  }}
+                >
+                  <option value="" disabled>Choose a saved classifier...</option>
+                  {savedLogisticRuns.map((exp) => (
+                    <option key={exp.id} value={exp.id}>{exp.title}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
           <NumberControl label="Run A learning rate" value={learningRateA} onChange={setLearningRateA} />
           <NumberControl label="Run B learning rate" value={learningRateB} onChange={setLearningRateB} />
           <button className="primary-button run-button" disabled={loading} type="submit">

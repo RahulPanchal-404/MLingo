@@ -21,6 +21,9 @@ import { generateTrainingInsights } from "@/features/insights/engine";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
+import { ModelXRay } from "@/features/x-ray/model-x-ray";
+import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
+import { MyExperimentsList } from "@/features/experiments/my-experiments-list";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
 const defaultRequest: TrainingRunRequest = {
@@ -222,7 +225,10 @@ export function ExperimentWorkspace() {
               <p className="eyebrow">Recorded experiment</p>
               <h2>{run.algorithm}</h2>
             </div>
-            <span>{run.total_steps} steps</span>
+            <div className="recorded-heading-actions">
+              <SaveExperimentButton run={run} />
+              <span>{run.total_steps} steps</span>
+            </div>
           </div>
 
           <dl className="experiment-summary">
@@ -265,6 +271,8 @@ export function ExperimentWorkspace() {
             />
           </div>
 
+          <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
+
           <section className="learning-modes-grid" aria-label="Selected frame learning modes">
             {run.algorithm.startsWith("logistic") ? (
               <>
@@ -305,6 +313,14 @@ export function ExperimentWorkspace() {
           />
         </section>
       )}
+
+      <MyExperimentsList
+        activeRunId={run?.id}
+        onReplayRun={(savedRun) => {
+          setRun(savedRun);
+          timeline.jumpToStep(0);
+        }}
+      />
     </div>
   );
 }

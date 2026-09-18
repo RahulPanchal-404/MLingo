@@ -11,6 +11,8 @@ import { ComparisonInsights } from "@/features/insights/comparison-insights";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { diagnosticEventsToTimelineMarkers } from "@/features/timeline/event-markers";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
+import { getSavedExperimentById, useSavedExperiments } from "@/features/experiments/experiment-storage";
+import type { ExperimentRecord } from "@/features/experiments/types";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
@@ -37,6 +39,8 @@ export function GradientDescentComparison() {
       const [isMarkerFormOpen, setIsMarkerFormOpen] = useState(false);
       const [markerTitle, setMarkerTitle] = useState("");
       const [markerDescription, setMarkerDescription] = useState("");
+      const savedLinearRuns = useSavedExperiments("linear");
+
       const comparison = useMemo(() => runA && runB ? createRunComparison(runA, runB) : null, [runA, runB]);
       const comparisonInsights = useMemo(() => runA && runB ? generateComparisonInsights(runA, runB) : [], [runA, runB]);
       const timeline = useTrainingTimeline(runA, comparison?.sharedStepCount);
@@ -47,7 +51,7 @@ export function GradientDescentComparison() {
       const markers = [...eventMarkers, ...userMarkers];
       const isLoading = loadingStage !== null;
 
-      const requestComparison = useCallback(async (requestA: TrainingRunRequest, requestB: TrainingRunRequest) => {
+      const requestComparison = useCallback(async (requestA: TrainingRunRequest, requestB: TrainingRunRequest, preloadedRunA?: TrainingRun, preloadedRunB?: TrainingRun) => {
             setLoadingStage("a");
             setError(null);
             setRunA(null);
@@ -55,9 +59,9 @@ export function GradientDescentComparison() {
             setUserMarkers([]);
             setIsMarkerFormOpen(false);
             try {
-                  const nextRunA = await createTrainingRun(requestA);
+                  const nextRunA = preloadedRunA ?? (await createTrainingRun(requestA));
                   setLoadingStage("b");
-                  const nextRunB = await createTrainingRun(requestB);
+                  const nextRunB = preloadedRunB ?? (await createTrainingRun(requestB));
                   setRunA(nextRunA);
                   setRunB(nextRunB);
             } catch (caught) {
@@ -68,7 +72,33 @@ export function GradientDescentComparison() {
       }, []);
 
       useEffect(() => {
-            const initialRequest = window.setTimeout(() => void requestComparison(defaultRunA, defaultRunB), 0);
+            const initialRequest = window.setTimeout(() => {
+                  if (typeof window !== "undefined") {
+                        const params = new URLSearchParams(window.location.search);
+                        const loadAId = params.get("loadA") || params.get("experimentId");
+                        if (loadAId) {
+                              const savedRecord = getSavedExperimentById(loadAId);
+                              if (savedRecord) {
+                                    setConfigurationA({
+                                          algorithm: "linear_regression",
+                                          dataset: savedRecord.run.dataset,
+                                          training: savedRecord.run.training,
+                                    });
+                                    void requestComparison(
+                                          {
+                                                algorithm: "linear_regression",
+                                                dataset: savedRecord.run.dataset,
+                                                training: savedRecord.run.training,
+                                          },
+                                          defaultRunB,
+                                          savedRecord.run
+                                    );
+                                    return;
+                              }
+                        }
+                  }
+                  void requestComparison(defaultRunA, defaultRunB);
+            }, 0);
             return () => window.clearTimeout(initialRequest);
       }, [requestComparison]);
 
@@ -97,8 +127,34 @@ export function GradientDescentComparison() {
                         </div>
                         <form className="comparison-form" onSubmit={submit}>
                               <div className="form-heading"><div><p className="eyebrow">Experiment setup</p><h2>Train a comparison</h2></div><span className="run-status">{isLoading ? `Run ${loadingStage?.toUpperCase()}` : comparison ? "Ready" : "Waiting"}</span></div>
-                              <RunConfiguration label="Run A" configuration={configurationA} onChange={setConfigurationA} />
-                              <RunConfiguration label="Run B" configuration={configurationB} onChange={setConfigurationB} />
+                              <RunConfiguration
+                                    label="Run A"
+                                    configuration={configurationA}
+                                    onChange={setConfigurationA}
+                                    savedExperiments={savedLinearRuns}
+                                    onSelectSaved={(savedRun) => {
+                                          setRunA(savedRun);
+                                          setConfigurationA({
+                                                algorithm: "linear_regression",
+                                                dataset: savedRun.dataset,
+                                                training: savedRun.training,
+                                          });
+                                    }}
+                              />
+                              <RunConfiguration
+                                    label="Run B"
+                                    configuration={configurationB}
+                                    onChange={setConfigurationB}
+                                    savedExperiments={savedLinearRuns}
+                                    onSelectSaved={(savedRun) => {
+                                          setRunB(savedRun);
+                                          setConfigurationB({
+                                                algorithm: "linear_regression",
+                                                dataset: savedRun.dataset,
+                                                training: savedRun.training,
+                                          });
+                                    }}
+                              />
                               <button className="primary-button run-button" disabled={isLoading} type="submit">{isLoading ? `Training Run ${loadingStage?.toUpperCase()}...` : "Train comparison"}</button>
                         </form>
                   </section>
@@ -122,10 +178,50 @@ export function GradientDescentComparison() {
       );
 }
 
-function RunConfiguration({ label, configuration, onChange }: { label: string; configuration: TrainingRunRequest; onChange: (value: TrainingRunRequest) => void }) {
+function RunConfiguration({
+      label,
+      configuration,
+      onChange,
+      savedExperiments,
+      onSelectSaved,
+}: {
+      label: string;
+      configuration: TrainingRunRequest;
+      onChange: (value: TrainingRunRequest) => void;
+      savedExperiments?: ExperimentRecord[];
+      onSelectSaved?: (run: TrainingRun) => void;
+}) {
       const updateTraining = (key: "learning_rate" | "epochs", value: number) => onChange({ ...configuration, training: { ...configuration.training, [key]: key === "epochs" ? Math.round(value) : value } });
       const updateDataset = (key: "samples" | "noise", value: number) => onChange({ ...configuration, dataset: { ...configuration.dataset, [key]: key === "samples" ? Math.round(value) : value } });
-      return <fieldset className="run-config"><legend>{label}</legend><NumberControl label={`${label} learning rate`} max="1" min="0.001" onChange={(value) => updateTraining("learning_rate", value)} step="0.001" value={configuration.training.learning_rate} /><NumberControl label={`${label} epochs`} max="300" min="1" onChange={(value) => updateTraining("epochs", value)} step="1" value={configuration.training.epochs} /><NumberControl label={`${label} samples`} max="100" min="1" onChange={(value) => updateDataset("samples", value)} step="1" value={configuration.dataset.samples} /><NumberControl label={`${label} noise`} max="2" min="0" onChange={(value) => updateDataset("noise", value)} step="0.05" value={configuration.dataset.noise} /></fieldset>;
+      return (
+            <fieldset className="run-config">
+                  <legend>{label}</legend>
+                  {savedExperiments && savedExperiments.length > 0 && (
+                        <label className="number-control">
+                              <span>Load saved experiment</span>
+                              <select
+                                    aria-label={`Load saved experiment for ${label}`}
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                          const found = savedExperiments.find((s) => s.id === e.target.value);
+                                          if (found && onSelectSaved) {
+                                                onSelectSaved(found.run);
+                                          }
+                                    }}
+                              >
+                                    <option value="" disabled>Choose a saved run...</option>
+                                    {savedExperiments.map((exp) => (
+                                          <option key={exp.id} value={exp.id}>{exp.title}</option>
+                                    ))}
+                              </select>
+                        </label>
+                  )}
+                  <NumberControl label={`${label} learning rate`} max="1" min="0.001" onChange={(value) => updateTraining("learning_rate", value)} step="0.001" value={configuration.training.learning_rate} />
+                  <NumberControl label={`${label} epochs`} max="300" min="1" onChange={(value) => updateTraining("epochs", value)} step="1" value={configuration.training.epochs} />
+                  <NumberControl label={`${label} samples`} max="100" min="1" onChange={(value) => updateDataset("samples", value)} step="1" value={configuration.dataset.samples} />
+                  <NumberControl label={`${label} noise`} max="2" min="0" onChange={(value) => updateDataset("noise", value)} step="0.05" value={configuration.dataset.noise} />
+            </fieldset>
+      );
 }
 
 function NumberControl({ label, min, max, step, value, onChange }: { label: string; min: string; max: string; step: string; value: number; onChange: (value: number) => void }) {

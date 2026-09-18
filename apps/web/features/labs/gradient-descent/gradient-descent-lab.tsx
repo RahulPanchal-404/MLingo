@@ -14,11 +14,12 @@ import { CodeMode } from "@/features/labs/gradient-descent/code-mode";
 import { MathMode } from "@/features/labs/gradient-descent/math-mode";
 import { getRunYDomain, RegressionPlot } from "@/features/labs/gradient-descent/regression-plot";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
-import { getFrameChanges } from "@/features/timeline/frame-changes";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import { MarkerForm } from "@/features/timeline/marker-form";
 import { generateTrainingInsights } from "@/features/insights/engine";
 import { TrainingInsights } from "@/features/insights/training-insights";
+import { ModelXRay } from "@/features/x-ray/model-x-ray";
+import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
@@ -56,7 +57,6 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
       const timeline = useTrainingTimeline(run);
       const state = timeline.selectedTrainingState;
       const regressionYDomain = useMemo(() => breakMode && run ? getRunYDomain(run.dataset_points, run.history) : undefined, [breakMode, run]);
-      const frameChanges = getFrameChanges(run?.history ?? [], timeline.currentStep);
       const diagnostics = useMemo(() => run ? analyzeTrainingRun(run) : [], [run]);
       const insights = useMemo(() => run ? generateTrainingInsights(run, diagnostics) : [], [run, diagnostics]);
       const eventMarkers = useMemo(() => breakMode ? [] : diagnosticEventsToTimelineMarkers(diagnostics), [breakMode, diagnostics]);
@@ -123,17 +123,20 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                         </form>
                   </section>
 
-                  <div className="lab-secondary-action"><span>Ready to inspect another experiment?</span><Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link></div>
+                  <div className="lab-secondary-action">
+                        <span>Ready to save or inspect another experiment?</span>
+                        <div className="lab-action-group">
+                              <SaveExperimentButton run={run} />
+                              <Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link>
+                        </div>
+                  </div>
                   {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} />}
                   {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
                   {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
                   {!isLoading && !error && run && (
                         <>
                               <section className="visual-grid" aria-label="Training visualizations"><RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} /><LossChart currentStep={timeline.currentStep} history={run.history} /></section>
-                              <section className="state-panel" aria-label="Selected training state">
-                                    <div className="state-heading"><p className="eyebrow">Selected frame</p><h2>{state ? `Step ${state.step}` : "No state selected"}</h2><p>{state ? "The visualizations are reading this exact training snapshot." : "This run has no recorded states."}</p></div>
-                                    {state ? <dl><Metric change={frameChanges?.weight} label="Weight" value={state.weights[0]} /><Metric change={frameChanges?.bias} label="Bias" value={state.bias} /><Metric change={frameChanges?.loss} label="Loss / MSE" value={state.metrics.mean_squared_error} /><Metric change={frameChanges?.gradient} label="Weight gradient" value={state.gradients[0]} /><Metric label="Bias gradient" value={state.bias_gradient} /></dl> : <p className="empty-state">There is no state to inspect yet.</p>}
-                              </section>
+                              <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
                               <section className="learning-modes-grid" aria-label="Selected frame learning modes"><MathMode learningRate={run.training.learning_rate} state={state} /><CodeMode learningRate={run.training.learning_rate} state={state} /></section>
                               {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />}
                               {!breakMode && <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />}
@@ -147,17 +150,4 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
 
 function NumberControl({ label, min, max, step, value, onChange }: { label: string; min: string; max: string; step: string; value: number; onChange: (value: number) => void }) {
       return <label className="number-control"><span>{label}</span><input aria-label={label} max={max} min={min} onChange={(event) => onChange(Number(event.target.value))} required step={step} type="number" value={value} /></label>;
-}
-
-function Metric({ label, value, change }: { label: string; value: number | null | undefined; change?: number }) {
-      return <div><dt>{label}</dt><dd>{formatNumber(value)}</dd><small>{change === undefined ? "No previous frame." : formatDelta(change)}</small></div>;
-}
-
-function formatNumber(value: number | null | undefined): string {
-      if (value == null) return "N/A";
-      return value.toLocaleString(undefined, { maximumFractionDigits: 5 });
-}
-
-function formatDelta(value: number): string {
-      return `${value >= 0 ? "+" : ""}${formatNumber(value)}`;
 }

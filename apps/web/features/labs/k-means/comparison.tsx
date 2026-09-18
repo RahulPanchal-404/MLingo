@@ -7,6 +7,7 @@ import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { ComparisonInsights } from "@/features/insights/comparison-insights";
 import { generateComparisonInsights } from "@/features/insights/engine";
+import { getSavedExperimentById, useSavedExperiments } from "@/features/experiments/experiment-storage";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
@@ -23,6 +24,7 @@ export function KMeansComparison() {
       const [clustersB, setClustersB] = useState(3);
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState<string | null>(null);
+      const savedKMeansRuns = useSavedExperiments("kmeans");
 
       const comparison = useMemo(
             () => (runA && runB ? { runA, runB, sharedStepCount: Math.min(runA.history.length, runB.history.length) } : null),
@@ -36,13 +38,13 @@ export function KMeansComparison() {
       const stateA = timeline.selectedTrainingState;
       const stateB = comparison?.runB.history[timeline.currentStep] ?? null;
 
-      const trainComparison = useCallback(async (nextA: number, nextB: number) => {
+      const trainComparison = useCallback(async (nextA: number, nextB: number, preloadedA?: TrainingRun, preloadedB?: TrainingRun) => {
             setLoading(true);
             setError(null);
             try {
                   const [nextRunA, nextRunB] = await Promise.all([
-                        createTrainingRun(makeRequest(nextA)),
-                        createTrainingRun(makeRequest(nextB)),
+                        preloadedA ?? createTrainingRun(makeRequest(nextA)),
+                        preloadedB ?? createTrainingRun(makeRequest(nextB)),
                   ]);
                   setRunA(nextRunA);
                   setRunB(nextRunB);
@@ -54,7 +56,21 @@ export function KMeansComparison() {
       }, []);
 
       useEffect(() => {
-            const timer = window.setTimeout(() => void trainComparison(2, 3), 0);
+            const timer = window.setTimeout(() => {
+                  if (typeof window !== "undefined") {
+                        const params = new URLSearchParams(window.location.search);
+                        const loadAId = params.get("loadA") || params.get("experimentId");
+                        if (loadAId) {
+                              const saved = getSavedExperimentById(loadAId);
+                              if (saved) {
+                                    setClustersA(saved.run.training.clusters ?? 2);
+                                    void trainComparison(saved.run.training.clusters ?? 2, 3, saved.run);
+                                    return;
+                              }
+                        }
+                  }
+                  void trainComparison(2, 3);
+            }, 0);
             return () => window.clearTimeout(timer);
       }, [trainComparison]);
 
@@ -73,6 +89,48 @@ export function KMeansComparison() {
                         </div>
                         <form className="comparison-form" onSubmit={submit}>
                               <div className="form-heading"><div><p className="eyebrow">Comparison setup</p><h2>Choose cluster counts</h2></div><span className="run-status">{loading ? "Training" : comparison ? "Ready" : "Waiting"}</span></div>
+                              {savedKMeansRuns.length > 0 && (
+                                    <div className="saved-comparison-selectors">
+                                          <label className="number-control">
+                                                <span>Run A saved run</span>
+                                                <select
+                                                      aria-label="Load saved experiment for Run A"
+                                                      defaultValue=""
+                                                      onChange={(e) => {
+                                                            const found = savedKMeansRuns.find((s) => s.id === e.target.value);
+                                                            if (found) {
+                                                                  setRunA(found.run);
+                                                                  setClustersA(found.run.training.clusters ?? 2);
+                                                            }
+                                                      }}
+                                                >
+                                                      <option value="" disabled>Choose a saved clustering...</option>
+                                                      {savedKMeansRuns.map((exp) => (
+                                                            <option key={exp.id} value={exp.id}>{exp.title}</option>
+                                                      ))}
+                                                </select>
+                                          </label>
+                                          <label className="number-control">
+                                                <span>Run B saved run</span>
+                                                <select
+                                                      aria-label="Load saved experiment for Run B"
+                                                      defaultValue=""
+                                                      onChange={(e) => {
+                                                            const found = savedKMeansRuns.find((s) => s.id === e.target.value);
+                                                            if (found) {
+                                                                  setRunB(found.run);
+                                                                  setClustersB(found.run.training.clusters ?? 3);
+                                                            }
+                                                      }}
+                                                >
+                                                      <option value="" disabled>Choose a saved clustering...</option>
+                                                      {savedKMeansRuns.map((exp) => (
+                                                            <option key={exp.id} value={exp.id}>{exp.title}</option>
+                                                      ))}
+                                                </select>
+                                          </label>
+                                    </div>
+                              )}
                               <NumberControl label="Run A clusters" value={clustersA} onChange={setClustersA} />
                               <NumberControl label="Run B clusters" value={clustersB} onChange={setClustersB} />
                               <button className="primary-button run-button" disabled={loading} type="submit">{loading ? "Training comparison..." : "Train comparison"}</button>

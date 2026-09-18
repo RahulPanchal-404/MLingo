@@ -3,10 +3,12 @@ export type LearningActivity = {
       experimentsRun: number;
       challengesCompleted: string[];
       concepts: string[];
+      experimentsSaved?: number;
+      experimentsReplayed?: number;
 };
 
 const STORAGE_KEY = "mlingo-learning-activity";
-const defaultActivity: LearningActivity = { labsExplored: 0, experimentsRun: 0, challengesCompleted: [], concepts: [] };
+const defaultActivity: LearningActivity = { labsExplored: 0, experimentsRun: 0, challengesCompleted: [], concepts: [], experimentsSaved: 0, experimentsReplayed: 0 };
 
 export function readLearningActivity(): LearningActivity {
       if (typeof window === "undefined") return defaultActivity;
@@ -19,6 +21,8 @@ export function readLearningActivity(): LearningActivity {
                   experimentsRun: typeof value.experimentsRun === "number" ? value.experimentsRun : 0,
                   challengesCompleted: Array.isArray(value.challengesCompleted) ? value.challengesCompleted.filter((item): item is string => typeof item === "string") : [],
                   concepts: Array.isArray(value.concepts) ? value.concepts.filter((item): item is string => typeof item === "string") : [],
+                  experimentsSaved: typeof value.experimentsSaved === "number" ? value.experimentsSaved : 0,
+                  experimentsReplayed: typeof value.experimentsReplayed === "number" ? value.experimentsReplayed : 0,
             };
       } catch { return defaultActivity; }
 }
@@ -31,6 +35,8 @@ export function recordLearningActivity(update: Partial<LearningActivity>): void 
             experimentsRun: update.experimentsRun ?? current.experimentsRun,
             challengesCompleted: [...new Set(update.challengesCompleted ?? current.challengesCompleted)],
             concepts: [...new Set(update.concepts ?? current.concepts)],
+            experimentsSaved: update.experimentsSaved ?? current.experimentsSaved ?? 0,
+            experimentsReplayed: update.experimentsReplayed ?? current.experimentsReplayed ?? 0,
       };
       try {
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));

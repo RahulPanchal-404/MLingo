@@ -1742,3 +1742,408 @@ button:disabled {
     flex: 1 1 calc(50% - 0.6rem);
   }
 }
+
+/* ==========================================================================
+   MODEL X-RAY STYLES
+   ========================================================================== */
+.model-x-ray {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.xray-content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.85rem;
+}
+
+.xray-group {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  border-radius: 0.55rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.xray-group-full {
+  grid-column: 1 / -1;
+}
+
+.xray-group-title {
+  color: #5eead4;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+
+.xray-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+}
+
+.xray-metrics-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.xray-metric-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.xray-metric-item dt {
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 400;
+  margin-bottom: 0.15rem;
+}
+
+.xray-metric-item dd {
+  color: #f8fafc;
+  font-size: 0.92rem;
+  font-family: var(--font-geist-mono);
+  font-weight: 500;
+  margin: 0;
+}
+
+.xray-delta {
+  color: #5eead4 !important;
+}
+
+.xray-initial-note {
+  color: #38bdf8;
+  font-size: 0.82rem;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ==========================================================================
+   SAVE EXPERIMENT BUTTON & FORM STYLES
+   ========================================================================== */
+.lab-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.save-experiment-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.save-experiment-trigger {
+  font-size: 0.85rem;
+  padding: 0.45rem 0.85rem;
+}
+
+.save-experiment-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+}
+
+.save-badge {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  border-radius: 9999px;
+  padding: 0.25rem 0.65rem;
+  font-weight: 500;
+}
+
+.save-link {
+  color: #5eead4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.save-experiment-form {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.65rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 18rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.save-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.save-form-header h4 {
+  color: #f8fafc;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.save-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.save-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.save-field span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.save-field input,
+.save-field textarea {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.4rem;
+  color: #f8fafc;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.save-field textarea {
+  resize: vertical;
+}
+
+.save-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-actions button {
+  font-size: 0.82rem;
+  padding: 0.4rem 0.75rem;
+}
+
+.save-error-text {
+  color: #ef4444;
+  font-size: 0.78rem;
+  margin: 0;
+}
+
+/* ==========================================================================
+   MY EXPERIMENTS LIST STYLES
+   ========================================================================== */
+.my-experiments-section {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #1e293b;
+}
+
+.experiments-count-badge {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-geist-mono);
+}
+
+.empty-state-box {
+  background: #0f172a;
+  border: 1px dashed #334155;
+  border-radius: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.empty-state-box p {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+.empty-state-box small {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.experiments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.experiment-card {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.experiment-card:hover {
+  border-color: #334155;
+}
+
+.active-experiment-card {
+  border-color: #5eead4 !important;
+  box-shadow: 0 0 20px rgba(94, 234, 212, 0.12);
+}
+
+.experiment-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.algo-badge {
+  background: #1e293b;
+  color: #5eead4;
+  font-size: 0.68rem;
+  font-family: var(--font-geist-mono);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.experiment-card-title {
+  color: #f8fafc;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.experiment-date {
+  color: #64748b;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.experiment-config-line {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-family: var(--font-geist-mono);
+  margin: 0;
+}
+
+.experiment-notes {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  background: rgba(30, 41, 59, 0.4);
+  border-left: 2px solid #5eead4;
+  border-radius: 0 0.3rem 0.3rem 0;
+}
+
+.experiment-metric-row {
+  display: flex;
+  gap: 1.25rem;
+  background: #1e293b50;
+  border-radius: 0.45rem;
+  padding: 0.65rem 0.85rem;
+  margin: 0;
+}
+
+.experiment-metric-row div {
+  display: flex;
+  flex-direction: column;
+}
+
+.experiment-metric-row dt {
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+.experiment-metric-row dd {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  font-family: var(--font-geist-mono);
+  font-weight: 600;
+  margin: 0;
+}
+
+.experiment-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.card-action-btn {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.75rem;
+  text-decoration: none;
+}
+
+.delete-trigger-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.78rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: color 0.15s;
+}
+
+.delete-trigger-btn:hover {
+  color: #ef4444;
+}
+
+.delete-confirm-group {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.danger-button {
+  background: #ef4444;
+  border: 1px solid #dc2626;
+  color: white;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.danger-button:hover {
+  background: #dc2626;
+}
+
+.saved-comparison-selectors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.recorded-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

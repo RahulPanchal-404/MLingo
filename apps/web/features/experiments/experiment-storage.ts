@@ -69,6 +69,10 @@ export function generateDefaultTitle(run: TrainingRun): string {
   if (algo.startsWith("logistic")) {
     return `Logistic Regression (${run.training.epochs} epochs, lr=${run.training.learning_rate})`;
   }
+  if (algo.startsWith("neural")) {
+    const h = run.training.hidden_neurons ?? run.history[0]?.b1?.length ?? 3;
+    return `Neural Network (h=${h}, ${run.training.epochs} epochs, lr=${run.training.learning_rate})`;
+  }
   if (algo.startsWith("kmeans")) {
     const k = run.training.clusters ?? 3;
     const iters = run.training.iterations ?? run.total_steps;
@@ -231,7 +235,7 @@ export function formatExperimentMetric(record: ExperimentRecord): ExperimentMetr
     };
   }
 
-  if (algo.startsWith("logistic")) {
+  if (algo.startsWith("logistic") || algo.startsWith("neural")) {
     const bce = lastState.metrics?.binary_cross_entropy ?? lastState.loss;
     const acc = lastState.metrics?.accuracy;
     return {

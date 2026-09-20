@@ -32,6 +32,16 @@ export const SWEEP_PARAMETERS: Record<TrainingRunRequest["algorithm"], SweepPara
     defaultStep: 0.05,
     isInteger: false,
   },
+  neural_network: {
+    key: "learning_rate",
+    label: "Learning rate",
+    min: 0.01,
+    max: 2.0,
+    defaultStart: 0.1,
+    defaultEnd: 0.5,
+    defaultStep: 0.1,
+    isInteger: false,
+  },
   kmeans: {
     key: "clusters",
     label: "Number of clusters (k)",
@@ -147,7 +157,7 @@ export function extractSweepMetric(run: TrainingRun): { label: string; value: nu
     return { label: "MSE", value: typeof mse === "number" && Number.isFinite(mse) ? mse : lastState.loss };
   }
 
-  if (algo.startsWith("logistic")) {
+  if (algo.startsWith("logistic") || algo.startsWith("neural")) {
     const bce = lastState.metrics?.binary_cross_entropy ?? lastState.loss;
     return { label: "BCE", value: typeof bce === "number" && Number.isFinite(bce) ? bce : lastState.loss };
   }
@@ -257,6 +267,7 @@ export function compareSavedExperiments(records: ExperimentRecord[]): SelectedRu
   const lrs = new Set(records.map((r) => r.run.training.learning_rate));
   const epochs = new Set(records.map((r) => r.run.training.epochs));
   const clusters = new Set(records.map((r) => r.run.training.clusters));
+  const hiddenNeurons = new Set(records.map((r) => r.run.training.hidden_neurons));
   const samples = new Set(records.map((r) => r.run.dataset.samples));
   const noises = new Set(records.map((r) => r.run.dataset.noise));
 
@@ -268,6 +279,9 @@ export function compareSavedExperiments(records: ExperimentRecord[]): SelectedRu
   }
   if (clusters.size > 1) {
     differences.push(`Clusters (k) varied: ${Array.from(clusters).join(", ")}`);
+  }
+  if (hiddenNeurons.size > 1) {
+    differences.push(`Hidden neurons varied: ${Array.from(hiddenNeurons).filter(Boolean).join(", ")}`);
   }
   if (samples.size > 1) {
     differences.push(`Dataset samples varied: ${Array.from(samples).join(", ")}`);

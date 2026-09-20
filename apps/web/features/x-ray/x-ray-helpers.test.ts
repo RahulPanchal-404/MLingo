@@ -5,6 +5,7 @@ import {
   computeKMeansXRay,
   computeLinearXRay,
   computeLogisticXRay,
+  computeNeuralNetworkXRay,
   computePredictionsSummary,
   formatDelta,
   formatNumber,
@@ -214,6 +215,84 @@ describe("x-ray-helpers", () => {
       expect(xray1.inertiaChange).toBe(-55.0);
       expect(xray1.centroidMovements).toEqual([0.36, 0.36]);
       expect(xray1.totalMovement).toBeCloseTo(0.72);
+    });
+  });
+
+  describe("computeNeuralNetworkXRay", () => {
+    const state0: TrainingState = {
+      step: 0,
+      weights: [],
+      bias: 0,
+      gradients: [],
+      bias_gradient: null,
+      loss: 0.693,
+      w1: [
+        [0.1, -0.2, 0.3],
+        [-0.1, 0.2, -0.3],
+      ],
+      b1: [0.0, 0.0, 0.0],
+      w2: [[0.2], [-0.1], [0.4]],
+      b2: 0.0,
+      dw1: null,
+      db1: null,
+      dw2: null,
+      db2: null,
+      predictions: [0.5, 0.52, 0.48],
+      metrics: { binary_cross_entropy: 0.693, accuracy: 0.5 },
+    };
+
+    const state1: TrainingState = {
+      step: 1,
+      weights: [],
+      bias: 0,
+      gradients: [],
+      bias_gradient: null,
+      loss: 0.65,
+      w1: [
+        [0.12, -0.19, 0.31],
+        [-0.09, 0.21, -0.29],
+      ],
+      b1: [0.01, 0.01, -0.01],
+      w2: [[0.22], [-0.09], [0.42]],
+      b2: 0.02,
+      dw1: [
+        [-0.02, -0.01, -0.01],
+        [-0.01, -0.01, -0.01],
+      ],
+      db1: [-0.01, -0.01, 0.01],
+      dw2: [[-0.02], [-0.01], [-0.02]],
+      db2: -0.02,
+      predictions: [0.55, 0.58, 0.42],
+      metrics: { binary_cross_entropy: 0.65, accuracy: 0.75 },
+    };
+
+    it("extracts Step 0 architecture and initial state correctly with null gradients", () => {
+      const xray0 = computeNeuralNetworkXRay(state0, null);
+      expect(xray0.isInitialState).toBe(true);
+      expect(xray0.architecture).toEqual({ inputs: 2, hidden: 3, outputs: 1 });
+      expect(xray0.w1).toHaveLength(2);
+      expect(xray0.b1).toHaveLength(3);
+      expect(xray0.w2).toHaveLength(3);
+      expect(xray0.b2).toBe(0.0);
+      expect(xray0.dw1).toBeNull();
+      expect(xray0.db1).toBeNull();
+      expect(xray0.dw2).toBeNull();
+      expect(xray0.db2).toBeNull();
+      expect(xray0.gradientMagnitude).toBeNull();
+      expect(xray0.frameChanges).toBeNull();
+      expect(xray0.loss).toBe(0.693);
+      expect(xray0.accuracy).toBe(0.5);
+    });
+
+    it("computes gradient norm and weight deltas on step 1", () => {
+      const xray1 = computeNeuralNetworkXRay(state1, state0);
+      expect(xray1.isInitialState).toBe(false);
+      expect(xray1.gradientMagnitude).toBeGreaterThan(0);
+      expect(xray1.frameChanges).not.toBeNull();
+      expect(xray1.frameChanges?.loss).toBeCloseTo(-0.043);
+      expect(xray1.frameChanges?.accuracy).toBeCloseTo(0.25);
+      expect(xray1.frameChanges?.w1DeltaNorm).toBeGreaterThan(0);
+      expect(xray1.frameChanges?.w2DeltaNorm).toBeGreaterThan(0);
     });
   });
 

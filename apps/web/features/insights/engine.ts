@@ -18,7 +18,8 @@ export function generateTrainingInsights(
   const final = history[history.length - 1];
   const isKMeans = run.algorithm === "kmeans";
   const isLogistic = run.algorithm.startsWith("logistic");
-  const isLinear = !isKMeans && !isLogistic;
+  const isNeuralNetwork = run.algorithm === "neural_network" || run.algorithm.startsWith("neural");
+  const isLinear = !isKMeans && !isLogistic && !isNeuralNetwork;
 
   const insights: TrainingInsight[] = [];
 
@@ -252,6 +253,34 @@ export function generateTrainingInsights(
         category: "convergence",
       });
     }
+  } else if (isNeuralNetwork) {
+    // Check BCE decrease
+    if (history.length >= 2 && final.loss < initial.loss && !insights.some((i) => i.category === "loss")) {
+      insights.push({
+        id: "insight-nn-bce-trend",
+        title: "Backpropagation loss reduction",
+        description: `Binary cross-entropy dropped from ${formatNumber(initial.loss)} to ${formatNumber(final.loss)} as weights updated layer by layer.`,
+        evidence: { initialBce: initial.loss, finalBce: final.loss },
+        algorithm: run.algorithm,
+        category: "loss",
+      });
+    }
+
+    // Accuracy refinement
+    if (final.metrics?.accuracy !== undefined && final.metrics.accuracy !== null) {
+      const finalAccPercent = Math.round(final.metrics.accuracy * 100);
+      if (!insights.some((i) => i.category === "accuracy")) {
+        insights.push({
+          id: "insight-nn-final-acc",
+          title: "Nonlinear classification accuracy",
+          description: `The hidden representations enabled ${finalAccPercent}% recorded classification accuracy by the final frame.`,
+          step: history.length - 1,
+          evidence: { finalAccuracy: final.metrics.accuracy },
+          algorithm: run.algorithm,
+          category: "accuracy",
+        });
+      }
+    }
   }
 
   // Ensure single state runs are handled
@@ -283,6 +312,7 @@ export function generateComparisonInsights(
   const finalB = runB.history[runB.history.length - 1];
   const isKMeans = runA.algorithm === "kmeans" || runB.algorithm === "kmeans";
   const isLogistic = runA.algorithm.startsWith("logistic") || runB.algorithm.startsWith("logistic");
+  const isNeuralNetwork = runA.algorithm.startsWith("neural") || runB.algorithm.startsWith("neural");
 
   const insights: ComparisonInsight[] = [];
 
@@ -296,6 +326,26 @@ export function generateComparisonInsights(
         title: "Cluster configuration",
         description: `Run A configured ${kA} clusters, whereas Run B configured ${kB} clusters.`,
         evidence: { clustersA: kA, clustersB: kB },
+      });
+    }
+  } else if (isNeuralNetwork) {
+    const lrA = runA.training.learning_rate;
+    const lrB = runB.training.learning_rate;
+    const hA = runA.training.hidden_neurons ?? runA.history[0]?.b1?.length ?? 3;
+    const hB = runB.training.hidden_neurons ?? runB.history[0]?.b1?.length ?? 3;
+    if (hA !== hB) {
+      insights.push({
+        id: "comp-config-hidden",
+        title: "Hidden layer capacity",
+        description: `Run A configured ${hA} hidden neurons, while Run B configured ${hB} hidden neurons.`,
+        evidence: { hiddenA: hA, hiddenB: hB },
+      });
+    } else if (lrA !== lrB) {
+      insights.push({
+        id: "comp-config-lr",
+        title: "Learning rate setup",
+        description: `Run A used a learning rate of ${formatNumber(lrA)}, while Run B used ${formatNumber(lrB)}.`,
+        evidence: { learningRateA: lrA, learningRateB: lrB },
       });
     }
   } else {
@@ -334,7 +384,7 @@ export function generateComparisonInsights(
         evidence: { inertiaA, inertiaB },
       });
     }
-  } else if (isLogistic) {
+  } else if (isLogistic || isNeuralNetwork) {
     const bceA = finalA.loss;
     const bceB = finalB.loss;
     if (Math.abs(bceA - bceB) > 1e-6) {

@@ -4,6 +4,7 @@ import type {
   KMeansXRayData,
   LinearXRayData,
   LogisticXRayData,
+  NeuralNetworkXRayData,
   PredictionSummary,
 } from "./types";
 
@@ -165,6 +166,103 @@ export function computeKMeansXRay(
     centroidMovements,
     totalMovement,
     inertiaChange,
+  };
+}
+
+export function computeNeuralNetworkXRay(
+  state: TrainingState,
+  prevState: TrainingState | null
+): NeuralNetworkXRayData {
+  const isInitialState = state.step === 0;
+  const w1 = state.w1 ?? [];
+  const b1 = state.b1 ?? [];
+  const w2 = state.w2 ?? [];
+  const b2 = state.b2 ?? 0;
+
+  const hiddenCount = b1.length > 0 ? b1.length : (w1[0]?.length ?? 3);
+  const inputCount = w1.length > 0 ? w1.length : 2;
+  const architecture = { inputs: inputCount, hidden: hiddenCount, outputs: 1 };
+
+  const dw1 = isInitialState ? null : (state.dw1 ?? null);
+  const db1 = isInitialState ? null : (state.db1 ?? null);
+  const dw2 = isInitialState ? null : (state.dw2 ?? null);
+  const db2 = isInitialState ? null : (state.db2 ?? null);
+
+  let gradientMagnitude: number | null = null;
+  if (!isInitialState && dw1 && db1 && dw2 && db2 != null) {
+    let sumSquares = 0;
+    for (const row of dw1) {
+      for (const v of row) sumSquares += v * v;
+    }
+    for (const v of db1) sumSquares += v * v;
+    for (const row of dw2) {
+      for (const v of row) sumSquares += v * v;
+    }
+    sumSquares += db2 * db2;
+    gradientMagnitude = Math.sqrt(sumSquares);
+  }
+
+  const loss = state.metrics.binary_cross_entropy ?? state.loss ?? null;
+  const accuracy = state.metrics.accuracy ?? null;
+  const probabilities = computePredictionsSummary(state.predictions);
+  const hiddenActivations = state.hidden_activations ?? null;
+
+  let frameChanges = null;
+  if (prevState) {
+    let w1DeltaNorm = 0;
+    if (state.w1 && prevState.w1) {
+      let sumSq = 0;
+      for (let i = 0; i < state.w1.length; i++) {
+        for (let j = 0; j < (state.w1[i]?.length ?? 0); j++) {
+          const diff = (state.w1[i][j] ?? 0) - (prevState.w1[i]?.[j] ?? 0);
+          sumSq += diff * diff;
+        }
+      }
+      w1DeltaNorm = Math.sqrt(sumSq);
+    }
+
+    let w2DeltaNorm = 0;
+    if (state.w2 && prevState.w2) {
+      let sumSq = 0;
+      for (let i = 0; i < state.w2.length; i++) {
+        for (let j = 0; j < (state.w2[i]?.length ?? 0); j++) {
+          const diff = (state.w2[i][j] ?? 0) - (prevState.w2[i]?.[j] ?? 0);
+          sumSq += diff * diff;
+        }
+      }
+      w2DeltaNorm = Math.sqrt(sumSq);
+    }
+
+    frameChanges = {
+      loss: (state.loss ?? 0) - (prevState.loss ?? 0),
+      accuracy:
+        state.metrics.accuracy != null && prevState.metrics.accuracy != null
+          ? state.metrics.accuracy - prevState.metrics.accuracy
+          : undefined,
+      w1DeltaNorm,
+      w2DeltaNorm,
+    };
+  }
+
+  return {
+    algorithm: "neural_network",
+    step: state.step,
+    isInitialState,
+    architecture,
+    w1,
+    b1,
+    w2,
+    b2,
+    dw1,
+    db1,
+    dw2,
+    db2,
+    gradientMagnitude,
+    loss,
+    accuracy,
+    probabilities,
+    hiddenActivations,
+    frameChanges,
   };
 }
 

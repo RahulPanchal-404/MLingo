@@ -34,6 +34,7 @@ class TrainingConfigurationRequest(BaseModel):
     initial_bias: float = 0.0
     clusters: int | None = Field(default=None, gt=0, le=10_000)
     iterations: int | None = Field(default=None, gt=0, le=10_000)
+    hidden_neurons: int | None = Field(default=3, gt=0, le=16)
     seed: int = 0
 
     @field_validator("learning_rate", "initial_weight", "initial_bias")
@@ -45,14 +46,14 @@ class TrainingConfigurationRequest(BaseModel):
 
 
 class CreateTrainingRunRequest(BaseModel):
-    algorithm: Literal["linear_regression", "logistic_regression", "kmeans"] = "linear_regression"
+    algorithm: Literal["linear_regression", "logistic_regression", "kmeans", "neural_network"] = "linear_regression"
     dataset: SyntheticDatasetRequest | KMeansDatasetRequest = Field(default_factory=SyntheticDatasetRequest)
     training: TrainingConfigurationRequest = Field(default_factory=TrainingConfigurationRequest)
 
     @model_validator(mode="after")
     def validate_algorithm_dataset(self) -> "CreateTrainingRunRequest":
-        if self.algorithm == "logistic_regression" and self.dataset.samples <= 1:
-            raise ValueError("logistic_regression requires at least two samples")
+        if self.algorithm in ("logistic_regression", "neural_network") and self.dataset.samples <= 1:
+            raise ValueError(f"{self.algorithm} requires at least two samples")
         if self.algorithm == "kmeans":
             if not hasattr(self.dataset, "samples") or self.dataset.samples <= 1:
                 raise ValueError("kmeans requires at least two samples")
@@ -88,6 +89,7 @@ class TrainingConfigurationResponse(BaseModel):
     initial_bias: float | None = None
     clusters: int | None = None
     iterations: int | None = None
+    hidden_neurons: int | None = None
     seed: int | None = None
 
 
@@ -111,6 +113,15 @@ class TrainingStateResponse(BaseModel):
     cluster_assignments: list[int] | None = None
     inertia: float | None = None
     centroid_movement: list[float] | None = None
+    w1: list[list[float]] | None = None
+    b1: list[float] | None = None
+    w2: list[list[float]] | None = None
+    b2: float | None = None
+    dw1: list[list[float]] | None = None
+    db1: list[float] | None = None
+    dw2: list[list[float]] | None = None
+    db2: float | None = None
+    hidden_activations: list[list[float]] | None = None
 
 
 class TrainingRunResponse(BaseModel):
@@ -159,6 +170,15 @@ class TrainingRunResponse(BaseModel):
                     cluster_assignments=list(state.cluster_assignments) if state.cluster_assignments else None,
                     inertia=state.inertia,
                     centroid_movement=list(state.centroid_movement) if state.centroid_movement else None,
+                    w1=[list(map(float, row)) for row in state.w1] if state.w1 else None,
+                    b1=list(map(float, state.b1)) if state.b1 else None,
+                    w2=[list(map(float, row)) for row in state.w2] if state.w2 else None,
+                    b2=state.b2,
+                    dw1=[list(map(float, row)) for row in state.dw1] if state.dw1 else None,
+                    db1=list(map(float, state.db1)) if state.db1 else None,
+                    dw2=[list(map(float, row)) for row in state.dw2] if state.dw2 else None,
+                    db2=state.db2,
+                    hidden_activations=[list(map(float, row)) for row in state.hidden_activations] if state.hidden_activations else None,
                 )
                 for state in run.history
             ],

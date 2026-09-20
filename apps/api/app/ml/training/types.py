@@ -13,6 +13,7 @@ class TrainingConfig:
     clusters: int | None = None
     iterations: int | None = None
     seed: int = 0
+    hidden_neurons: int = 3
 
 
 @dataclass(frozen=True)
@@ -68,6 +69,15 @@ class TrainingState:
     cluster_assignments: tuple[int, ...] | None = None
     inertia: float | None = None
     centroid_movement: tuple[float, ...] | None = None
+    w1: tuple[tuple[float, ...], ...] | None = None
+    b1: tuple[float, ...] | None = None
+    w2: tuple[tuple[float, ...], ...] | None = None
+    b2: float | None = None
+    dw1: tuple[tuple[float, ...], ...] | None = None
+    db1: tuple[float, ...] | None = None
+    dw2: tuple[tuple[float, ...], ...] | None = None
+    db2: float | None = None
+    hidden_activations: tuple[tuple[float, ...], ...] | None = None
 
 
 @dataclass(frozen=True)

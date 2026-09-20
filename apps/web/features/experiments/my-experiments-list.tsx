@@ -90,6 +90,8 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
       path = "/labs/logistic-regression/compare";
     } else if (algo.startsWith("kmeans")) {
       path = "/labs/k-means/compare";
+    } else if (algo.startsWith("neural")) {
+      path = "/labs/neural-network/compare";
     }
 
     const params = new URLSearchParams();
@@ -122,6 +124,10 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
       const k = run.training.clusters ?? 3;
       const iters = run.training.iterations ?? run.total_steps;
       return `k=${k}, ${iters} iterations, ${run.dataset.samples} samples, noise ${run.dataset.noise}`;
+    }
+    if (algo.startsWith("neural")) {
+      const h = run.training.hidden_neurons ?? run.history[0]?.b1?.length ?? 3;
+      return `h=${h}, lr=${run.training.learning_rate}, ${run.training.epochs} epochs, ${run.dataset.samples} samples, noise ${run.dataset.noise}`;
     }
     return `lr=${run.training.learning_rate}, ${run.training.epochs} epochs, ${run.dataset.samples} samples, noise ${run.dataset.noise}`;
   };

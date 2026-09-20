@@ -41,6 +41,11 @@ const defaultBaseRequests: Record<TrainingRunRequest["algorithm"], TrainingRunRe
     dataset: { samples: 45, noise: 0.1, seed: 0 },
     training: { learning_rate: 0.1, epochs: 12, initial_weight: 0, initial_bias: 0, clusters: 3, iterations: 12, seed: 0 },
   },
+  neural_network: {
+    algorithm: "neural_network",
+    dataset: { samples: 48, noise: 0.15, seed: 0 },
+    training: { learning_rate: 0.2, epochs: 40, initial_weight: 0, initial_bias: 0, hidden_neurons: 3 },
+  },
 };
 
 export function ExperimentExplorer({ onInspectRun, inspectedRunId }: ExperimentExplorerProps) {

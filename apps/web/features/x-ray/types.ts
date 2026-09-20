@@ -68,7 +68,35 @@ export type KMeansXRayData = {
   inertiaChange: number | null;
 };
 
-export type ModelXRayData = LinearXRayData | LogisticXRayData | KMeansXRayData;
+export type NeuralNetworkFrameChanges = {
+  loss: number;
+  accuracy?: number;
+  w1DeltaNorm?: number;
+  w2DeltaNorm?: number;
+};
+
+export type NeuralNetworkXRayData = {
+  algorithm: "neural_network";
+  step: number;
+  isInitialState: boolean;
+  architecture: { inputs: number; hidden: number; outputs: number };
+  w1: number[][];
+  b1: number[];
+  w2: number[][];
+  b2: number;
+  dw1: number[][] | null;
+  db1: number[] | null;
+  dw2: number[][] | null;
+  db2: number | null;
+  gradientMagnitude: number | null;
+  loss: number | null;
+  accuracy: number | null;
+  probabilities: PredictionSummary | null;
+  hiddenActivations: number[][] | null;
+  frameChanges: NeuralNetworkFrameChanges | null;
+};
+
+export type ModelXRayData = LinearXRayData | LogisticXRayData | KMeansXRayData | NeuralNetworkXRayData;
 
 export type ModelXRayProps = {
   run: TrainingRun;

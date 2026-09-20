@@ -82,6 +82,16 @@ function findNearConvergence(history: TrainingState[]): DiagnosticEvent | null {
             if (weightGradient !== null && biasGradient !== null && Math.abs(weightGradient) <= DIAGNOSTIC_THRESHOLDS.convergenceGradient && Math.abs(biasGradient) <= DIAGNOSTIC_THRESHOLDS.convergenceGradient) {
                   return event("convergence", index, "near_convergence", "Near convergence", "Weight and bias gradients are close to zero.", "success", { gradientMagnitudes: [Math.abs(weightGradient), Math.abs(biasGradient)], weightGradient, biasGradient });
             }
+            if (state.dw2 && state.db2 !== undefined && state.db2 !== null) {
+                  const maxDw2 = Math.max(...state.dw2.map((r) => Math.abs(r[0] ?? 0)));
+                  const maxDw1 = state.dw1 ? Math.max(...state.dw1.flatMap((r) => r.map(Math.abs))) : 0;
+                  const maxDb1 = state.db1 ? Math.max(...state.db1.map(Math.abs)) : 0;
+                  const maxDb2 = Math.abs(state.db2);
+                  const maxGrad = Math.max(maxDw2, maxDw1, maxDb1, maxDb2);
+                  if (maxGrad <= DIAGNOSTIC_THRESHOLDS.convergenceGradient) {
+                        return event("convergence", index, "near_convergence", "Near convergence", "Network gradients across all layers are close to zero.", "success", { gradientMagnitudes: [maxGrad] });
+                  }
+            }
             const centroidMovement = state.centroid_movement ?? [];
             if (centroidMovement.length > 0 && centroidMovement.every((movement) => Math.abs(movement) <= DIAGNOSTIC_THRESHOLDS.convergenceGradient)) {
                   return event("convergence", index, "near_convergence", "Near convergence", "Centroid movement is now very small, suggesting the clustering is stabilizing.", "success", { centroidMovement });

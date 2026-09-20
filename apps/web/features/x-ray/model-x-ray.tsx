@@ -5,6 +5,7 @@ import {
   computeKMeansXRay,
   computeLinearXRay,
   computeLogisticXRay,
+  computeNeuralNetworkXRay,
   formatDelta,
   formatNumber,
   formatPercentage,
@@ -42,6 +43,12 @@ export function ModelXRay({ run, state, currentStep }: ModelXRayProps) {
   if (isLogistic) {
     const data = computeLogisticXRay(state, prevState);
     return <LogisticXRayView data={data} />;
+  }
+
+  const isNeuralNetwork = run.algorithm === "neural_network" || run.algorithm.startsWith("neural");
+  if (isNeuralNetwork) {
+    const data = computeNeuralNetworkXRay(state, prevState);
+    return <NeuralNetworkXRayView data={data} />;
   }
 
   const data = computeLinearXRay(state, prevState);
@@ -369,6 +376,179 @@ function KMeansXRayView({ data }: { data: ReturnType<typeof computeKMeansXRay> }
             </dl>
           ) : (
             <p className="empty-state">No previous iteration data.</p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ==========================================================================
+   NEURAL NETWORK X-RAY
+   ========================================================================== */
+function NeuralNetworkXRayView({ data }: { data: ReturnType<typeof computeNeuralNetworkXRay> }) {
+  const {
+    isInitialState,
+    architecture,
+    w1,
+    b1,
+    w2,
+    b2,
+    dw1,
+    db1,
+    dw2,
+    db2,
+    gradientMagnitude,
+    loss,
+    accuracy,
+    probabilities,
+    frameChanges,
+  } = data;
+
+  return (
+    <section className="model-x-ray state-panel" aria-label="Neural Network Model X-Ray">
+      <div className="state-heading">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+          <p className="eyebrow">Model X-Ray / Neural Network</p>
+          <span className="badge" style={{ fontSize: "0.75rem" }}>
+            {architecture.inputs} → {architecture.hidden} → {architecture.outputs} (Sigmoid)
+          </span>
+        </div>
+        <h2>{isInitialState ? "Step 0 — Initial State" : `Step ${data.step}`}</h2>
+        <p>
+          {isInitialState
+            ? "Initial weights initialized via Xavier/Glorot scaling, biases at 0. Ready for backpropagation."
+            : "Inspecting frame parameters, layer activations, analytical gradients, and weight deltas."}
+        </p>
+      </div>
+
+      <div className="xray-content-grid">
+        {/* Hidden Layer (Layer 1) Parameters */}
+        <div className="xray-group">
+          <h3 className="xray-group-title">Hidden Layer (W₁, b₁)</h3>
+          <p style={{ fontSize: "0.75rem", color: "var(--color-muted)", margin: "0 0 0.5rem" }}>
+            Input (2 features) to {architecture.hidden} neurons
+          </p>
+          <dl className="xray-metrics-list">
+            {w1.map((row, i) =>
+              row.map((val, j) => (
+                <MetricItem
+                  key={`w1-${i}-${j}`}
+                  label={`W₁[${i}, ${j}] (in${i + 1} → h${j + 1})`}
+                  value={val}
+                />
+              ))
+            )}
+            {b1.map((val, j) => (
+              <MetricItem
+                key={`b1-${j}`}
+                label={`b₁[${j}] (neuron h${j + 1})`}
+                value={val}
+              />
+            ))}
+          </dl>
+        </div>
+
+        {/* Output Layer (Layer 2) Parameters */}
+        <div className="xray-group">
+          <h3 className="xray-group-title">Output Layer (W₂, b₂)</h3>
+          <p style={{ fontSize: "0.75rem", color: "var(--color-muted)", margin: "0 0 0.5rem" }}>
+            {architecture.hidden} hidden neurons to 1 output
+          </p>
+          <dl className="xray-metrics-list">
+            {w2.map((row, j) => (
+              <MetricItem
+                key={`w2-${j}`}
+                label={`W₂[${j}, 0] (h${j + 1} → out)`}
+                value={row[0]}
+              />
+            ))}
+            <MetricItem label="Bias (b₂)" value={b2} />
+          </dl>
+        </div>
+
+        {/* Analytical Gradients (Backprop) */}
+        <div className="xray-group">
+          <h3 className="xray-group-title">Backpropagation Gradients</h3>
+          <dl className="xray-metrics-list">
+            <MetricItem
+              label="||∇Loss||₂ (Total Gradient Norm)"
+              value={gradientMagnitude}
+              placeholder={isInitialState ? "None (initial state)" : undefined}
+            />
+            {dw2 &&
+              dw2.map((row, j) => (
+                <MetricItem
+                  key={`dw2-${j}`}
+                  label={`∂L/∂W₂[${j}, 0]`}
+                  value={row[0]}
+                />
+              ))}
+            <MetricItem
+              label="∂L/∂b₂"
+              value={db2}
+              placeholder={isInitialState ? "None (initial state)" : undefined}
+            />
+            {dw1 && dw1.length > 0 && (
+              <MetricItem
+                label="∂L/∂W₁ (sample)"
+                textValue={dw1.map((r) => r.map((v) => formatNumber(v, 3)).join(", ")).join(" | ")}
+              />
+            )}
+            {db1 && (
+              <MetricItem
+                label="∂L/∂b₁"
+                textValue={db1.map((v) => formatNumber(v, 3)).join(", ")}
+              />
+            )}
+          </dl>
+        </div>
+
+        {/* Training Signal */}
+        <div className="xray-group">
+          <h3 className="xray-group-title">Training Signal</h3>
+          <dl className="xray-metrics-list">
+            <MetricItem label="Loss / BCE" value={loss} />
+            <MetricItem
+              label="Accuracy"
+              textValue={accuracy != null ? formatPercentage(accuracy) : "N/A"}
+            />
+            <MetricItem
+              label="Probabilities (mean)"
+              value={probabilities?.mean}
+              placeholder="N/A"
+            />
+            <MetricItem
+              label="Prob range"
+              textValue={
+                probabilities
+                  ? `${formatNumber(probabilities.min, 2)} – ${formatNumber(probabilities.max, 2)}`
+                  : "N/A"
+              }
+            />
+          </dl>
+        </div>
+
+        {/* Frame Changes */}
+        <div className="xray-group">
+          <h3 className="xray-group-title">Frame Updates (Δ from prev)</h3>
+          {frameChanges ? (
+            <dl className="xray-metrics-list">
+              <MetricDelta label="Δ Loss" delta={frameChanges.loss} />
+              {frameChanges.accuracy !== undefined && (
+                <MetricDelta label="Δ Accuracy" delta={frameChanges.accuracy} isPercentage />
+              )}
+              {frameChanges.w1DeltaNorm !== undefined && (
+                <MetricItem label="||ΔW₁||₂ (L1 movement)" value={frameChanges.w1DeltaNorm} />
+              )}
+              {frameChanges.w2DeltaNorm !== undefined && (
+                <MetricItem label="||ΔW₂||₂ (L2 movement)" value={frameChanges.w2DeltaNorm} />
+              )}
+            </dl>
+          ) : (
+            <p className="empty-state" style={{ padding: "0.5rem 0", fontSize: "0.85rem" }}>
+              {isInitialState ? "Initial state — no prior step." : "No previous frame data."}
+            </p>
           )}
         </div>
       </div>

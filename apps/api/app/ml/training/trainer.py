@@ -5,6 +5,12 @@ import numpy as np
 from app.ml.algorithms.kmeans import assign_clusters, inertia, initialize_centroids, update_centroids
 from app.ml.algorithms.linear_regression import predict
 from app.ml.algorithms.logistic_regression import binary_cross_entropy, predict_proba
+from app.ml.algorithms.neural_network import (
+    backward as nn_backward,
+    binary_cross_entropy as nn_bce,
+    forward as nn_forward,
+    initialize_network,
+)
 from app.ml.metrics.regression import mean_squared_error
 from app.ml.training.gradient_descent import gradients
 from app.ml.training.types import ClusteringDataset, ClusteringMetrics, ClassificationDataset, RegressionDataset, RegressionMetrics, TrainingConfig, TrainingMetrics, TrainingRun, TrainingState
@@ -69,6 +75,81 @@ def train_logistic_regression(dataset: ClassificationDataset, configuration: Tra
         weights = weights - configuration.learning_rate * previous_gradients
         bias -= configuration.learning_rate * previous_bias_gradient
     return TrainingRun(run_id or str(uuid4()), "logistic_regression.gradient_descent", dataset.name, configuration, configuration.epochs, tuple(history), tuple(state.step for state in history), {"feature_count": str(feature_count), "sample_count": str(dataset.features.shape[0])})
+
+
+def train_neural_network(dataset: ClassificationDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:
+    """Train a 2-layer neural network with backpropagation and retain an immutable snapshot for every epoch."""
+    _validate_inputs(dataset, configuration)
+    if not np.all(np.isfinite(dataset.targets)) or not np.all(np.isin(dataset.targets, (0.0, 1.0))):
+        raise ValueError("classification targets must be finite binary labels")
+    
+    feature_count = dataset.features.shape[1]
+    hidden_count = max(2, min(4, configuration.hidden_neurons or 3))
+    
+    w1, b1, w2, b2 = initialize_network(input_dim=feature_count, hidden_dim=hidden_count, seed=configuration.seed)
+    
+    history: list[TrainingState] = []
+    previous_dw1: np.ndarray | None = None
+    previous_db1: np.ndarray | None = None
+    previous_dw2: np.ndarray | None = None
+    previous_db2: float | None = None
+
+    for step in range(configuration.epochs + 1):
+        z1, a1, z2, a2 = nn_forward(dataset.features, w1, b1, w2, b2)
+        probabilities = a2.flatten()
+        loss = nn_bce(probabilities, dataset.targets)
+        accuracy = float(np.mean((probabilities >= 0.5) == dataset.targets))
+        
+        history.append(
+            TrainingState(
+                step=step,
+                weights=tuple(float(v) for v in w1.flatten()),
+                bias=float(b2),
+                loss=loss,
+                gradients=tuple(float(v) for v in previous_dw1.flatten()) if previous_dw1 is not None else (),
+                bias_gradient=previous_db2,
+                predictions=tuple(float(p) for p in probabilities),
+                metrics=TrainingMetrics(binary_cross_entropy=loss, accuracy=accuracy),
+                w1=tuple(tuple(float(v) for v in row) for row in w1),
+                b1=tuple(float(v) for v in b1),
+                w2=tuple(tuple(float(v) for v in row) for row in w2),
+                b2=float(b2),
+                dw1=tuple(tuple(float(v) for v in row) for row in previous_dw1) if previous_dw1 is not None else None,
+                db1=tuple(float(v) for v in previous_db1) if previous_db1 is not None else None,
+                dw2=tuple(tuple(float(v) for v in row) for row in previous_dw2) if previous_dw2 is not None else None,
+                db2=previous_db2,
+                hidden_activations=tuple(tuple(float(v) for v in row) for row in a1[:8]),
+            )
+        )
+        
+        if step == configuration.epochs:
+            break
+            
+        dw1, db1, dw2, db2 = nn_backward(dataset.features, dataset.targets, z1, a1, z2, a2, w2)
+        previous_dw1 = dw1
+        previous_db1 = db1
+        previous_dw2 = dw2
+        previous_db2 = db2
+        
+        w1 -= configuration.learning_rate * dw1
+        b1 -= configuration.learning_rate * db1
+        w2 -= configuration.learning_rate * dw2
+        b2 -= configuration.learning_rate * db2
+
+    return TrainingRun(
+        run_id or str(uuid4()),
+        "neural_network",
+        dataset.name,
+        configuration,
+        configuration.epochs,
+        tuple(history),
+        tuple(state.step for state in history),
+        {
+            "feature_count": str(feature_count),
+            "hidden_neurons": str(hidden_count),
+            "sample_count": str(dataset.features.shape[0]),
+        },
+    )
 
 
 def train_kmeans(dataset: ClusteringDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:

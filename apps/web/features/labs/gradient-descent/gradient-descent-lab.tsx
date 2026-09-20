@@ -144,7 +144,7 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                               <Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link>
                         </div>
                   </div>
-                  {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} />}
+                  {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
                   {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
                   {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
                   {!isLoading && !error && run && (
@@ -152,7 +152,7 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                               <section className="visual-grid" aria-label="Training visualizations"><RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} /><LossChart currentStep={timeline.currentStep} history={run.history} /></section>
                               <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
                               <section className="learning-modes-grid" aria-label="Selected frame learning modes"><MathMode learningRate={run.training.learning_rate} state={state} /><CodeMode learningRate={run.training.learning_rate} state={state} /></section>
-                              {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />}
+                              {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />}
                               {!breakMode && <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />}
                               {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
                               <TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} />

@@ -15,7 +15,7 @@ export function KMeansMathMode({ state }: { state: TrainingState | null }) {
   const inertiaVal = state.inertia ?? state.loss;
 
   return (
-    <section aria-label="K-Means math mode" className="learning-mode-panel">
+    <section id="math-mode-panel" aria-label="K-Means math mode" className="learning-mode-panel">
       <div className="learning-mode-heading">
         <div>
           <p className="eyebrow">Math mode / K-Means</p>

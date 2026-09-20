@@ -8,14 +8,21 @@ import { evaluateBreakMode } from "@/features/challenges/break-mode-evaluator";
 import type { BreakModeChallenge, BreakModeResult } from "@/features/challenges/types";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 
+import { generateChallengeExplanation } from "@/features/intelligence/intelligence-engine";
+import { WhyExplanationPanel } from "@/features/intelligence/why-explanation-panel";
+import type { TrainingRun } from "@/types/training-run";
+
 type BreakModePanelProps = {
       challenge: BreakModeChallenge;
       diagnostics: DiagnosticEvent[] | null;
       markers: TimelineMarker[];
+      run?: TrainingRun | null;
 };
 
-export function BreakModePanel({ challenge, diagnostics, markers }: BreakModePanelProps) {
+export function BreakModePanel({ challenge, diagnostics, markers, run }: BreakModePanelProps) {
       const result = evaluateBreakMode(challenge, diagnostics, markers);
+      const explanation = result.status === "success" && run ? generateChallengeExplanation(challenge, result, run) : null;
+
       useEffect(() => {
             if (result.status === "success") {
                   const current = readLearningActivity();
@@ -23,11 +30,17 @@ export function BreakModePanel({ challenge, diagnostics, markers }: BreakModePan
                   recordRunConcepts([challenge.targetDiagnosticType === "possible_plateau" ? "Learning slowdown" : challenge.targetDiagnosticType === "possible_divergence" ? "Divergence" : "Instability"]);
             }
       }, [challenge.id, challenge.targetDiagnosticType, result.status]);
+
       return <section aria-label="Break Mode challenge" className="break-mode-panel">
             <div className="break-mode-heading"><div><p className="eyebrow">Break Mode</p><h2>{challenge.title}</h2></div><span className={`break-mode-status ${result.status}`}>{getStatusLabel(result)}</span></div>
             <p>{challenge.description}</p>
             <dl className="break-mode-objective"><div><dt>Objective</dt><dd>{challenge.objective}</dd></div><div><dt>Target</dt><dd>{formatTarget(challenge, result)}</dd></div></dl>
             <p className={`break-mode-feedback ${result.status}`}>{getFeedback(result)}</p>
+            {explanation && (
+              <div className="break-mode-explanation-wrapper">
+                <WhyExplanationPanel explanation={explanation} />
+              </div>
+            )}
       </section>;
 }
 

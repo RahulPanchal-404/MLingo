@@ -16,7 +16,7 @@ export function getCodeLines(state: TrainingState | null, learningRate: number):
 }
 
 export function CodeMode({ state, learningRate }: CodeModeProps) {
-      return <section aria-label="Code mode" className="learning-mode-panel code-mode-panel">
+      return <section id="code-mode-panel" aria-label="Code mode" className="learning-mode-panel code-mode-panel">
             <div className="learning-mode-heading"><div><p className="eyebrow">Code mode</p><h2>Conceptual training update</h2></div><span>{state ? `Step ${state.step}` : "No frame"}</span></div>
             <pre aria-label="Conceptual Python training update"><code>{getCodeLines(state, learningRate).join("\n")}</code></pre>
             <p className="learning-mode-note">This is an educational representation of the recorded linear regression update. It is not executed in the browser.</p>

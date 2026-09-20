@@ -145,7 +145,7 @@ export function KMeansLab() {
                                     <KMeansMathMode state={state} />
                                     <KMeansCodeMode state={state} />
                               </section>
-                              <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />
+                              <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />
                               <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />
                               {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
                               <TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} />

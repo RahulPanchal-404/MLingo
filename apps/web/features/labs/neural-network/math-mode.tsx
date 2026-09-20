@@ -35,7 +35,7 @@ export function NeuralMathMode({
   }
 
   return (
-    <section aria-label="Neural network math mode" className="learning-mode-panel">
+    <section id="math-mode-panel" aria-label="Neural network math mode" className="learning-mode-panel">
       <div className="learning-mode-heading">
         <div>
           <p className="eyebrow">Math mode / Neural Network & Backprop</p>

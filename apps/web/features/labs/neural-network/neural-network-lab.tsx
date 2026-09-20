@@ -243,7 +243,7 @@ export function NeuralNetworkLab() {
             <NeuralCodeMode learningRate={run.training.learning_rate} state={state} />
           </section>
 
-          <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />
+          <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />
           <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />
 
           {isMarkerFormOpen && (

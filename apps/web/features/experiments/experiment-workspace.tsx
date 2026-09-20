@@ -308,7 +308,7 @@ export function ExperimentWorkspace() {
             )}
           </section>
 
-          <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} />
+          <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />
           <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />
 
           <TimelineControls

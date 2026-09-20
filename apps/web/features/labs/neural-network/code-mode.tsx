@@ -40,7 +40,7 @@ export function NeuralCodeMode({
   learningRate: number;
 }) {
   return (
-    <section aria-label="Neural network code mode" className="learning-mode-panel code-mode-panel">
+    <section id="code-mode-panel" aria-label="Neural network code mode" className="learning-mode-panel code-mode-panel">
       <div className="learning-mode-heading">
         <div>
           <p className="eyebrow">Code mode / Neural Network & Backprop</p>

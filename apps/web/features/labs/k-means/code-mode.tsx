@@ -18,7 +18,7 @@ export function getKMeansCodeLines(state: TrainingState | null): string[] {
 
 export function KMeansCodeMode({ state }: { state: TrainingState | null }) {
   return (
-    <section aria-label="K-Means code mode" className="learning-mode-panel code-mode-panel">
+    <section id="code-mode-panel" aria-label="K-Means code mode" className="learning-mode-panel code-mode-panel">
       <div className="learning-mode-heading">
         <div>
           <p className="eyebrow">Code mode / K-Means</p>

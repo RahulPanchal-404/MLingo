@@ -34,25 +34,28 @@ export function ModelXRay({ run, state, currentStep }: ModelXRayProps) {
   const prevState = currentStep > 0 ? run.history[currentStep - 1] ?? null : null;
   const isKMeans = run.algorithm === "kmeans" || run.algorithm.startsWith("kmeans");
   const isLogistic = run.algorithm.startsWith("logistic");
+  const isNeuralNetwork = run.algorithm === "neural_network" || run.algorithm.startsWith("neural");
 
+  let content: React.ReactNode;
   if (isKMeans) {
     const data = computeKMeansXRay(state, prevState, run.training.clusters);
-    return <KMeansXRayView data={data} />;
-  }
-
-  if (isLogistic) {
+    content = <KMeansXRayView data={data} />;
+  } else if (isLogistic) {
     const data = computeLogisticXRay(state, prevState);
-    return <LogisticXRayView data={data} />;
-  }
-
-  const isNeuralNetwork = run.algorithm === "neural_network" || run.algorithm.startsWith("neural");
-  if (isNeuralNetwork) {
+    content = <LogisticXRayView data={data} />;
+  } else if (isNeuralNetwork) {
     const data = computeNeuralNetworkXRay(state, prevState);
-    return <NeuralNetworkXRayView data={data} />;
+    content = <NeuralNetworkXRayView data={data} />;
+  } else {
+    const data = computeLinearXRay(state, prevState);
+    content = <LinearXRayView data={data} />;
   }
 
-  const data = computeLinearXRay(state, prevState);
-  return <LinearXRayView data={data} />;
+  return (
+    <div id="model-x-ray-panel" className="model-x-ray-anchor">
+      {content}
+    </div>
+  );
 }
 
 /* ==========================================================================

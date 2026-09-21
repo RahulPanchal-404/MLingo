@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { TrainingRun, TrainingState } from "@/types/training-run";
 import {
   computeKMeansXRay,
@@ -52,7 +53,15 @@ export function ModelXRay({ run, state, currentStep }: ModelXRayProps) {
   }
 
   return (
-    <div id="model-x-ray-panel" className="model-x-ray-anchor">
+    <div id="model-x-ray-panel" className="model-x-ray-anchor space-y-2">
+      <div className="flex justify-end">
+        <Link
+          href="/workbench"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors"
+        >
+          <span>View evaluation in Data Workbench →</span>
+        </Link>
+      </div>
       {content}
     </div>
   );

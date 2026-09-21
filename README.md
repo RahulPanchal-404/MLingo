@@ -50,6 +50,7 @@ When the playhead is at **Step $t$**, every view on screen synchronizes strictly
 ## Core Product Capabilities
 
 - **Interactive Labs**: Dedicated, single-algorithm environments for deep exploration.
+- **Data Science Workbench (`/workbench`)**: Complete end-to-end data lifecycle: Explore → Preprocess → Split → Train → Evaluate → Inspect, with strict train-only transformer fitting to prevent data leakage.
 - **Model X-Ray**: Frame-by-frame inspection of weights, bias, gradients, parameter deltas, sample predictions, probabilities, and cluster distributions.
 - **Experiment Explorer (Parameter Sweeps)**: Run several experiments, vary one parameter, and inspect how the training process changes. Supports sweeps over learning rate (Linear & Logistic Regression) and cluster count $k$ (K-Means), complete with parameter-vs-metric curves, overlaid training trajectories, and factual comparative insights.
 - **Local Experiment History & Replay**: Save interesting runs to client-side storage, replay recordings frame by frame offline without re-running models on the backend, and compare multiple saved runs.
@@ -184,14 +185,19 @@ npm run build
    - Freely configure custom runs across any of the 3 algorithms.
 9. **Review Learning Memory (`/progress`)**:
    - Check recorded concepts, completed challenges, and explored laboratories.
+10. **Data Science Workbench (`/workbench` or `/data`)**:
+    - Complete data science workflow: **Explore → Preprocess → Split → Train → Evaluate → Inspect**.
+    - Preprocessing: Standardization, Min-Max scaling, Mean & Most-frequent imputation, One-hot encoding.
+    - Train/Test Split: Seeded, reproducible partitions ensuring **strict data leakage prevention** (transformers fit only on training sets).
+    - Evaluation Layer: Regression (MSE, MAE, R²), Classification ($2 \times 2$ Confusion Matrix with counts for TN, FP, FN, TP; Accuracy, Precision, Recall, F1; real-time threshold slider $\theta \in (0, 1)$; parametric ROC & AUC), and Generalization gap analysis.
 
 ---
 
 ## Current Scope & Limitations
 
-- **Browser-Local State**: User progress and custom markers use browser `localStorage`. No remote account database is required.
-- **In-Memory Training Runs**: Replayable runs are generated and held in memory for the active session.
-- **Deterministic Heuristics**: Diagnostic signals and Training Insights are 100% deterministic mathematical calculations, not LLM-generated text.
+- **Browser-Local State**: User progress, saved experiments, and custom markers use client-side `localStorage`. Persistence remains local/in-memory with no remote account database required.
+- **In-Memory Training Runs**: Replayable runs and workbench models are generated and held in memory for the active session.
+- **Deterministic Heuristics**: Diagnostic signals, Learning Intelligence, and evaluation metrics are 100% deterministic mathematical calculations, not LLM-generated text.
 - **No Third-Party Dependencies**: No external AI APIs, payment processors, or authentication providers.
 
 ---

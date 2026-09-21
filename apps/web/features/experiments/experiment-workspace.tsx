@@ -327,6 +327,52 @@ export function ExperimentWorkspace() {
             reducedMotion={timeline.reducedMotion}
             totalSteps={timeline.totalSteps}
           />
+
+          {/* Completed Experiment Lifecycle Summary: Data, Preprocessing, Training, Evaluation */}
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                  Experiment Lifecycle
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 mt-1">Data, Preprocessing, Training & Evaluation</h3>
+              </div>
+              <Link
+                href="/workbench"
+                className="text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors"
+              >
+                Open in Data Workbench →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="rounded bg-slate-50 p-2.5 border border-slate-100">
+                <p className="text-[10px] font-bold uppercase text-slate-400">1. Data</p>
+                <p className="font-semibold text-slate-900 mt-0.5">{run.dataset.samples} samples</p>
+                <p className="text-[11px] text-slate-500">Noise: {run.dataset.noise}, Seed: {run.dataset.seed}</p>
+              </div>
+              <div className="rounded bg-slate-50 p-2.5 border border-slate-100">
+                <p className="text-[10px] font-bold uppercase text-slate-400">2. Preprocessing</p>
+                <p className="font-semibold text-slate-900 mt-0.5">{run.metadata?.preprocessing ?? "Feature Vectors (Direct)"}</p>
+                <p className="text-[11px] text-slate-500">Normalized coordinates</p>
+              </div>
+              <div className="rounded bg-slate-50 p-2.5 border border-slate-100">
+                <p className="text-[10px] font-bold uppercase text-slate-400">3. Training</p>
+                <p className="font-semibold text-slate-900 mt-0.5">{run.algorithm}</p>
+                <p className="text-[11px] text-slate-500">{run.total_steps} epochs, α={run.training.learning_rate}</p>
+              </div>
+              <div className="rounded bg-teal-50/60 p-2.5 border border-teal-200">
+                <p className="text-[10px] font-bold uppercase text-teal-700">4. Final Evaluation</p>
+                <p className="font-bold text-teal-950 font-mono mt-0.5">
+                  Loss: {formatNumber(run.history[run.history.length - 1]?.loss)}
+                </p>
+                <p className="text-[11px] text-teal-800">
+                  {run.history[run.history.length - 1]?.metrics?.accuracy !== undefined && run.history[run.history.length - 1]?.metrics?.accuracy !== null
+                    ? `Accuracy: ${(Number(run.history[run.history.length - 1].metrics.accuracy) * 100).toFixed(1)}%`
+                    : "Training convergence"}
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
       )}
 

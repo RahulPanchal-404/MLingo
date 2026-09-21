@@ -6,10 +6,11 @@ export type LearningActivity = {
       experimentsSaved?: number;
       experimentsReplayed?: number;
       sweepsCompleted?: number;
+      workbenchExplored?: number;
 };
 
 const STORAGE_KEY = "mlingo-learning-activity";
-const defaultActivity: LearningActivity = { labsExplored: 0, experimentsRun: 0, challengesCompleted: [], concepts: [], experimentsSaved: 0, experimentsReplayed: 0, sweepsCompleted: 0 };
+const defaultActivity: LearningActivity = { labsExplored: 0, experimentsRun: 0, challengesCompleted: [], concepts: [], experimentsSaved: 0, experimentsReplayed: 0, sweepsCompleted: 0, workbenchExplored: 0 };
 
 export function readLearningActivity(): LearningActivity {
       if (typeof window === "undefined") return defaultActivity;
@@ -25,6 +26,7 @@ export function readLearningActivity(): LearningActivity {
                   experimentsSaved: typeof value.experimentsSaved === "number" ? value.experimentsSaved : 0,
                   experimentsReplayed: typeof value.experimentsReplayed === "number" ? value.experimentsReplayed : 0,
                   sweepsCompleted: typeof value.sweepsCompleted === "number" ? value.sweepsCompleted : 0,
+                  workbenchExplored: typeof value.workbenchExplored === "number" ? value.workbenchExplored : 0,
             };
       } catch { return defaultActivity; }
 }
@@ -40,6 +42,7 @@ export function recordLearningActivity(update: Partial<LearningActivity>): void 
             experimentsSaved: update.experimentsSaved ?? current.experimentsSaved ?? 0,
             experimentsReplayed: update.experimentsReplayed ?? current.experimentsReplayed ?? 0,
             sweepsCompleted: update.sweepsCompleted ?? current.sweepsCompleted ?? 0,
+            workbenchExplored: update.workbenchExplored ?? current.workbenchExplored ?? 0,
       };
       try {
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));

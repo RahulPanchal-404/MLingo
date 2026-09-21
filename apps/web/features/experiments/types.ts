@@ -11,12 +11,30 @@ export type ExperimentRecord = {
   };
   run: TrainingRun;
   notes?: string;
+  preprocessing?: {
+    numericScaling?: string;
+    missingImputation?: string;
+    categoricalEncoding?: string;
+  };
+  split?: {
+    trainRatio?: number;
+    seed?: number;
+  };
+  evaluation?: {
+    primaryLabel?: string;
+    primaryValue?: string;
+    secondaryLabel?: string;
+    secondaryValue?: string;
+  };
 };
 
 export type SaveExperimentInput = {
   run: TrainingRun;
   title?: string;
   notes?: string;
+  preprocessing?: ExperimentRecord["preprocessing"];
+  split?: ExperimentRecord["split"];
+  evaluation?: ExperimentRecord["evaluation"];
 };
 
 export type ExperimentMetricSummary = {

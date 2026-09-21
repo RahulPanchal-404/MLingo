@@ -298,3 +298,85 @@ function formatEv(val: unknown): string {
   if (typeof val === "string") return val;
   return "N/A";
 }
+
+export function generateEvaluationExplanation(
+  type: "regression" | "classification",
+  data: {
+    trainMetric: number;
+    testMetric: number;
+    metricName: string;
+    threshold?: number;
+    tp?: number;
+    fp?: number;
+    fn?: number;
+    tn?: number;
+  }
+): LearningIntelligenceExplanation {
+  const diff = Number((data.testMetric - data.trainMetric).toFixed(4));
+  const evidence: LearningEvidenceItem[] = [
+    { label: `Train ${data.metricName}`, value: formatNumber(data.trainMetric) },
+    { label: `Test ${data.metricName}`, value: formatNumber(data.testMetric) },
+    { label: "Difference (Δ)", value: diff > 0 ? `+${diff}` : String(diff) },
+  ];
+
+  if (data.threshold !== undefined) {
+    evidence.push({ label: "Decision Threshold (θ)", value: data.threshold.toFixed(2) });
+  }
+  if (data.tp !== undefined && data.fp !== undefined) {
+    evidence.push({ label: "True Positives (TP)", value: String(data.tp) });
+    evidence.push({ label: "False Positives (FP)", value: String(data.fp) });
+  }
+  if (data.fn !== undefined && data.tn !== undefined) {
+    evidence.push({ label: "False Negatives (FN)", value: String(data.fn) });
+    evidence.push({ label: "True Negatives (TN)", value: String(data.tn) });
+  }
+
+  let whatHappened = "";
+  let mathematicalReason = "";
+  let parameterBehavior = "";
+  let whatToTryNext = "";
+
+  if (type === "regression") {
+    whatHappened = `Evaluation produced a test ${data.metricName} of ${data.testMetric} compared to training ${data.metricName} of ${data.trainMetric}.`;
+    mathematicalReason =
+      "Training optimizes mean squared error directly on the training partition. On unseen test data, residual error reflects generalization beyond the fitted points.";
+    parameterBehavior =
+      diff > 0.1
+        ? "Test error exceeds training error, reflecting a generalization gap."
+        : "Training and test errors are closely aligned, showing consistent fit.";
+    whatToTryNext =
+      "Consider adjusting the train/test split ratio or inspecting feature scaling to verify if parameter updates generalize uniformly.";
+  } else {
+    const fp = data.fp ?? 0;
+    const fn = data.fn ?? 0;
+    whatHappened = `At decision threshold θ = ${data.threshold?.toFixed(2) ?? "0.50"}, the model achieved ${data.testMetric * 100}% test accuracy with ${fp} false positive(s) and ${fn} false negative(s).`;
+    mathematicalReason =
+      "The decision threshold θ defines the hyperplane cut point for P(y=1 | x) ≥ θ. Lower thresholds capture more positives (increasing recall) while higher thresholds reduce false alarms (increasing precision).";
+    parameterBehavior =
+      fp > fn
+        ? "The current threshold generates more false alarms than missed positives."
+        : fp < fn
+        ? "The current threshold is conservative, producing more false negatives than false alarms."
+        : "False positives and false negatives are evenly balanced.";
+    whatToTryNext =
+      "Try shifting the threshold slider to observe how precision and recall trade off on the confusion matrix.";
+  }
+
+  return {
+    id: `eval-${type}-${Date.now()}`,
+    diagnosticId: `eval-${type}`,
+    type: "possible_plateau",
+    step: 0,
+    title: `Model Evaluation: ${data.metricName}`,
+    whatHappened,
+    evidence,
+    why: mathematicalReason,
+    parameterBehavior,
+    suggestedAction: whatToTryNext,
+    relatedConcepts: ["Model Evaluation", "Generalization", "Loss vs Metrics"],
+    mathAnchorId: "math-mode-panel",
+    codeAnchorId: "code-mode-panel",
+    modelXRayAnchorId: "model-x-ray-panel",
+  };
+}
+

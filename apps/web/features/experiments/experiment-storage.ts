@@ -157,6 +157,9 @@ export function saveExperiment(input: SaveExperimentInput): ExperimentRecord | n
       },
       run: input.run,
       notes: input.notes?.trim() || undefined,
+      preprocessing: input.preprocessing,
+      split: input.split,
+      evaluation: input.evaluation,
     };
 
     const currentRecords = getSavedExperiments();

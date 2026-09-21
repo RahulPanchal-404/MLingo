@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { TutorProvider } from "@/features/tutor/tutor-provider";
+import { TutorLauncher } from "@/features/tutor/components/tutor-launcher";
+import { TutorDrawer } from "@/features/tutor/components/tutor-drawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +26,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <TutorProvider>
+          {children}
+          <TutorLauncher />
+          <TutorDrawer />
+        </TutorProvider>
+      </body>
     </html>
   );
 }
+

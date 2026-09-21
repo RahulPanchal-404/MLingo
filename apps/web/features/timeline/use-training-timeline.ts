@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { TrainingRun } from "@/types/training-run";
 
@@ -36,10 +36,21 @@ export function useTrainingTimeline(run: TrainingRun | null, sharedTotalSteps?: 
     return () => window.clearInterval(interval);
   }, [isPlaying, reducedMotion, playbackSpeed, totalSteps]);
 
-  const setStep = (step: number) => {
+  const setStep = useCallback((step: number) => {
     setCurrentStep(Math.min(Math.max(step, 0), Math.max(totalSteps - 1, 0)));
     setIsPlaying(false);
-  };
+  }, [totalSteps]);
+
+  useEffect(() => {
+    const handleJumpEvent = (e: Event) => {
+      const custom = e as CustomEvent<{ step?: number }>;
+      if (typeof custom.detail?.step === "number") {
+        setStep(custom.detail.step);
+      }
+    };
+    window.addEventListener("mlingo-jump-step", handleJumpEvent);
+    return () => window.removeEventListener("mlingo-jump-step", handleJumpEvent);
+  }, [setStep]);
 
   return {
     currentStep,

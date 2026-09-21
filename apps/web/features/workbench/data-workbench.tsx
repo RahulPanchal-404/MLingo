@@ -29,6 +29,7 @@ import { DataScienceReport } from "./components/data-science-report";
 import { saveExperiment } from "@/features/experiments/experiment-storage";
 import { recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { PreprocessingConfig, SplitConfig } from "./types";
+import { useTutor } from "@/features/tutor/tutor-provider";
 
 export function DataWorkbench() {
   const [selectedDatasetId, setSelectedDatasetId] = useState<string>("housing_regression");
@@ -118,6 +119,43 @@ export function DataWorkbench() {
       "Generalization",
     ];
     recordRunConcepts(concepts);
+  }, []);
+
+  const { setTutorContext } = useTutor();
+
+  useEffect(() => {
+    if (dataset && evalResult) {
+      const reg = evalResult.regression;
+      const cls = evalResult.classification;
+      const clu = evalResult.clustering;
+
+      setTutorContext({
+        route: "/workbench",
+        evaluation: {
+          task_type: dataset.taskType,
+          train_metric: reg?.trainMse ?? evalResult.generalization?.trainValue ?? null,
+          test_metric: reg?.testMse ?? evalResult.generalization?.testValue ?? null,
+          metric_name: reg ? "MSE / R²" : cls ? "Accuracy" : "Inertia",
+          mae: reg?.testMae ?? null,
+          r2: reg?.testR2 ?? null,
+          accuracy: cls?.accuracy ?? null,
+          precision: cls?.precision ?? null,
+          recall: cls?.recall ?? null,
+          f1: cls?.f1 ?? null,
+          threshold: cls?.threshold ?? null,
+          tp: cls?.confusionMatrix?.tp ?? null,
+          fp: cls?.confusionMatrix?.fp ?? null,
+          fn: cls?.confusionMatrix?.fn ?? null,
+          tn: cls?.confusionMatrix?.tn ?? null,
+          inertia: clu?.inertia ?? null,
+        },
+        training: null,
+        project: null,
+      });
+    }
+  }, [dataset, evalResult, setTutorContext]);
+
+  useEffect(() => {
     recordLearningActivity({ labsExplored: 1 });
   }, [activeStep]);
 

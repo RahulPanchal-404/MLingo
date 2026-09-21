@@ -30,6 +30,8 @@ import { MilestoneInterpretView } from "./components/milestone-interpret-view";
 import { MilestoneReflectView } from "./components/milestone-reflect-view";
 import { recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { PreprocessingConfig, SplitConfig } from "@/features/workbench/types";
+import { useTutor } from "@/features/tutor/tutor-provider";
+import { buildProjectTutorContext } from "@/features/tutor/tutor-context-builder";
 
 const emptySubscribe = () => () => {};
 
@@ -40,12 +42,24 @@ export type ProjectRunnerProps = {
 export function ProjectRunner({ project }: ProjectRunnerProps) {
   const [state, setState] = useState<ProjectState>(() => loadProjectState(project.id));
   const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const { setTutorContext } = useTutor();
 
   useEffect(() => {
     // Record in-progress status
     recordLearningActivity({ projectsInProgress: 1 });
     recordRunConcepts(project.focusConcepts);
   }, [project.focusConcepts]);
+
+  useEffect(() => {
+    if (project && state) {
+      setTutorContext({
+        route: `/projects/${project.slug}`,
+        project: buildProjectTutorContext(project, state),
+        training: null,
+        evaluation: null,
+      });
+    }
+  }, [project, state, setTutorContext]);
 
   const handleSelectMilestone = (id: ProjectMilestoneId) => {
     const updated = updateProjectState(project.id, { currentMilestoneId: id });

@@ -23,6 +23,8 @@ import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage"
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
+import { useTutor } from "@/features/tutor/tutor-provider";
+import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 
 const defaultRequest: TrainingRunRequest = {
@@ -62,6 +64,18 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
       const insights = useMemo(() => run ? generateTrainingInsights(run, diagnostics) : [], [run, diagnostics]);
       const eventMarkers = useMemo(() => breakMode ? [] : diagnosticEventsToTimelineMarkers(diagnostics), [breakMode, diagnostics]);
       const markers = [...eventMarkers, ...userMarkers];
+      const { setTutorContext } = useTutor();
+
+      useEffect(() => {
+        if (run && state) {
+          setTutorContext({
+            route: "/labs/gradient-descent",
+            training: buildTrainingTutorContext(run, state, configuration.training.learning_rate),
+            diagnostic: buildDiagnosticTutorContext(diagnostics[0] ?? null),
+            project: null,
+          });
+        }
+      }, [run, state, configuration.training.learning_rate, diagnostics, setTutorContext]);
 
       const requestTraining = useCallback(async (request: TrainingRunRequest) => {
             setIsLoading(true);

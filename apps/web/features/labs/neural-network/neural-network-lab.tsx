@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
@@ -22,6 +22,8 @@ import { ModelXRay } from "@/features/x-ray/model-x-ray";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import type { TimelineMarker } from "@/features/timeline/types";
+import { useTutor } from "@/features/tutor/tutor-provider";
+import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 
 const defaultRequest: TrainingRunRequest = {
   algorithm: "neural_network",
@@ -42,8 +44,20 @@ export function NeuralNetworkLab() {
 
   const timeline = useTrainingTimeline(run);
   const state = timeline.selectedTrainingState;
-  const diagnostics = run ? analyzeTrainingRun(run) : [];
-  const insights = run ? generateTrainingInsights(run, diagnostics) : [];
+  const diagnostics = useMemo(() => (run ? analyzeTrainingRun(run) : []), [run]);
+  const insights = useMemo(() => (run ? generateTrainingInsights(run, diagnostics) : []), [run, diagnostics]);
+  const { setTutorContext } = useTutor();
+
+  useEffect(() => {
+    if (run && state) {
+      setTutorContext({
+        route: "/labs/neural-network",
+        training: buildTrainingTutorContext(run, state, request.training.learning_rate),
+        diagnostic: buildDiagnosticTutorContext(diagnostics[0] ?? null),
+        project: null,
+      });
+    }
+  }, [run, state, request.training.learning_rate, diagnostics, setTutorContext]);
 
   const requestTraining = useCallback(async (nextRequest: TrainingRunRequest) => {
     setLoading(true);

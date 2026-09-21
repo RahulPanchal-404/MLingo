@@ -21,6 +21,8 @@ import { SaveExperimentButton } from "@/features/experiments/save-experiment-but
 import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
+import { useTutor } from "@/features/tutor/tutor-provider";
+import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 
 const defaultRequest: TrainingRunRequest = {
       algorithm: "kmeans",
@@ -42,6 +44,18 @@ export function KMeansLab() {
       const state = timeline.selectedTrainingState;
       const diagnostics = useMemo(() => (run ? analyzeTrainingRun(run) : []), [run]);
       const insights = useMemo(() => (run ? generateTrainingInsights(run, diagnostics) : []), [run, diagnostics]);
+      const { setTutorContext } = useTutor();
+
+      useEffect(() => {
+        if (run && state) {
+          setTutorContext({
+            route: "/labs/k-means",
+            training: buildTrainingTutorContext(run, state, request.training.learning_rate),
+            diagnostic: buildDiagnosticTutorContext(diagnostics[0] ?? null),
+            project: null,
+          });
+        }
+      }, [run, state, request.training.learning_rate, diagnostics, setTutorContext]);
 
       const requestTraining = useCallback(async (nextRequest: TrainingRunRequest) => {
             setLoading(true);

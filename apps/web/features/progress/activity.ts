@@ -7,10 +7,23 @@ export type LearningActivity = {
       experimentsReplayed?: number;
       sweepsCompleted?: number;
       workbenchExplored?: number;
+      projectsCompleted?: number;
+      projectsInProgress?: number;
 };
 
 const STORAGE_KEY = "mlingo-learning-activity";
-const defaultActivity: LearningActivity = { labsExplored: 0, experimentsRun: 0, challengesCompleted: [], concepts: [], experimentsSaved: 0, experimentsReplayed: 0, sweepsCompleted: 0, workbenchExplored: 0 };
+const defaultActivity: LearningActivity = {
+      labsExplored: 0,
+      experimentsRun: 0,
+      challengesCompleted: [],
+      concepts: [],
+      experimentsSaved: 0,
+      experimentsReplayed: 0,
+      sweepsCompleted: 0,
+      workbenchExplored: 0,
+      projectsCompleted: 0,
+      projectsInProgress: 0,
+};
 
 export function readLearningActivity(): LearningActivity {
       if (typeof window === "undefined") return defaultActivity;
@@ -27,6 +40,8 @@ export function readLearningActivity(): LearningActivity {
                   experimentsReplayed: typeof value.experimentsReplayed === "number" ? value.experimentsReplayed : 0,
                   sweepsCompleted: typeof value.sweepsCompleted === "number" ? value.sweepsCompleted : 0,
                   workbenchExplored: typeof value.workbenchExplored === "number" ? value.workbenchExplored : 0,
+                  projectsCompleted: typeof value.projectsCompleted === "number" ? value.projectsCompleted : 0,
+                  projectsInProgress: typeof value.projectsInProgress === "number" ? value.projectsInProgress : 0,
             };
       } catch { return defaultActivity; }
 }
@@ -43,6 +58,8 @@ export function recordLearningActivity(update: Partial<LearningActivity>): void 
             experimentsReplayed: update.experimentsReplayed ?? current.experimentsReplayed ?? 0,
             sweepsCompleted: update.sweepsCompleted ?? current.sweepsCompleted ?? 0,
             workbenchExplored: update.workbenchExplored ?? current.workbenchExplored ?? 0,
+            projectsCompleted: update.projectsCompleted ?? current.projectsCompleted ?? 0,
+            projectsInProgress: update.projectsInProgress ?? current.projectsInProgress ?? 0,
       };
       try {
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));

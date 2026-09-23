@@ -4,6 +4,7 @@ import "./globals.css";
 import { TutorProvider } from "@/features/tutor/tutor-provider";
 import { TutorLauncher } from "@/features/tutor/components/tutor-launcher";
 import { TutorDrawer } from "@/features/tutor/components/tutor-drawer";
+import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <TutorLauncher />
           <TutorDrawer />
+          <OnboardingModal />
         </TutorProvider>
       </body>
     </html>
   );
 }
+
 

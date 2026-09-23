@@ -6,14 +6,16 @@ import { usePathname } from "next/navigation";
 const navigationItems = [
   { href: "/", label: "Dashboard" },
   { href: "/learn", label: "Learn" },
-  { href: "/projects", label: "Projects" },
-  { href: "/workbench", label: "Workbench" },
   { href: "/labs", label: "Labs" },
+  { href: "/workbench", label: "Workbench" },
   { href: "/experiments", label: "Experiments" },
+  { href: "/projects", label: "Projects" },
+  { href: "/portfolio", label: "Portfolio" },
   { href: "/challenges", label: "Challenges" },
   { href: "/progress", label: "Progress" },
   { href: "/profile", label: "Profile" },
 ];
+
 
 type PrimaryNavigationProps = { className?: string; mobile?: boolean };
 

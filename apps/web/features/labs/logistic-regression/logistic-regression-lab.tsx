@@ -24,10 +24,14 @@ import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage"
 import type { TimelineMarker } from "@/features/timeline/types";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
+import { BreakModePanel } from "@/features/challenges/break-mode-panel";
+import type { BreakModeChallenge } from "@/features/challenges/types";
 
 const defaultRequest: TrainingRunRequest = { algorithm: "logistic_regression", dataset: { samples: 64, noise: 0.1, seed: 0 }, training: { learning_rate: 0.2, epochs: 50, initial_weight: 0, initial_bias: 0 } };
 
-export function LogisticRegressionLab() {
+type LogisticRegressionLabProps = { breakMode?: BreakModeChallenge };
+
+export function LogisticRegressionLab({ breakMode }: LogisticRegressionLabProps = {}) {
       const [request, setRequest] = useState(defaultRequest);
       const [run, setRun] = useState<TrainingRun | null>(null);
       const [error, setError] = useState<string | null>(null);
@@ -96,6 +100,7 @@ export function LogisticRegressionLab() {
                         <Link className="secondary-button" href="/labs/logistic-regression/compare">Compare logistic runs</Link>
                   </div>
             </div>
+            {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
             {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
             {loading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the classification run</strong><p>Generating two classes and capturing every update.</p></div></section>}
             {!loading && !error && run && <><section className="visual-grid" aria-label="Logistic regression visualizations"><ClassificationPlot points={run.dataset_points} state={state} /><LossChart currentStep={timeline.currentStep} history={run.history} label="Binary Cross-Entropy" /></section><ModelXRay currentStep={timeline.currentStep} run={run} state={state} /><section className="learning-modes-grid" aria-label="Selected logistic frame learning modes"><LogisticMathMode learningRate={run.training.learning_rate} state={state} /><LogisticCodeMode learningRate={run.training.learning_rate} state={state} /></section><TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} /><TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />{isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}<TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} /></>}

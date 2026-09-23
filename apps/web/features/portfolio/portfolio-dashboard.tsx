@@ -43,7 +43,7 @@ export function PortfolioDashboard() {
 
   if (!isMounted) return null;
 
-  const hasAnyActivity = summary.completedProjects > 0 || summary.inProgressProjects > 0;
+  const hasCompleted = summary.completedProjects > 0;
 
   return (
     <div className="space-y-8">
@@ -60,19 +60,34 @@ export function PortfolioDashboard() {
               </span>
             </div>
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-              My ML Portfolio
+              Your ML Portfolio
             </h1>
             <p className="mt-1 text-xs text-slate-500 max-w-xl">
-              Collect, inspect, and export your end-to-end machine learning engineering projects. Every case study is grounded in your actual preprocessing, training, and evaluation telemetry.
+              Inspect and export your machine learning engineering work. Every case study is generated from your real preprocessing, training, and evaluation telemetry.
             </p>
           </div>
 
-          <Link
-            href="/projects"
-            className="inline-flex items-center justify-center rounded-xl bg-teal-800 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-teal-900 transition-colors shrink-0"
-          >
-            Explore Project Studio →
-          </Link>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
+            <Link
+              href="/projects"
+              className="inline-flex items-center justify-center rounded-xl bg-teal-800 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-teal-900 transition-colors"
+            >
+              Explore Projects →
+            </Link>
+          </div>
+        </div>
+
+        {/* Honest Storage & Sharing Callout */}
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>💾</span>
+            <span>
+              <strong>Local Browser Storage:</strong> Your learning memory is stored in this browser.
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-500">
+            Export your case study to share your work via Markdown (.md) or Print/PDF.
+          </div>
         </div>
 
         {/* 4 Summary Stats Cards */}
@@ -119,26 +134,34 @@ export function PortfolioDashboard() {
         </div>
       </header>
 
-      {/* Empty State Banner if no project touched */}
-      {!hasAnyActivity && (
-        <section className="rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-8 text-center space-y-3">
+      {/* Empty State Banner if no project completed yet */}
+      {!hasCompleted && (
+        <section className="rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-8 text-center space-y-4">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-100 text-2xl shadow-inner">
             🌱
           </div>
-          <div>
+          <div className="space-y-1">
             <h2 className="text-base font-bold text-slate-900">
-              No completed projects yet
+              No projects completed yet.
             </h2>
-            <p className="mt-1 text-xs text-slate-600 max-w-md mx-auto">
-              Finish a guided project in Project Studio to build your personal ML engineering portfolio. You&apos;ll formulate problems, clean missing data, train models, and export case studies.
+            <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+              Complete a Project Studio project and your work will appear here. You&apos;ll formulate real problems, clean data, run training experiments, and document findings into a portfolio-ready case study.
             </p>
           </div>
-          <Link
-            href="/projects/salary-prediction"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-teal-800 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-teal-900 transition-colors"
-          >
-            Start Your First Project: Salary Prediction →
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              Explore Projects
+            </Link>
+            <Link
+              href="/projects/salary-prediction"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-teal-800 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-teal-900 transition-colors"
+            >
+              Start Your First Project →
+            </Link>
+          </div>
         </section>
       )}
 

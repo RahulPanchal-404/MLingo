@@ -23,6 +23,8 @@ import { readLearningActivity, recordLearningActivity, recordRunConcepts } from 
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
+import { BreakModePanel } from "@/features/challenges/break-mode-panel";
+import type { BreakModeChallenge } from "@/features/challenges/types";
 
 const defaultRequest: TrainingRunRequest = {
       algorithm: "kmeans",
@@ -30,7 +32,9 @@ const defaultRequest: TrainingRunRequest = {
       training: { learning_rate: 0.1, epochs: 12, initial_weight: 0, initial_bias: 0, clusters: 3, iterations: 12, seed: 0 },
 };
 
-export function KMeansLab() {
+type KMeansLabProps = { breakMode?: BreakModeChallenge };
+
+export function KMeansLab({ breakMode }: KMeansLabProps = {}) {
       const [request, setRequest] = useState(defaultRequest);
       const [run, setRun] = useState<TrainingRun | null>(null);
       const [error, setError] = useState<string | null>(null);
@@ -145,6 +149,7 @@ export function KMeansLab() {
                               <Link className="secondary-button" href="/labs/k-means/compare">Compare K-Means runs</Link>
                         </div>
                   </div>
+                  {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
 
                   {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
                   {loading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the clustering run</strong><p>Generating the dataset and capturing every assignment update.</p></div></section>}

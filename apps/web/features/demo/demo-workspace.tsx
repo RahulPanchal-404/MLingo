@@ -9,6 +9,7 @@ import { TimelineControls } from "@/features/labs/gradient-descent/timeline-cont
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
+import { PredictBeforeReveal } from "@/features/learning/components/predict-before-reveal";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 
 const DEMO_STEPS = [
@@ -451,43 +452,66 @@ export function DemoWorkspace() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4 max-w-md">
-              <label className="block space-y-2 text-xs font-bold text-slate-700">
-                <span>Experiment Variable: Learning Rate ($\alpha$)</span>
-                <input
-                  type="range"
-                  min="0.01"
-                  max="0.8"
-                  step="0.01"
-                  value={expLearningRate}
-                  onChange={(e) => setExpLearningRate(Number(e.target.value))}
-                  className="w-full accent-teal-600 cursor-pointer"
-                />
-                <div className="flex justify-between font-mono text-[11px] text-slate-500">
-                  <span>Slow (0.01)</span>
-                  <span className="font-bold text-teal-800">{expLearningRate}</span>
-                  <span>Aggressive (0.80)</span>
-                </div>
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              <PredictBeforeReveal
+                question="Before we run: What do you think will happen if we increase the learning rate?"
+                contextNote={`In Run A, learning rate was α = 0.05. We are now testing α = ${expLearningRate}.`}
+                options={[
+                  { id: "slower", label: "Training will become slower" },
+                  { id: "faster_less_stable", label: "Training may become faster but less stable" },
+                  { id: "no_change", label: "Nothing will change" },
+                  { id: "unsure", label: "I'm not sure" },
+                ]}
+                revealed={Boolean(runB)}
+                actualOutcome={
+                  runB
+                    ? {
+                        headline: "Larger step size accelerated initial descent, but introduced oscillations.",
+                        explanation: `With α = ${expLearningRate}, each step covered more ground on the loss surface. It dropped rapidly early on, but oscillated near the minimum. Proceed to Step 7 to see the side-by-side comparison!`,
+                        accurateOptionId: "faster_less_stable",
+                      }
+                    : undefined
+                }
+              />
 
-              <button
-                type="button"
-                onClick={() => void handleLoadRunB()}
-                disabled={loadingB}
-                className="w-full rounded-xl bg-teal-800 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-teal-900 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {loadingB ? "Training Run B..." : runB ? "Re-run Experiment B" : "Train Experiment B with α = " + expLearningRate}
-              </button>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4">
+                <label className="block space-y-2 text-xs font-bold text-slate-700">
+                  <span>Experiment Variable: Learning Rate (α)</span>
+                  <input
+                    type="range"
+                    min="0.01"
+                    max="0.8"
+                    step="0.01"
+                    value={expLearningRate}
+                    onChange={(e) => setExpLearningRate(Number(e.target.value))}
+                    className="w-full accent-teal-600 cursor-pointer"
+                  />
+                  <div className="flex justify-between font-mono text-[11px] text-slate-500">
+                    <span>Slow (0.01)</span>
+                    <span className="font-bold text-teal-800">{expLearningRate}</span>
+                    <span>Aggressive (0.80)</span>
+                  </div>
+                </label>
 
-              {errorB && (
-                <div className="text-xs text-red-600">{errorB}</div>
-              )}
+                <button
+                  type="button"
+                  onClick={() => void handleLoadRunB()}
+                  disabled={loadingB}
+                  className="w-full rounded-xl bg-teal-800 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-teal-900 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {loadingB ? "Training Run B..." : runB ? "Re-run Experiment B" : "Train Experiment B with α = " + expLearningRate}
+                </button>
 
-              {runB && (
-                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800">
-                  ✓ Experiment B successfully trained! Proceed to Step 7 to compare.
-                </div>
-              )}
+                {errorB && (
+                  <div className="text-xs text-red-600">{errorB}</div>
+                )}
+
+                {runB && (
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800">
+                    ✓ Experiment B successfully trained! Proceed to Step 7 to compare.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

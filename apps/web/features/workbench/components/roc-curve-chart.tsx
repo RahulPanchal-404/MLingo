@@ -30,7 +30,9 @@ export function RocCurveChart({
       <div className="w-full flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
         <div>
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">ROC Curve</h4>
-          <p className="text-[11px] text-slate-500">True Positive vs False Positive Rates</p>
+          <p className="text-[11px] text-slate-500">
+            ROC shows how the classifier behaves as we change the decision threshold.
+          </p>
         </div>
         <div className="rounded bg-teal-50 px-2 py-0.5 border border-teal-200 text-teal-800 text-xs font-mono font-bold">
           AUC: {auc.toFixed(3)}

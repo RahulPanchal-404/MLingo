@@ -24,6 +24,8 @@ import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage"
 import type { TimelineMarker } from "@/features/timeline/types";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
+import { BreakModePanel } from "@/features/challenges/break-mode-panel";
+import type { BreakModeChallenge } from "@/features/challenges/types";
 
 const defaultRequest: TrainingRunRequest = {
   algorithm: "neural_network",
@@ -31,7 +33,9 @@ const defaultRequest: TrainingRunRequest = {
   training: { learning_rate: 0.3, epochs: 80, initial_weight: 0, initial_bias: 0, hidden_neurons: 3 },
 };
 
-export function NeuralNetworkLab() {
+type NeuralNetworkLabProps = { breakMode?: BreakModeChallenge };
+
+export function NeuralNetworkLab({ breakMode }: NeuralNetworkLabProps = {}) {
   const [request, setRequest] = useState<TrainingRunRequest>(defaultRequest);
   const [run, setRun] = useState<TrainingRun | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -225,6 +229,8 @@ export function NeuralNetworkLab() {
           </Link>
         </div>
       </div>
+
+      {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
 
       {error && (
         <section className="lab-alert" role="alert">

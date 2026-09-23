@@ -98,6 +98,9 @@ function LinearXRayView({ data }: { data: ReturnType<typeof computeLinearXRay> }
         {/* Gradients */}
         <div className="xray-group">
           <h3 className="xray-group-title">Gradients</h3>
+          <p className="text-[10px] text-slate-500 mb-1.5">
+            Gradient norm summarizes how strongly the model parameters are currently being pushed to change.
+          </p>
           <dl className="xray-metrics-list">
             <MetricItem
               label="Weight gradient (∂L/∂w)"
@@ -207,6 +210,9 @@ function LogisticXRayView({ data }: { data: ReturnType<typeof computeLogisticXRa
         {/* Gradients */}
         <div className="xray-group">
           <h3 className="xray-group-title">Gradients</h3>
+          <p className="text-[10px] text-slate-500 mb-1.5">
+            Gradient norm summarizes how strongly the model parameters are currently being pushed to change.
+          </p>
           <dl className="xray-metrics-list">
             <MetricItem
               label="Weight 1 gradient"
@@ -317,6 +323,9 @@ function KMeansXRayView({ data }: { data: ReturnType<typeof computeKMeansXRay> }
         {/* Model State & Inertia */}
         <div className="xray-group">
           <h3 className="xray-group-title">Model State & Inertia</h3>
+          <p className="text-[10px] text-slate-500 mb-1.5">
+            Inertia measures how far points are from their assigned cluster centers. Lower usually means tighter clusters.
+          </p>
           <dl className="xray-metrics-list">
             <MetricItem label="Clusters (k)" textValue={String(clusterCount)} />
             <MetricItem label="Inertia" value={inertia} />
@@ -326,6 +335,9 @@ function KMeansXRayView({ data }: { data: ReturnType<typeof computeKMeansXRay> }
         {/* Centroids */}
         <div className="xray-group">
           <h3 className="xray-group-title">Centroids</h3>
+          <p className="text-[10px] text-slate-500 mb-1.5">
+            A centroid is the current center of a cluster.
+          </p>
           <dl className="xray-metrics-list">
             {centroids.map((coord, idx) => (
               <MetricItem
@@ -482,6 +494,9 @@ function NeuralNetworkXRayView({ data }: { data: ReturnType<typeof computeNeural
         {/* Analytical Gradients (Backprop) */}
         <div className="xray-group">
           <h3 className="xray-group-title">Backpropagation Gradients</h3>
+          <p className="text-[10px] text-slate-500 mb-1.5">
+            Gradient norm summarizes how strongly the model parameters are currently being pushed to change.
+          </p>
           <dl className="xray-metrics-list">
             <MetricItem
               label="||∇Loss||₂ (Total Gradient Norm)"

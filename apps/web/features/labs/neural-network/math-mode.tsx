@@ -44,6 +44,18 @@ export function NeuralMathMode({
         <span>Step {state.step}</span>
       </div>
 
+      {/* Beginner Intuition Helpers */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5">
+          <span className="font-bold text-teal-900 block mb-0.5">Hidden Layer:</span>
+          <span className="text-slate-600">A hidden layer lets the network learn patterns more complex than a straight line.</span>
+        </div>
+        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5">
+          <span className="font-bold text-teal-900 block mb-0.5">Backpropagation:</span>
+          <span className="text-slate-600">Backpropagation sends the error backward through the network so each weight can be adjusted.</span>
+        </div>
+      </div>
+
       <div className="equation-list">
         <p>
           <code>Z₁ = X W₁ + b₁ &rarr; A₁ = &sigma;(Z₁)</code>

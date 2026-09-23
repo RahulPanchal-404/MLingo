@@ -26,6 +26,8 @@ import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
+import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
+import { ExperimentControlPanel } from "./experiment-control-panel";
 
 const defaultRequest: TrainingRunRequest = {
       algorithm: "linear_regression",
@@ -134,38 +136,73 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
       };
 
       return (
-            <div className="lab-layout">
-                  <section className="lab-intro">
-                        <div className="lab-intro-copy">
-                              <p className="eyebrow">Lab 01 / recorded training</p>
-                              <h1>Gradient descent, frame by frame.</h1>
-                              <p>Run one real linear model, then scrub its recorded states to see the fit, gradients, and loss change together.</p>
-                        </div>
-                        <form className="training-form" onSubmit={submit}>
-                              <div className="form-heading"><div><p className="eyebrow">Experiment setup</p><h2>Record a new run</h2></div><span className="run-status">{isLoading ? "Recording" : run ? "Ready" : "Waiting"}</span></div>
-                              <NumberControl label="Learning rate" max={learningRateInput.max} min={learningRateInput.min} onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, learning_rate: value } }))} step={learningRateInput.step} value={configuration.training.learning_rate} />
-                              <NumberControl label="Epochs" max="300" min="1" onChange={(value) => setConfiguration((current) => ({ ...current, training: { ...current.training, epochs: Math.round(value) } }))} step="1" value={configuration.training.epochs} />
-                              <NumberControl label="Samples" max="100" min="1" onChange={(value) => setConfiguration((current) => ({ ...current, dataset: { ...current.dataset, samples: Math.round(value) } }))} step="1" value={configuration.dataset.samples} />
-                              <NumberControl label="Noise" max="2" min="0" onChange={(value) => setConfiguration((current) => ({ ...current, dataset: { ...current.dataset, noise: value } }))} step="0.05" value={configuration.dataset.noise} />
-                              <button className="primary-button run-button" disabled={isLoading} type="submit">{isLoading ? "Recording run..." : "Run training"}</button>
-                        </form>
-                  </section>
+            <div className="lab-layout space-y-6">
+                  {/* Top Intro & Responsive Experiment Console */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <div className="lg:col-span-7 space-y-4">
+                              <div className="lab-intro-copy">
+                                    <p className="eyebrow">Lab 01 / recorded training</p>
+                                    <h1 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
+                                          Gradient descent, frame by frame.
+                                    </h1>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
+                                          Run one real linear model, then scrub its recorded states to see the fit, gradients, and loss change together.
+                                    </p>
+                              </div>
 
-                  <div className="lab-secondary-action">
-                        <span>Ready to save or inspect another experiment?</span>
-                        <div className="lab-action-group">
-                              <SaveExperimentButton run={run} />
-                              <Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link>
+                              <div className="lab-secondary-action flex flex-wrap items-center gap-3 pt-2">
+                                    <SaveExperimentButton run={run} />
+                                    <Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link>
+                              </div>
+
+                              {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
+                              {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
+                              {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
+                        </div>
+
+                        {/* Right: Professional Experiment Control Panel */}
+                        <div className="lg:col-span-5">
+                              <ExperimentControlPanel
+                                    configuration={configuration}
+                                    onConfigurationChange={setConfiguration}
+                                    onSubmit={submit}
+                                    isLoading={isLoading}
+                                    isReady={Boolean(run)}
+                                    learningRateConfig={learningRateInput}
+                              />
                         </div>
                   </div>
-                  {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
-                  {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
-                  {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
+
                   {!isLoading && !error && run && (
                         <>
-                              <section className="visual-grid" aria-label="Training visualizations"><RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} /><LossChart currentStep={timeline.currentStep} history={run.history} /></section>
+                              {/* Visualizations Grid */}
+                              <section className="visual-grid" aria-label="Training visualizations">
+                                    <RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} />
+                                    <LossChart currentStep={timeline.currentStep} history={run.history} />
+                              </section>
+
+                              {/* Persistent Sticky Training Timeline Dock */}
+                              <PersistentTimelineDock
+                                    currentStep={timeline.currentStep}
+                                    totalSteps={timeline.totalSteps}
+                                    isPlaying={timeline.isPlaying}
+                                    onPlayToggle={timeline.togglePlay}
+                                    onBackward={timeline.stepBackward}
+                                    onForward={timeline.stepForward}
+                                    onJump={timeline.jumpToStep}
+                                    onReset={timeline.reset}
+                                    playbackSpeed={timeline.playbackSpeed}
+                                    onSpeed={timeline.setPlaybackSpeed}
+                                    markers={markers}
+                                    lossValue={state?.loss}
+                                    metricLabel="MSE"
+                              />
+
                               <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
-                              <section className="learning-modes-grid" aria-label="Selected frame learning modes"><MathMode learningRate={run.training.learning_rate} state={state} /><CodeMode learningRate={run.training.learning_rate} state={state} /></section>
+                              <section className="learning-modes-grid" aria-label="Selected frame learning modes">
+                                    <MathMode learningRate={run.training.learning_rate} state={state} />
+                                    <CodeMode learningRate={run.training.learning_rate} state={state} />
+                              </section>
                               {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />}
                               {!breakMode && <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />}
                               {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
@@ -174,8 +211,4 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
                   )}
             </div>
       );
-}
-
-function NumberControl({ label, min, max, step, value, onChange }: { label: string; min: string; max: string; step: string; value: number; onChange: (value: number) => void }) {
-      return <label className="number-control"><span>{label}</span><input aria-label={label} max={max} min={min} onChange={(event) => onChange(Number(event.target.value))} required step={step} type="number" value={value} /></label>;
 }

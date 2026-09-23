@@ -4,9 +4,30 @@
   --background: #f8fafc;
   --foreground: #0f172a;
   --surface: #ffffff;
+  --surface-elevated: #ffffff;
   --muted: #64748b;
   --border: #e2e8f0;
   --accent: #0f766e;
+  --accent-soft: rgba(15, 118, 110, 0.1);
+  --card-bg: #ffffff;
+  --chart-axis: #cbd5e1;
+  --chart-point: #0284c7;
+  --chart-grid: #e2e8f0;
+}
+
+.dark {
+  --background: #090d16;
+  --foreground: #f1f5f9;
+  --surface: #0f172a;
+  --surface-elevated: #1e293b;
+  --muted: #94a3b8;
+  --border: #1e293b;
+  --accent: #14b8a6;
+  --accent-soft: rgba(20, 184, 166, 0.15);
+  --card-bg: #0f172a;
+  --chart-axis: #334155;
+  --chart-point: #38bdf8;
+  --chart-grid: #1e293b;
 }
 
 @theme inline {
@@ -20,6 +41,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
 .eyebrow {
@@ -99,10 +121,10 @@ button:disabled {
 
 .training-form input,
 .timeline-heading select {
-  background: white;
-  border: 1px solid #cbd5e1;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 0.4rem;
-  color: #0f172a;
+  color: var(--foreground);
   font: inherit;
   padding: 0.55rem 0.6rem;
   width: 100%;
@@ -117,7 +139,7 @@ button:disabled {
 .state-panel,
 .timeline-panel,
 .lab-chart {
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
 }
@@ -129,7 +151,7 @@ button:disabled {
 }
 
 .lab-loading {
-  color: #475569;
+  color: var(--muted);
   padding: 2.5rem 1rem;
   text-align: center;
 }
@@ -148,7 +170,7 @@ button:disabled {
 }
 
 .lab-chart figcaption {
-  color: #0f172a;
+  color: var(--foreground);
   display: flex;
   font-size: 0.95rem;
   font-weight: 700;
@@ -157,7 +179,7 @@ button:disabled {
 
 .lab-chart figcaption span,
 .lab-chart p {
-  color: #64748b;
+  color: var(--muted);
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -177,29 +199,29 @@ button:disabled {
 
 .empty-chart {
   align-items: center;
-  color: #64748b;
+  color: var(--muted);
   justify-content: center;
   min-height: 15rem;
   text-align: center;
 }
 
 .chart-axis {
-  stroke: #cbd5e1;
+  stroke: var(--chart-axis);
   stroke-width: 1;
 }
 
 .data-point {
-  fill: #64748b;
+  fill: var(--chart-point);
 }
 
 .fit-line {
-  stroke: #0f766e;
+  stroke: var(--accent);
   stroke-width: 3;
 }
 
 .loss-line {
   fill: none;
-  stroke: #0f766e;
+  stroke: var(--accent);
   stroke-width: 3;
 }
 
@@ -221,7 +243,7 @@ button:disabled {
 }
 
 .state-panel h2 {
-  color: #0f172a;
+  color: var(--foreground);
   font-size: 1.5rem;
   font-weight: 650;
   margin: 0.2rem 0 0;
@@ -235,12 +257,12 @@ button:disabled {
 }
 
 .state-panel dt {
-  color: #64748b;
+  color: var(--muted);
   font-size: 0.72rem;
 }
 
 .state-panel dd {
-  color: #0f172a;
+  color: var(--foreground);
   font-family: var(--font-geist-mono);
   font-size: 0.86rem;
   font-weight: 600;
@@ -259,7 +281,7 @@ button:disabled {
 }
 
 .timeline-heading h2 {
-  color: #0f172a;
+  color: var(--foreground);
   font-size: 1.2rem;
   font-weight: 650;
   margin: 0.2rem 0 0;
@@ -735,10 +757,10 @@ button:disabled {
 
 .challenge-card,
 .continue-links a {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  color: #0f172a;
+  color: var(--foreground);
   padding: 1rem;
   transition: border-color 150ms ease, background 150ms ease;
 }
@@ -747,8 +769,8 @@ button:disabled {
 .challenge-card:focus-visible,
 .continue-links a:hover,
 .continue-links a:focus-visible {
-  background: #f0fdfa;
-  border-color: #5eead4;
+  background: var(--surface-elevated);
+  border-color: var(--accent);
 }
 
 .challenge-card h2 {

@@ -160,13 +160,13 @@ export function getProjectProgress(state: ProjectState): {
   status: "Not Started" | "In Progress" | "Completed";
 } {
   const totalCount = PROJECT_MILESTONES.length;
-  const completedCount = state.completedMilestones.length;
+  const completedCount = Array.isArray(state?.completedMilestones) ? state.completedMilestones.length : 0;
   const percentage = Math.round((completedCount / totalCount) * 100);
 
   let status: "Not Started" | "In Progress" | "Completed" = "Not Started";
-  if (state.completed || completedCount === totalCount) {
+  if (state?.completed || completedCount === totalCount) {
     status = "Completed";
-  } else if (completedCount > 0 || state.trainingRunId !== null || state.experiments.length > 0) {
+  } else if (completedCount > 0 || state?.trainingRunId || (Array.isArray(state?.experiments) && state.experiments.length > 0)) {
     status = "In Progress";
   }
 

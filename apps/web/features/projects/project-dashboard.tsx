@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ALL_PROJECTS } from "./definitions";
-import { loadAllProjectStates, getOverallProjectStats } from "./project-storage";
+import { loadAllProjectStates, getOverallProjectStats, createDefaultProjectState } from "./project-storage";
 import { ProjectCard } from "./components/project-card";
 import type { ProjectState } from "./types";
 
@@ -29,121 +29,81 @@ export function ProjectStudioDashboard() {
   const stats = getOverallProjectStats(ALL_PROJECTS);
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-8 max-w-6xl mx-auto">
       {/* Header & Vision */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-teal-700">
-            Guided Machine Learning / Frame by Frame
-          </p>
-          <h1 className="mt-1 text-3xl font-black text-slate-950 sm:text-4xl">
+          <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 px-3 py-0.5 text-xs font-mono font-semibold text-teal-800 dark:text-teal-300">
+            <span>BUILD WORKSPACE // CAPSTONE PROJECTS</span>
+          </div>
+          <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white sm:text-4xl tracking-tight">
             Project Studio
           </h1>
-          <p className="mt-1.5 text-sm text-slate-600 max-w-2xl">
-            Complete guided, end-to-end machine learning projects: from problem formulation and missing data
-            cleaning to gradient optimization, scientific experimentation, and generalization interpretation.
+          <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+            Apply your verified understanding to end-to-end data science projects: from missing value cleaning and scaling to gradient training, experiment comparisons, and business interpretation.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
             href="/workbench"
-            className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3.5 py-2 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-xs"
           >
             Data Workbench
           </Link>
           <Link
-            href="/learn"
-            className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-bold text-white hover:bg-teal-800 transition-colors shadow-sm"
+            href="/portfolio"
+            className="rounded-xl bg-teal-800 hover:bg-teal-700 dark:bg-teal-600 dark:hover:bg-teal-500 px-4 py-2 text-xs font-mono font-bold text-white transition-colors shadow-sm"
           >
-            Learn Curriculum
+            My Portfolio →
           </Link>
         </div>
       </div>
 
       {/* Overview Stat Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 shadow-xs">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
             Available Projects
           </span>
-          <p className="mt-1 text-2xl font-black text-slate-900">{ALL_PROJECTS.length}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Regression, Classification, Clustering</p>
+          <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{ALL_PROJECTS.length}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Regression, Classification, Clustering</p>
         </div>
 
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800">
+        <div className="rounded-2xl border border-amber-300/80 dark:border-amber-800/80 bg-amber-50/60 dark:bg-amber-950/40 p-4 shadow-xs">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
             In Progress
           </span>
-          <p className="mt-1 text-2xl font-black text-amber-950">{isMounted ? stats.inProgress : 0}</p>
-          <p className="text-xs text-amber-800 mt-0.5">Active engineering workflows</p>
+          <p className="mt-1 text-2xl font-black text-amber-950 dark:text-amber-200">{isMounted ? stats.inProgress : 0}</p>
+          <p className="text-xs text-amber-800 dark:text-amber-400 mt-0.5">Active engineering workflows</p>
         </div>
 
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+        <div className="rounded-2xl border border-emerald-300/80 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/40 p-4 shadow-xs">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
             Completed
           </span>
-          <p className="mt-1 text-2xl font-black text-emerald-950">{isMounted ? stats.completed : 0}</p>
-          <p className="text-xs text-emerald-800 mt-0.5">All 11 milestones satisfied</p>
+          <p className="mt-1 text-2xl font-black text-emerald-950 dark:text-emerald-200">{isMounted ? stats.completed : 0}</p>
+          <p className="text-xs text-emerald-800 dark:text-emerald-400 mt-0.5">All 11 milestones satisfied</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Concepts Touched
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 shadow-xs">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+            Concepts Mastered
           </span>
-          <p className="mt-1 text-2xl font-black text-teal-800">24+</p>
-          <p className="text-xs text-slate-500 mt-0.5">Tracked in Learning Memory</p>
+          <p className="mt-1 text-2xl font-black text-teal-800 dark:text-teal-400">24+</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tracked in Learning Memory</p>
         </div>
       </div>
 
-      {/* Project Cards Grid */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900">
-            Select an End-to-End Project
-          </h2>
-          <span className="text-xs text-slate-500">
-            Progress persists automatically in your browser
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {ALL_PROJECTS.map((project) => {
-            const projectState = states[project.id] ?? {
-              projectId: project.id,
-              currentMilestoneId: "problem",
-              completedMilestones: [],
-              preprocessingConfig: {
-                numericScaling: "standard",
-                missingImputation: "mean_mode",
-                categoricalEncoding: "onehot",
-              },
-              splitConfig: { trainRatio: 0.8, seed: 42 },
-              classificationThreshold: 0.5,
-              trainingRunId: null,
-              experiments: [],
-              reflections: {},
-              completed: false,
-              completedAt: null,
-              updatedAt: new Date().toISOString(),
-            };
-
-            return <ProjectCard key={project.id} project={project} state={projectState} />;
-          })}
-        </div>
-      </div>
-
-      {/* Educational Guidance Footer */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-6">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-          The MLingo Project Philosophy: “Machine Learning, Frame by Frame”
-        </h3>
-        <p className="mt-2 text-xs text-slate-600 leading-relaxed max-w-4xl">
-          Unlike static coding exercises or disconnected black-box scripts, MLingo projects guide you through each
-          substantive machine learning phase. You will observe how missing values propagate, why feature scaling preserves
-          gradient balance, how train/test isolation prevents data leakage, and why decision thresholds calibrate real-world
-          operational precision and recall.
-        </p>
+      {/* Focused 2-Column Desktop Project Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {ALL_PROJECTS.map((project) => (
+          <ProjectCard
+            key={project.id}
+            project={project}
+            state={states[project.id] ?? createDefaultProjectState(project.id)}
+          />
+        ))}
       </div>
     </section>
   );

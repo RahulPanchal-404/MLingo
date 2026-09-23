@@ -21,6 +21,7 @@ import { SaveExperimentButton } from "@/features/experiments/save-experiment-but
 import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
+import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 import { BreakModePanel } from "@/features/challenges/break-mode-panel";
@@ -159,6 +160,7 @@ export function KMeansLab({ breakMode }: KMeansLabProps = {}) {
                                     <KMeansPlot points={run.dataset_points} state={state} />
                                     <LossChart currentStep={timeline.currentStep} history={run.history} label="Inertia" />
                               </section>
+                              <PersistentTimelineDock currentStep={timeline.currentStep} totalSteps={timeline.totalSteps} isPlaying={timeline.isPlaying} onPlayToggle={timeline.togglePlay} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onReset={timeline.reset} playbackSpeed={timeline.playbackSpeed} onSpeed={timeline.setPlaybackSpeed} markers={markers} lossValue={state?.loss} metricLabel="Inertia" />
                               <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
                               <section className="learning-modes-grid" aria-label="Selected K-Means frame learning modes">
                                     <KMeansMathMode state={state} />

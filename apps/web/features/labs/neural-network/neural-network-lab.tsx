@@ -22,6 +22,7 @@ import { ModelXRay } from "@/features/x-ray/model-x-ray";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import type { TimelineMarker } from "@/features/timeline/types";
+import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 import { BreakModePanel } from "@/features/challenges/break-mode-panel";
@@ -255,6 +256,22 @@ export function NeuralNetworkLab({ breakMode }: NeuralNetworkLabProps = {}) {
             <DecisionSurfacePlot points={run.dataset_points} state={state} />
             <LossChart currentStep={timeline.currentStep} history={run.history} label="Binary Cross-Entropy" />
           </section>
+
+          <PersistentTimelineDock
+            currentStep={timeline.currentStep}
+            totalSteps={timeline.totalSteps}
+            isPlaying={timeline.isPlaying}
+            onPlayToggle={timeline.togglePlay}
+            onBackward={timeline.stepBackward}
+            onForward={timeline.stepForward}
+            onJump={timeline.jumpToStep}
+            onReset={timeline.reset}
+            playbackSpeed={timeline.playbackSpeed}
+            onSpeed={timeline.setPlaybackSpeed}
+            markers={markers}
+            lossValue={state?.loss}
+            metricLabel="Cross-Entropy"
+          />
 
           <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
 

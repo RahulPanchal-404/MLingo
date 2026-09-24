@@ -108,14 +108,14 @@ export function MilestoneExperimentView({
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 dark:border-teal-800/80 bg-teal-50/70 dark:bg-teal-950/40 p-4">
         <div className="flex items-start gap-3">
           <span className="text-xl">🧪</span>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-200">
               Educational Goal — Controlled Scientific Experimentation
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Machine learning engineering is an empirical science. Vary one hyperparameter at a time,
               formulate a hypothesis, and observe how performance metrics respond.
             </p>
@@ -124,24 +124,24 @@ export function MilestoneExperimentView({
       </div>
 
       {/* Hypothesis & Question Card */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs dark:shadow-md space-y-5">
         <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
             {prompt.title}
           </span>
-          <h3 className="mt-1 text-xl font-bold text-slate-900">
+          <h3 className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">
             {prompt.question}
           </h3>
-          <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
             {prompt.explanation}
           </p>
         </div>
 
         {/* Interactive Parameter Control */}
-        <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 space-y-3">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-800">
+        <div className="rounded-lg bg-slate-50 dark:bg-slate-950/60 p-4 border border-slate-200 dark:border-slate-800 space-y-3">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-200">
             <span>Test Hyperparameter ({prompt.parameterName}):</span>
-            <span className="font-mono text-sm text-teal-900 font-bold bg-white px-2 py-0.5 rounded border border-slate-200">
+            <span className="font-mono text-sm text-teal-900 dark:text-teal-300 font-bold bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
               {paramVal}
             </span>
           </div>
@@ -150,10 +150,10 @@ export function MilestoneExperimentView({
             <button
               type="button"
               onClick={() => setParamVal(prompt.defaultVal)}
-              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
+              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors cursor-pointer ${
                 paramVal === prompt.defaultVal
-                  ? "bg-teal-700 text-white shadow-xs"
-                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                  ? "bg-teal-700 dark:bg-teal-600 text-white shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               Default Baseline ({prompt.parameterName} = {prompt.defaultVal})
@@ -161,10 +161,10 @@ export function MilestoneExperimentView({
             <button
               type="button"
               onClick={() => setParamVal(prompt.testVal)}
-              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
+              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors cursor-pointer ${
                 paramVal === prompt.testVal
-                  ? "bg-teal-700 text-white shadow-xs"
-                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                  ? "bg-teal-700 dark:bg-teal-600 text-white shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               Experimental Shift ({prompt.parameterName} = {prompt.testVal})
@@ -174,30 +174,30 @@ export function MilestoneExperimentView({
 
         {/* Comparative Shift Card */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Baseline Setting ({prompt.defaultVal})
             </span>
-            <p className="mt-2 text-2xl font-bold text-slate-700">
+            <p className="mt-2 text-2xl font-bold text-slate-700 dark:text-slate-200">
               {comparison.baselineVal}
             </p>
-            <p className="text-xs text-slate-500 mt-1">{comparison.metricLabel}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{comparison.metricLabel}</p>
           </div>
 
-          <div className="rounded-lg border border-teal-200 bg-teal-50/70 p-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800">
+          <div className="rounded-lg border border-teal-200 dark:border-teal-800/80 bg-teal-50/70 dark:bg-teal-950/40 p-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
               Current Setting ({paramVal})
             </span>
-            <p className="mt-2 text-2xl font-black text-teal-950">
+            <p className="mt-2 text-2xl font-black text-teal-950 dark:text-teal-100">
               {comparison.testVal}
             </p>
-            <p className="text-xs text-teal-800 mt-1">{comparison.metricLabel}</p>
+            <p className="text-xs text-teal-800 dark:text-teal-400 mt-1">{comparison.metricLabel}</p>
           </div>
         </div>
 
         {/* Scientific Observation */}
-        <div className="rounded-lg bg-teal-50/40 p-4 border border-teal-100 text-xs text-slate-700">
-          <strong className="text-teal-950 block mb-1">Empirical Observation:</strong>
+        <div className="rounded-lg bg-teal-50/40 dark:bg-teal-950/30 p-4 border border-teal-100 dark:border-teal-900/60 text-xs text-slate-700 dark:text-slate-300">
+          <strong className="text-teal-950 dark:text-teal-200 block mb-1">Empirical Observation:</strong>
           <p className="leading-relaxed">{comparison.observation}</p>
         </div>
 
@@ -206,7 +206,7 @@ export function MilestoneExperimentView({
           <button
             type="button"
             onClick={handleRunAndSave}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition-colors"
+            className="rounded-lg bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer"
           >
             {isSaved ? "✓ Recorded to Experiment History!" : "Record Run to Experiment History"}
           </button>
@@ -215,18 +215,18 @@ export function MilestoneExperimentView({
 
       {/* Recorded Experiments in this Project */}
       {state.experiments.length > 0 && (
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2 mb-3">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 pb-2 mb-3">
             Recorded Project Experiments ({state.experiments.length})
           </h4>
           <ul className="space-y-2">
             {state.experiments.map((exp) => (
               <li
                 key={exp.id}
-                className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-200 font-mono"
+                className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 font-mono"
               >
-                <span className="font-sans font-semibold text-slate-800">{exp.title}</span>
-                <span className="font-bold text-teal-800">
+                <span className="font-sans font-semibold text-slate-800 dark:text-slate-200">{exp.title}</span>
+                <span className="font-bold text-teal-800 dark:text-teal-400">
                   {exp.metricLabel}: {exp.metricValue}
                 </span>
               </li>
@@ -240,14 +240,14 @@ export function MilestoneExperimentView({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
         >
           ← Back to Train
         </button>
         <button
           type="button"
           onClick={onComplete}
-          className="rounded-lg bg-teal-700 px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-teal-800 transition-colors"
+          className="rounded-lg bg-teal-700 dark:bg-teal-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-teal-800 dark:hover:bg-teal-500 transition-colors cursor-pointer"
         >
           Experiment Completed: Proceed to Evaluate →
         </button>

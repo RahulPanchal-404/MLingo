@@ -40,7 +40,7 @@ export function PersistentTimelineDock({
 
   return (
     <div
-      className={`sticky bottom-4 z-20 mx-auto w-full max-w-5xl rounded-2xl border border-slate-700/80 bg-slate-950/95 p-3.5 sm:px-5 shadow-2xl backdrop-blur-xl text-slate-100 transition-all ${className}`}
+      className={`sticky bottom-4 z-20 mx-auto w-full max-w-5xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 p-3.5 sm:px-5 shadow-xl dark:shadow-2xl backdrop-blur-xl text-slate-900 dark:text-slate-100 transition-all ${className}`}
       role="region"
       aria-label="Persistent Training Timeline Scrubber"
     >
@@ -50,15 +50,15 @@ export function PersistentTimelineDock({
           {/* Active Frame and Loss */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 font-mono">
-              <span className="flex h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
-              <span className="text-xs font-bold text-white uppercase tracking-wider">
+              <span className="flex h-2 w-2 rounded-full bg-teal-600 dark:bg-teal-400 animate-pulse" />
+              <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 STEP {currentStep + 1}/{totalSteps}
               </span>
             </div>
 
             {typeof lossValue === "number" && Number.isFinite(lossValue) && (
-              <div className="rounded-md bg-slate-900 border border-slate-800 px-2 py-0.5 text-xs font-mono text-amber-300">
-                <span className="text-slate-400 text-[10px] mr-1">{metricLabel}:</span>
+              <div className="rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 py-0.5 text-xs font-mono text-amber-700 dark:text-amber-300">
+                <span className="text-slate-500 dark:text-slate-400 text-[10px] mr-1">{metricLabel}:</span>
                 <span className="font-bold">{lossValue.toFixed(4)}</span>
               </div>
             )}
@@ -71,7 +71,7 @@ export function PersistentTimelineDock({
               onClick={onReset}
               title="Jump to Start (Step 0)"
               aria-label="Jump to start"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer text-xs font-mono"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-xs font-mono"
             >
               |◀
             </button>
@@ -82,7 +82,7 @@ export function PersistentTimelineDock({
               disabled={currentStep <= 0}
               title="Step Backward (Previous Frame)"
               aria-label="Step backward"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer text-xs"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer text-xs"
             >
               ◀
             </button>
@@ -106,7 +106,7 @@ export function PersistentTimelineDock({
               disabled={currentStep >= maxStep}
               title="Step Forward (Next Frame)"
               aria-label="Step forward"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer text-xs"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer text-xs"
             >
               ▶
             </button>
@@ -116,7 +116,7 @@ export function PersistentTimelineDock({
               onClick={() => onJump(maxStep)}
               title="Jump to End"
               aria-label="Jump to end"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer text-xs font-mono"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer text-xs font-mono"
             >
               ▶|
             </button>
@@ -124,7 +124,7 @@ export function PersistentTimelineDock({
 
           {/* Playback Speed Toggles */}
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-mono text-slate-400 mr-1 hidden sm:inline">SPEED:</span>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mr-1 hidden sm:inline">SPEED:</span>
             {([0.5, 1, 2] as const).map((s) => (
               <button
                 key={s}
@@ -132,8 +132,8 @@ export function PersistentTimelineDock({
                 onClick={() => onSpeed(s)}
                 className={`rounded-md px-1.5 py-0.5 text-[10px] font-mono font-semibold transition-colors cursor-pointer ${
                   playbackSpeed === s
-                    ? "bg-teal-500 text-slate-950"
-                    : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                    ? "bg-teal-600 text-white dark:bg-teal-500 dark:text-slate-950 font-bold"
+                    : "bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 {s}×
@@ -151,7 +151,7 @@ export function PersistentTimelineDock({
             value={currentStep}
             onChange={(e) => onJump(Number(e.target.value))}
             aria-label="Scrub training timeline frame"
-            className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400 focus:outline-hidden"
+            className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-600 dark:accent-teal-400 focus:outline-hidden"
           />
 
           {/* Marker pins overlay */}
@@ -164,7 +164,7 @@ export function PersistentTimelineDock({
                     key={marker.id}
                     title={`${marker.title} (Step ${marker.step})`}
                     style={{ left: `${markerPos}%` }}
-                    className="absolute -top-1 h-4 w-1 -ml-0.5 rounded-full bg-amber-400 ring-2 ring-slate-950"
+                    className="absolute -top-1 h-4 w-1 -ml-0.5 rounded-full bg-amber-500 dark:bg-amber-400 ring-2 ring-white dark:ring-slate-950"
                   />
                 );
               })}

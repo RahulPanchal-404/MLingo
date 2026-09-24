@@ -22,6 +22,7 @@ export type LinearXRayData = {
   bias: number;
   weightGradient: number | null;
   biasGradient: number | null;
+  totalGradientNorm?: number | null;
   loss: number | null;
   predictions: PredictionSummary | null;
   frameChanges: LinearFrameChanges | null;
@@ -43,6 +44,8 @@ export type LogisticXRayData = {
   bias: number;
   weightGradients: number[];
   biasGradient: number | null;
+  weightGradientNorm?: number | null;
+  totalGradientNorm?: number | null;
   loss: number | null;
   accuracy: number | null;
   probabilities: PredictionSummary | null;
@@ -84,11 +87,15 @@ export type NeuralNetworkXRayData = {
   b1: number[];
   w2: number[][];
   b2: number;
+  w1Norm?: number;
+  w2Norm?: number;
   dw1: number[][] | null;
   db1: number[] | null;
   dw2: number[][] | null;
   db2: number | null;
   gradientMagnitude: number | null;
+  weightGradientNorm?: number | null;
+  biasGradientNorm?: number | null;
   loss: number | null;
   accuracy: number | null;
   probabilities: PredictionSummary | null;

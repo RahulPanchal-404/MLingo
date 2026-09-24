@@ -26,15 +26,15 @@ export function RocCurveChart({
       : "";
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center">
-      <div className="w-full flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface p-6 shadow-sm flex flex-col items-center">
+      <div className="w-full flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2 mb-2">
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">ROC Curve</h4>
-          <p className="text-[11px] text-slate-500">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">ROC Curve</h4>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
             ROC shows how the classifier behaves as we change the decision threshold.
           </p>
         </div>
-        <div className="rounded bg-teal-50 px-2 py-0.5 border border-teal-200 text-teal-800 text-xs font-mono font-bold">
+        <div className="rounded bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-300 text-xs font-mono font-bold">
           AUC: {auc.toFixed(3)}
         </div>
       </div>
@@ -46,7 +46,7 @@ export function RocCurveChart({
           y1={padding + plotH}
           x2={padding + plotW}
           y2={padding + plotH}
-          stroke="#cbd5e1"
+          stroke="var(--chart-axis, #cbd5e1)"
           strokeWidth="1.5"
         />
         <line
@@ -54,7 +54,7 @@ export function RocCurveChart({
           y1={padding}
           x2={padding}
           y2={padding + plotH}
-          stroke="#cbd5e1"
+          stroke="var(--chart-axis, #cbd5e1)"
           strokeWidth="1.5"
         />
 
@@ -64,7 +64,7 @@ export function RocCurveChart({
           y1={padding + plotH}
           x2={padding + plotW}
           y2={padding}
-          stroke="#e2e8f0"
+          stroke="var(--chart-grid, #e2e8f0)"
           strokeWidth="1.5"
           strokeDasharray="3 3"
         />
@@ -99,7 +99,7 @@ export function RocCurveChart({
           y={height - 5}
           textAnchor="middle"
           fontSize="10"
-          className="fill-slate-500 font-sans"
+          className="fill-slate-500 dark:fill-slate-400 font-sans"
         >
           FPR (1 - Specificity)
         </text>
@@ -109,22 +109,22 @@ export function RocCurveChart({
           textAnchor="middle"
           fontSize="10"
           transform={`rotate(-90 10 ${padding + plotH / 2})`}
-          className="fill-slate-500 font-sans"
+          className="fill-slate-500 dark:fill-slate-400 font-sans"
         >
           TPR (Sensitivity / Recall)
         </text>
 
         {/* Scale labels */}
-        <text x={padding} y={padding + plotH + 12} fontSize="9" textAnchor="middle" className="fill-slate-400 font-mono">
+        <text x={padding} y={padding + plotH + 12} fontSize="9" textAnchor="middle" className="fill-slate-400 dark:fill-slate-500 font-mono">
           0
         </text>
-        <text x={padding + plotW} y={padding + plotH + 12} fontSize="9" textAnchor="middle" className="fill-slate-400 font-mono">
+        <text x={padding + plotW} y={padding + plotH + 12} fontSize="9" textAnchor="middle" className="fill-slate-400 dark:fill-slate-500 font-mono">
           1
         </text>
-        <text x={padding - 6} y={padding + plotH} fontSize="9" textAnchor="end" className="fill-slate-400 font-mono">
+        <text x={padding - 6} y={padding + plotH} fontSize="9" textAnchor="end" className="fill-slate-400 dark:fill-slate-500 font-mono">
           0
         </text>
-        <text x={padding - 6} y={padding + 4} fontSize="9" textAnchor="end" className="fill-slate-400 font-mono">
+        <text x={padding - 6} y={padding + 4} fontSize="9" textAnchor="end" className="fill-slate-400 dark:fill-slate-500 font-mono">
           1
         </text>
       </svg>

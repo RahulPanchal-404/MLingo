@@ -177,22 +177,22 @@ export function TutorLauncher() {
           }}
           title="Open MLingo AI Tutor (click to expand)"
           aria-label="Open MLingo AI Tutor"
-          className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-teal-500/50 bg-slate-900/95 text-white shadow-xl backdrop-blur-md hover:scale-110 hover:border-teal-400 hover:bg-slate-900 transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-teal-400"
+          className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-teal-500/40 bg-white/95 text-slate-800 shadow-xl backdrop-blur-md hover:scale-110 hover:border-teal-500 dark:border-teal-500/50 dark:bg-slate-900/95 dark:text-white transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-teal-400"
         >
           <span className="text-base">💡</span>
-          <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-slate-900">
+          <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900">
             <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
           </span>
         </button>
       ) : (
         /* Expanded Launcher: [ 💡 Ask MLingo Tutor ] */
-        <div className="flex items-center gap-1.5 rounded-full border border-teal-500/40 bg-slate-950/90 dark:bg-slate-900/90 p-1 pl-3 shadow-2xl backdrop-blur-md">
+        <div className="flex items-center gap-1.5 rounded-full border border-teal-500/30 dark:border-teal-500/40 bg-white/95 dark:bg-slate-900/95 p-1 pl-3 shadow-xl dark:shadow-2xl backdrop-blur-md">
           <button
             type="button"
             id="mlingo-tutor-launcher-button"
             onClick={toggleTutor}
             aria-label={isOpen ? "Close MLingo AI Tutor" : "Open MLingo AI Tutor"}
-            className="flex items-center gap-2 text-xs font-semibold text-white hover:text-teal-300 transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-xs font-semibold text-slate-800 dark:text-white hover:text-teal-700 dark:hover:text-teal-300 transition-colors cursor-pointer"
           >
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-xs">
               💡
@@ -202,7 +202,7 @@ export function TutorLauncher() {
             </span>
 
             {contextSnippet && !isOpen && (
-              <span className="hidden sm:inline-block max-w-[130px] truncate rounded-full bg-teal-950/80 border border-teal-500/30 px-2 py-0.5 text-[10px] text-teal-300 font-normal">
+              <span className="hidden sm:inline-block max-w-[130px] truncate rounded-full bg-teal-50 dark:bg-teal-950/80 border border-teal-200 dark:border-teal-500/30 px-2 py-0.5 text-[10px] text-teal-800 dark:text-teal-300 font-normal">
                 {contextSnippet}
               </span>
             )}
@@ -214,7 +214,7 @@ export function TutorLauncher() {
             onClick={cycleCorner}
             title={`Dock corner: ${corner}. Click to snap to next corner`}
             aria-label="Reposition Tutor dock"
-            className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-[10px] cursor-pointer"
+            className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-[10px] cursor-pointer"
           >
             ⤢
           </button>
@@ -226,13 +226,13 @@ export function TutorLauncher() {
               onClick={toggleCollapse}
               title="Minimize Tutor to compact icon"
               aria-label="Minimize Tutor to compact icon"
-              className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-xs font-bold cursor-pointer"
+              className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-bold cursor-pointer"
             >
               −
             </button>
           )}
 
-          <span className="flex h-2 w-2 mr-1 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30 animate-pulse" />
+          <span className="flex h-2 w-2 mr-1 rounded-full bg-emerald-500 ring-2 ring-emerald-400/30 animate-pulse" />
         </div>
       )}
     </div>

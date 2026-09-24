@@ -215,15 +215,15 @@ export function DataWorkbench() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-teal-700">
+          <p className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
             End-to-End Workflow / Frame by Frame
           </p>
-          <h1 className="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-black text-slate-950 dark:text-white sm:text-3xl">
             Data Science Workbench
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Clean, transform, split, train, and evaluate machine learning models without data leakage.
           </p>
         </div>
@@ -231,14 +231,14 @@ export function DataWorkbench() {
         <div className="flex items-center gap-3">
           <Link
             href="/learn"
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Learn Workflow
           </Link>
           <button
             type="button"
             onClick={handleSaveToExperiments}
-            className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-bold text-white hover:bg-teal-800 transition-colors shadow-sm"
+            className="rounded-lg bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 px-4 py-2 text-xs font-bold text-white transition-colors shadow-sm"
           >
             {saveStatus ?? "Save to Experiments"}
           </button>
@@ -246,9 +246,9 @@ export function DataWorkbench() {
       </div>
 
       {/* Dataset Selector Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface p-4 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Select Educational Dataset:
           </span>
           <div className="flex flex-wrap gap-2">
@@ -259,8 +259,8 @@ export function DataWorkbench() {
                 onClick={() => setSelectedDatasetId(d.id)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                   selectedDatasetId === d.id
-                    ? "bg-teal-700 text-white shadow-sm"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    ? "bg-teal-700 dark:bg-teal-600 text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-surface-elevated text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
               >
                 {d.name} ({d.taskType})
@@ -269,14 +269,14 @@ export function DataWorkbench() {
           </div>
         </div>
 
-        <div className="text-xs text-slate-500 font-mono">
-          Samples: <span className="font-bold text-slate-900">{dataset.rows.length}</span> | Features:{" "}
-          <span className="font-bold text-slate-900">{summary.featureCount}</span>
+        <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+          Samples: <span className="font-bold text-slate-900 dark:text-white">{dataset.rows.length}</span> | Features:{" "}
+          <span className="font-bold text-slate-900 dark:text-white">{summary.featureCount}</span>
         </div>
       </div>
 
       {/* 5-Step Workflow Stepper Navigation */}
-      <nav aria-label="Workbench workflow steps" className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+      <nav aria-label="Workbench workflow steps" className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface p-2 shadow-sm">
         <ul className="grid grid-cols-2 gap-1 sm:grid-cols-5">
           {steps.map((s) => (
             <li key={s.num}>
@@ -285,8 +285,8 @@ export function DataWorkbench() {
                 onClick={() => setActiveStep(s.num)}
                 className={`w-full rounded-lg py-2.5 px-3 text-xs font-bold transition-all text-center ${
                   activeStep === s.num
-                    ? "bg-teal-50 text-teal-900 border border-teal-200 shadow-sm"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-teal-50 dark:bg-teal-950/60 text-teal-900 dark:text-teal-200 border border-teal-200 dark:border-teal-800/60 shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-surface-elevated"
                 }`}
               >
                 {s.label}
@@ -306,7 +306,7 @@ export function DataWorkbench() {
               <button
                 type="button"
                 onClick={() => setActiveStep(2)}
-                className="rounded-lg bg-teal-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-teal-800 transition-colors shadow-sm"
+                className="rounded-lg bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 px-5 py-2.5 text-xs font-bold text-white transition-colors shadow-sm"
               >
                 Next: Explore & Quality →
               </button>
@@ -323,14 +323,14 @@ export function DataWorkbench() {
               <button
                 type="button"
                 onClick={() => setActiveStep(1)}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 ← Back to Dataset
               </button>
               <button
                 type="button"
                 onClick={() => setActiveStep(3)}
-                className="rounded-lg bg-teal-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-teal-800 transition-colors shadow-sm"
+                className="rounded-lg bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 px-5 py-2.5 text-xs font-bold text-white transition-colors shadow-sm"
               >
                 Next: Preprocessing →
               </button>
@@ -354,14 +354,14 @@ export function DataWorkbench() {
               <button
                 type="button"
                 onClick={() => setActiveStep(2)}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 ← Back to Explore
               </button>
               <button
                 type="button"
                 onClick={() => setActiveStep(4)}
-                className="rounded-lg bg-teal-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-teal-800 transition-colors shadow-sm"
+                className="rounded-lg bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 px-5 py-2.5 text-xs font-bold text-white transition-colors shadow-sm"
               >
                 Next: Train / Test Split →
               </button>
@@ -378,14 +378,14 @@ export function DataWorkbench() {
               <button
                 type="button"
                 onClick={() => setActiveStep(3)}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 ← Back to Preprocess
               </button>
               <button
                 type="button"
                 onClick={() => setActiveStep(5)}
-                className="rounded-lg bg-teal-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-teal-800 transition-colors shadow-sm"
+                className="rounded-lg bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 px-5 py-2.5 text-xs font-bold text-white transition-colors shadow-sm"
               >
                 Next: Evaluate Model →
               </button>
@@ -446,30 +446,30 @@ export function DataWorkbench() {
 
             {/* Regression Metrics Display */}
             {dataset.taskType === "regression" && evalResult.regression && (
-              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface p-6 shadow-sm">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-3">
                   Regression Evaluation Metrics
                 </h3>
                 <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
-                    <p className="text-[10px] uppercase font-sans text-slate-500">Train MSE</p>
-                    <p className="mt-1 text-xl font-bold text-slate-900">{evalResult.regression.trainMse}</p>
-                    <p className="text-[10px] text-slate-400 font-sans mt-1">1/n Σ(y - ŷ)²</p>
+                  <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-inset p-3 font-mono">
+                    <p className="text-[10px] uppercase font-sans text-slate-500 dark:text-slate-400">Train MSE</p>
+                    <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{evalResult.regression.trainMse}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-sans mt-1">1/n Σ(y - ŷ)²</p>
                   </div>
-                  <div className="rounded-lg border border-teal-200 bg-teal-50/60 p-3 font-mono">
-                    <p className="text-[10px] uppercase font-sans text-teal-800 font-semibold">Test MSE</p>
-                    <p className="mt-1 text-xl font-black text-teal-950">{evalResult.regression.testMse}</p>
-                    <p className="text-[10px] text-teal-700 font-sans mt-1">Generalization error</p>
+                  <div className="rounded-lg border border-teal-200 dark:border-teal-800/80 bg-teal-50/60 dark:bg-teal-950/30 p-3 font-mono">
+                    <p className="text-[10px] uppercase font-sans text-teal-800 dark:text-teal-300 font-semibold">Test MSE</p>
+                    <p className="mt-1 text-xl font-black text-teal-950 dark:text-teal-100">{evalResult.regression.testMse}</p>
+                    <p className="text-[10px] text-teal-700 dark:text-teal-400 font-sans mt-1">Generalization error</p>
                   </div>
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
-                    <p className="text-[10px] uppercase font-sans text-slate-500">Test MAE</p>
-                    <p className="mt-1 text-xl font-bold text-slate-900">{evalResult.regression.testMae}</p>
-                    <p className="text-[10px] text-slate-400 font-sans mt-1">1/n Σ|y - ŷ|</p>
+                  <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-inset p-3 font-mono">
+                    <p className="text-[10px] uppercase font-sans text-slate-500 dark:text-slate-400">Test MAE</p>
+                    <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{evalResult.regression.testMae}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-sans mt-1">1/n Σ|y - ŷ|</p>
                   </div>
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
-                    <p className="text-[10px] uppercase font-sans text-slate-500">Test R² Score</p>
-                    <p className="mt-1 text-xl font-bold text-indigo-700">{evalResult.regression.testR2}</p>
-                    <p className="text-[10px] text-slate-400 font-sans mt-1">1 - SSE / SST</p>
+                  <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-inset p-3 font-mono">
+                    <p className="text-[10px] uppercase font-sans text-slate-500 dark:text-slate-400">Test R² Score</p>
+                    <p className="mt-1 text-xl font-bold text-indigo-700 dark:text-indigo-400">{evalResult.regression.testR2}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-sans mt-1">1 - SSE / SST</p>
                   </div>
                 </div>
               </div>
@@ -477,24 +477,24 @@ export function DataWorkbench() {
 
             {/* Clustering Metrics */}
             {dataset.taskType === "clustering" && evalResult.clustering && (
-              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface p-6 shadow-sm">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-3">
                   K-Means Clustering Metrics
                 </h3>
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
-                    <p className="text-xs uppercase font-sans text-slate-500">Total Inertia</p>
-                    <p className="mt-1 text-2xl font-bold text-teal-900">{evalResult.clustering.inertia}</p>
-                    <p className="text-[11px] text-slate-500 font-sans mt-1">
+                  <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-inset p-4 font-mono">
+                    <p className="text-xs uppercase font-sans text-slate-500 dark:text-slate-400">Total Inertia</p>
+                    <p className="mt-1 text-2xl font-bold text-teal-900 dark:text-teal-200">{evalResult.clustering.inertia}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-1">
                       Sum of squared Euclidean distances to assigned centroids.
                     </p>
                   </div>
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
-                    <p className="text-xs uppercase font-sans text-slate-500">Cluster Sizes</p>
+                  <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-inset p-4 font-mono">
+                    <p className="text-xs uppercase font-sans text-slate-500 dark:text-slate-400">Cluster Sizes</p>
                     <div className="mt-2 flex gap-3 text-xs">
                       {evalResult.clustering.clusterSizes.map((sz, idx) => (
-                        <div key={idx} className="rounded bg-white px-2.5 py-1 border border-slate-200">
-                          C{idx + 1}: <span className="font-bold text-teal-800">{sz} samples</span>
+                        <div key={idx} className="rounded bg-white dark:bg-surface-elevated px-2.5 py-1 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                          C{idx + 1}: <span className="font-bold text-teal-800 dark:text-teal-300">{sz} samples</span>
                         </div>
                       ))}
                     </div>
@@ -509,37 +509,37 @@ export function DataWorkbench() {
             )}
 
             {/* Lab Jump Connections */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-surface-inset p-4 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   Connect to Algorithm Labs
                 </h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Observe gradient descent, loss landscapes, and backpropagation frame by frame.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 <Link
                   href="/labs/gradient-descent"
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   Linear Regression Lab
                 </Link>
                 <Link
                   href="/labs/logistic-regression"
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   Logistic Regression Lab
                 </Link>
                 <Link
                   href="/labs/k-means"
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   K-Means Lab
                 </Link>
                 <Link
                   href="/labs/neural-network"
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   Neural Network Lab
                 </Link>
@@ -550,7 +550,7 @@ export function DataWorkbench() {
               <button
                 type="button"
                 onClick={() => setActiveStep(4)}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 ← Back to Split
               </button>

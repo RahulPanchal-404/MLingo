@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/layout/app-shell";
 import { ProjectStudioDashboard } from "@/features/projects/project-dashboard";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ProjectsPage() {
-  return <ProjectStudioDashboard />;
+  return (
+    <AppShell>
+      <ProjectStudioDashboard />
+    </AppShell>
+  );
 }

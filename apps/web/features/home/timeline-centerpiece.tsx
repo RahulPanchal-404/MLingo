@@ -55,16 +55,16 @@ export function TimelineCenterpiece() {
     <section className="space-y-6" aria-labelledby="timeline-centerpiece-heading">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 border border-teal-200 px-3 py-0.5 text-xs font-mono font-semibold text-teal-800">
+          <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 dark:bg-teal-950/80 border border-teal-200 dark:border-teal-500/30 px-3 py-0.5 text-xs font-mono font-semibold text-teal-800 dark:text-teal-300">
             <span>02 // THE CENTERPIECE INTERFACE</span>
           </div>
           <h2
             id="timeline-centerpiece-heading"
-            className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950"
+            className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"
           >
             The Synchronized Training Timeline
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
             Every training run produces an interactive timeline. As you scrub from frame to frame,
             loss, weights, gradients, and model predictions update in lockstep.
           </p>
@@ -72,21 +72,21 @@ export function TimelineCenterpiece() {
 
         <Link
           href="/labs/gradient-descent"
-          className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-teal-700 hover:text-teal-900 transition-colors shrink-0"
+          className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-teal-700 dark:text-teal-400 hover:text-teal-900 dark:hover:text-teal-300 transition-colors shrink-0"
         >
           <span>Open Full Gradient Descent Lab →</span>
         </Link>
       </div>
 
       {/* Main Timeline Card */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 sm:p-8 shadow-xs space-y-6">
         {/* Top Control Bar: Active Step Indicator and Milestone Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400">
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               SYNCHRONIZED STATE
             </span>
-            <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 font-mono text-xs font-bold text-teal-800">
+            <span className="rounded-md bg-teal-50 dark:bg-teal-950/80 border border-teal-200 dark:border-teal-700 px-2.5 py-1 font-mono text-xs font-bold text-teal-800 dark:text-teal-300">
               FRAME {String(selectedStep).padStart(2, "0")} OF {totalSteps}
             </span>
           </div>
@@ -99,8 +99,8 @@ export function TimelineCenterpiece() {
                 onClick={() => setSelectedStep(m.step)}
                 className={`rounded-lg px-2.5 py-1 text-xs font-mono transition-all cursor-pointer ${
                   selectedStep === m.step
-                    ? "bg-teal-800 text-white font-bold shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-teal-700 dark:bg-teal-600 text-white font-bold shadow-xs"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
               >
                 <span>{m.label}</span>
@@ -112,13 +112,13 @@ export function TimelineCenterpiece() {
 
         {/* Large Loss Curve SVG with Interactive Click-to-Step */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-500">
+          <div className="flex items-center justify-between text-xs font-mono text-slate-500 dark:text-slate-400">
             <span>TRAINING LOSS CURVE (MSE)</span>
-            <span className="text-teal-700 font-semibold">Click curve to jump to any frame</span>
+            <span className="text-teal-700 dark:text-teal-400 font-semibold">Click curve to jump to any frame</span>
           </div>
 
           <div
-            className="relative w-full rounded-2xl border border-slate-100 bg-slate-900 p-2 sm:p-4 cursor-crosshair select-none"
+            className="relative w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2 sm:p-4 cursor-crosshair select-none"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const x = e.clientX - rect.left;
@@ -134,21 +134,21 @@ export function TimelineCenterpiece() {
             >
               <defs>
                 <linearGradient id="centerpiece-gradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0f766e" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#0f766e" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="var(--chart-primary, #0f766e)" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="var(--chart-primary, #0f766e)" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
 
               {/* Grid Lines */}
-              <line x1={padX} y1={padY} x2={width - padX} y2={padY} stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" />
-              <line x1={padX} y1={height / 2} x2={width - padX} y2={height / 2} stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" />
-              <line x1={padX} y1={height - padY} x2={width - padX} y2={height - padY} stroke="#334155" strokeWidth="1" />
+              <line x1={padX} y1={padY} x2={width - padX} y2={padY} stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="1" strokeDasharray="3 3" />
+              <line x1={padX} y1={height / 2} x2={width - padX} y2={height / 2} stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeWidth="1" strokeDasharray="3 3" />
+              <line x1={padX} y1={height - padY} x2={width - padX} y2={height - padY} stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
 
               {/* Area under curve */}
               <polygon fill="url(#centerpiece-gradient)" points={areaPoints} />
 
               {/* Loss Curve */}
-              <polyline fill="none" stroke="#2dd4bf" strokeWidth="3" points={lossPoints} strokeLinecap="round" />
+              <polyline fill="none" stroke="var(--chart-primary, #0f766e)" strokeWidth="3" points={lossPoints} strokeLinecap="round" />
 
               {/* Milestone Markers as pins */}
               {HERO_MILESTONES.map((m) => {
@@ -156,9 +156,9 @@ export function TimelineCenterpiece() {
                 const frameAtM = HERO_TRAINING_FRAMES[m.step];
                 const my = toY(frameAtM ? frameAtM.loss : 0);
                 return (
-                  <g key={m.step} className="opacity-80">
-                    <circle cx={mx} cy={my} r="4" fill="#0f172a" stroke="#2dd4bf" strokeWidth="1.5" />
-                    <text x={mx} y={my - 8} textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="monospace">
+                  <g key={m.step} className="opacity-90">
+                    <circle cx={mx} cy={my} r="4" fill="var(--surface, #ffffff)" stroke="var(--accent, #0f766e)" strokeWidth="1.5" />
+                    <text x={mx} y={my - 8} textAnchor="middle" fill="currentColor" className="text-slate-600 dark:text-slate-400 font-medium" fontSize="9" fontFamily="monospace">
                       s{m.step}
                     </text>
                   </g>
@@ -171,7 +171,7 @@ export function TimelineCenterpiece() {
                 y1={padY}
                 x2={playheadX}
                 y2={height - padY}
-                stroke="#f59e0b"
+                stroke="#d97706"
                 strokeWidth="2"
                 strokeDasharray="4 4"
               />
@@ -181,7 +181,7 @@ export function TimelineCenterpiece() {
                 cx={playheadX}
                 cy={playheadY}
                 r="6"
-                fill="#f59e0b"
+                fill="#d97706"
                 stroke="#ffffff"
                 strokeWidth="2"
               />
@@ -191,9 +191,9 @@ export function TimelineCenterpiece() {
 
         {/* Scrubber Range Slider */}
         <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-500">
+          <div className="flex items-center justify-between text-xs font-mono text-slate-500 dark:text-slate-400">
             <span>STEP SLIDER</span>
-            <span className="font-bold text-slate-900">Step {selectedStep} / {totalSteps}</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100">Step {selectedStep} / {totalSteps}</span>
           </div>
           <input
             type="range"
@@ -201,10 +201,10 @@ export function TimelineCenterpiece() {
             max={totalSteps}
             value={selectedStep}
             onChange={(e) => setSelectedStep(Number(e.target.value))}
-            className="w-full accent-teal-700 cursor-pointer h-2 bg-slate-100 rounded-lg"
+            className="w-full accent-teal-700 dark:accent-teal-500 cursor-pointer h-2 bg-slate-200 dark:bg-slate-800 rounded-lg"
             aria-label="Training timeline frame slider"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-[10px] font-mono text-slate-400 dark:text-slate-500">
             <span>Step 0 (Init)</span>
             <span>Step 20 (Midpoint)</span>
             <span>Step 40 (Convergence)</span>
@@ -213,69 +213,69 @@ export function TimelineCenterpiece() {
 
         {/* Synchronized Metrics Barometer */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 pt-2">
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Loss (MSE)
             </span>
-            <span className="text-lg font-mono font-bold text-amber-600 block mt-0.5">
+            <span className="text-lg font-mono font-bold text-amber-600 dark:text-amber-400 block mt-0.5">
               {frame.loss.toFixed(3)}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Weight (w)
             </span>
-            <span className="text-lg font-mono font-bold text-slate-900 block mt-0.5">
+            <span className="text-lg font-mono font-bold text-slate-900 dark:text-slate-100 block mt-0.5">
               {frame.weight.toFixed(3)}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Bias (b)
             </span>
-            <span className="text-lg font-mono font-bold text-slate-900 block mt-0.5">
+            <span className="text-lg font-mono font-bold text-slate-900 dark:text-slate-100 block mt-0.5">
               {frame.bias.toFixed(3)}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Weight Grad (∂L/∂w)
             </span>
-            <span className="text-lg font-mono font-bold text-teal-700 block mt-0.5">
+            <span className="text-lg font-mono font-bold text-teal-700 dark:text-teal-400 block mt-0.5">
               {frame.weightGradient.toFixed(3)}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Bias Grad (∂L/∂b)
             </span>
-            <span className="text-lg font-mono font-bold text-teal-700 block mt-0.5">
+            <span className="text-lg font-mono font-bold text-teal-700 dark:text-teal-400 block mt-0.5">
               {frame.biasGradient.toFixed(3)}
             </span>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Pred @ x=1.0
             </span>
-            <span className="text-lg font-mono font-bold text-indigo-700 block mt-0.5">
+            <span className="text-lg font-mono font-bold text-indigo-700 dark:text-indigo-400 block mt-0.5">
               {frame.predictionAtOne.toFixed(2)}
             </span>
           </div>
         </div>
 
         {/* Mathematical Intuition Callout */}
-        <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-4 flex items-start gap-3">
+        <div className="rounded-xl border border-teal-200 dark:border-teal-800/80 bg-teal-50/60 dark:bg-teal-950/40 p-4 flex items-start gap-3">
           <span className="text-lg">💡</span>
           <div className="space-y-0.5">
-            <span className="text-xs font-mono font-bold text-teal-900 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-teal-900 dark:text-teal-200 uppercase tracking-wider">
               WHAT HAPPENS AT FRAME {selectedStep} ({frame.phaseLabel}):
             </span>
-            <p className="text-xs text-slate-700 leading-relaxed">{physicalInsight}</p>
+            <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{physicalInsight}</p>
           </div>
         </div>
       </div>

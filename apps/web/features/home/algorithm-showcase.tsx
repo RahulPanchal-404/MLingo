@@ -22,8 +22,8 @@ export function AlgorithmShowcase() {
       labHref: "/labs/gradient-descent",
       renderVisual: () => (
         <svg viewBox="0 0 200 110" className="w-full h-auto select-none" role="img" aria-label="Linear regression fitting line">
-          <line x1="20" y1="90" x2="180" y2="90" stroke="#334155" strokeWidth="1" />
-          <line x1="20" y1="20" x2="20" y2="90" stroke="#334155" strokeWidth="1" />
+          <line x1="20" y1="90" x2="180" y2="90" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
+          <line x1="20" y1="20" x2="20" y2="90" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
           {/* Data points */}
           {[
             [35, 75], [50, 70], [65, 58], [80, 52], [95, 48],
@@ -49,8 +49,8 @@ export function AlgorithmShowcase() {
       labHref: "/labs/logistic-regression",
       renderVisual: () => (
         <svg viewBox="0 0 200 110" className="w-full h-auto select-none" role="img" aria-label="Logistic regression decision boundary dividing two classes">
-          <line x1="20" y1="90" x2="180" y2="90" stroke="#334155" strokeWidth="1" />
-          <line x1="20" y1="20" x2="20" y2="90" stroke="#334155" strokeWidth="1" />
+          <line x1="20" y1="90" x2="180" y2="90" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
+          <line x1="20" y1="20" x2="20" y2="90" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
           {/* Class 0 points (Blue) */}
           {[
             [35, 80], [45, 65], [60, 75], [70, 55], [80, 70], [55, 45]
@@ -117,7 +117,7 @@ export function AlgorithmShowcase() {
           {/* Connections L1 to L2 */}
           {[35, 75].flatMap((y1) =>
             [25, 55, 85].map((y2) => (
-              <line key={`${y1}-${y2}`} x1="40" y1={y1} x2="100" y2={y2} stroke="#334155" strokeWidth="1" opacity="0.6" />
+              <line key={`${y1}-${y2}`} x1="40" y1={y1} x2="100" y2={y2} stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" opacity="0.6" />
             ))
           )}
           {/* Connections L2 to L3 */}
@@ -145,16 +145,16 @@ export function AlgorithmShowcase() {
     <section className="space-y-6" aria-labelledby="algorithm-showcase-heading">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 border border-slate-200 px-3 py-0.5 text-xs font-mono font-semibold text-slate-700">
+          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-0.5 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
             <span>05 // ALGORITHM ARCHITECTURE</span>
           </div>
           <h2
             id="algorithm-showcase-heading"
-            className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950"
+            className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"
           >
             Real Machine Learning Behaviors
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
             Every algorithm is rendered from actual mathematical mechanics, not generic decorative
             mockups. Select an algorithm to begin recording.
           </p>
@@ -162,7 +162,7 @@ export function AlgorithmShowcase() {
 
         <Link
           href="/labs"
-          className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-teal-700 hover:text-teal-900 transition-colors shrink-0"
+          className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-teal-700 dark:text-teal-400 hover:text-teal-900 dark:hover:text-teal-300 transition-colors shrink-0"
         >
           <span>View All 4 Labs →</span>
         </Link>
@@ -173,33 +173,33 @@ export function AlgorithmShowcase() {
           <Link
             key={algo.id}
             href={algo.labHref}
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:border-teal-300 hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer"
+            className="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 shadow-xs hover:border-teal-300 dark:hover:border-slate-700 hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer"
           >
             <div className="space-y-3">
               {/* Mini SVG Visualization Container */}
-              <div className="rounded-xl border border-slate-100 bg-slate-950 p-2 overflow-hidden flex items-center justify-center">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2 overflow-hidden flex items-center justify-center">
                 {algo.renderVisual()}
               </div>
 
               <div className="space-y-1">
-                <span className="font-mono text-[10px] font-bold text-teal-800 uppercase tracking-wider block">
+                <span className="font-mono text-[10px] font-bold text-teal-800 dark:text-teal-400 uppercase tracking-wider block">
                   {algo.category}
                 </span>
-                <h3 className="text-base font-bold text-slate-950 group-hover:text-teal-900 transition-colors">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-900 dark:group-hover:text-teal-300 transition-colors">
                   {algo.name}
                 </h3>
               </div>
 
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 {algo.description}
               </p>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
                 {algo.lossMetric}
               </span>
-              <span className="text-xs font-mono font-bold text-teal-700 group-hover:translate-x-1 transition-transform">
+              <span className="text-xs font-mono font-bold text-teal-700 dark:text-teal-400 group-hover:translate-x-1 transition-transform">
                 Launch Lab →
               </span>
             </div>

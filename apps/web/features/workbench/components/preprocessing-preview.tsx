@@ -31,12 +31,12 @@ export function PreprocessingPreview({
   const sampleIndices = Array.from({ length: sampleCount }, (_, i) => i);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="border-b border-slate-100 pb-3">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface p-6 shadow-sm">
+      <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
           Before & After Transformation Inspection
         </h3>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Real mathematical outputs mapped from raw dataset values to model inputs.
         </p>
       </div>
@@ -47,10 +47,10 @@ export function PreprocessingPreview({
           const trans = transformedRows[idx];
 
           return (
-            <div key={idx} className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 text-xs">
-              <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                <span className="font-bold text-slate-700">Sample Row #{idx + 1}</span>
-                <span className="text-[11px] text-slate-500">
+            <div key={idx} className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-surface-inset p-3.5 text-xs">
+              <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-2">
+                <span className="font-bold text-slate-700 dark:text-slate-200">Sample Row #{idx + 1}</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
                   {targetColumn && orig[targetColumn] !== undefined
                     ? `Target (${targetColumn}): ${orig[targetColumn]}`
                     : ""}
@@ -59,8 +59,8 @@ export function PreprocessingPreview({
 
               <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Before */}
-                <div className="rounded border border-slate-200 bg-white p-3 font-mono">
-                  <p className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400">
+                <div className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-elevated p-3 font-mono">
+                  <p className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Raw Original
                   </p>
                   <div className="mt-2 space-y-1.5 text-xs">
@@ -68,13 +68,13 @@ export function PreprocessingPreview({
                       .filter(([k]) => k !== targetColumn)
                       .map(([k, v]) => (
                         <div key={k} className="flex items-center justify-between">
-                          <span className="text-slate-600">{k}:</span>
+                          <span className="text-slate-600 dark:text-slate-400">{k}:</span>
                           {v === null || v === undefined ? (
-                            <span className="rounded bg-amber-100 px-1 py-0.2 text-[10px] font-bold text-amber-900">
+                            <span className="rounded bg-amber-100 dark:bg-amber-950/80 px-1 py-0.2 text-[10px] font-bold text-amber-900 dark:text-amber-200 border border-amber-300/40 dark:border-amber-800/60">
                               null
                             </span>
                           ) : (
-                            <span className="text-slate-900 font-semibold">{String(v)}</span>
+                            <span className="text-slate-900 dark:text-white font-semibold">{String(v)}</span>
                           )}
                         </div>
                       ))}
@@ -82,8 +82,8 @@ export function PreprocessingPreview({
                 </div>
 
                 {/* After */}
-                <div className="rounded border border-teal-200 bg-teal-50/40 p-3 font-mono">
-                  <p className="text-[10px] font-sans font-bold uppercase tracking-wider text-teal-700">
+                <div className="rounded border border-teal-200 dark:border-teal-800/80 bg-teal-50/40 dark:bg-teal-950/40 p-3 font-mono">
+                  <p className="text-[10px] font-sans font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
                     Transformed Vector Output
                   </p>
                   <div className="mt-2 space-y-1.5 text-xs">
@@ -91,8 +91,8 @@ export function PreprocessingPreview({
                       .filter(([k]) => k !== targetColumn)
                       .map(([k, v]) => (
                         <div key={k} className="flex items-center justify-between">
-                          <span className="text-teal-800">{k}:</span>
-                          <span className="font-bold text-teal-950">{v}</span>
+                          <span className="text-teal-800 dark:text-teal-300">{k}:</span>
+                          <span className="font-bold text-teal-950 dark:text-teal-100">{v}</span>
                         </div>
                       ))}
                   </div>
@@ -104,8 +104,8 @@ export function PreprocessingPreview({
       </div>
 
       {pipeline?.scaler && (
-        <div className="mt-4 rounded-lg bg-slate-50 p-3 text-[11px] text-slate-600">
-          <span className="font-bold text-slate-700">Fitted parameters: </span>
+        <div className="mt-4 rounded-lg bg-slate-50 dark:bg-surface-inset p-3 text-[11px] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800">
+          <span className="font-bold text-slate-700 dark:text-slate-200">Fitted parameters: </span>
           {pipeline.scaler.means && (
             <span>
               Means: {Object.entries(pipeline.scaler.means).map(([k, v]) => `${k}=${v.toFixed(2)}`).join(", ")} |{" "}

@@ -4,6 +4,7 @@ import type {
   KMeansXRayData,
   LinearXRayData,
   LogisticXRayData,
+  ModelXRayData,
   NeuralNetworkXRayData,
   PredictionSummary,
 } from "./types";
@@ -59,6 +60,10 @@ export function computeLinearXRay(
   const bias = state.bias ?? 0;
   const weightGradient = isInitialState ? null : (state.gradients?.[0] ?? null);
   const biasGradient = isInitialState ? null : (state.bias_gradient ?? null);
+  const totalGradientNorm =
+    !isInitialState && weightGradient != null && biasGradient != null
+      ? Math.sqrt(weightGradient * weightGradient + biasGradient * biasGradient)
+      : null;
   const loss = state.metrics.mean_squared_error ?? state.loss ?? null;
   const predictions = computePredictionsSummary(state.predictions);
 
@@ -83,6 +88,7 @@ export function computeLinearXRay(
     bias,
     weightGradient,
     biasGradient,
+    totalGradientNorm,
     loss,
     predictions,
     frameChanges,
@@ -98,6 +104,16 @@ export function computeLogisticXRay(
   const bias = state.bias ?? 0;
   const weightGradients = isInitialState ? [] : (state.gradients ?? []);
   const biasGradient = isInitialState ? null : (state.bias_gradient ?? null);
+
+  let weightGradientNorm: number | null = null;
+  let totalGradientNorm: number | null = null;
+  if (!isInitialState && weightGradients.length > 0) {
+    const wgSq = weightGradients.reduce((sum, g) => sum + g * g, 0);
+    weightGradientNorm = Math.sqrt(wgSq);
+    const bgSq = biasGradient != null ? biasGradient * biasGradient : 0;
+    totalGradientNorm = Math.sqrt(wgSq + bgSq);
+  }
+
   const loss = state.metrics.binary_cross_entropy ?? state.loss ?? null;
   const accuracy = state.metrics.accuracy ?? null;
   const probabilities = computePredictionsSummary(state.predictions);
@@ -127,6 +143,8 @@ export function computeLogisticXRay(
     bias,
     weightGradients,
     biasGradient,
+    weightGradientNorm,
+    totalGradientNorm,
     loss,
     accuracy,
     probabilities,
@@ -189,18 +207,38 @@ export function computeNeuralNetworkXRay(
   const db2 = isInitialState ? null : (state.db2 ?? null);
 
   let gradientMagnitude: number | null = null;
+  let weightGradientNorm: number | null = null;
+  let biasGradientNorm: number | null = null;
+
   if (!isInitialState && dw1 && db1 && dw2 && db2 != null) {
-    let sumSquares = 0;
+    let weightSumSq = 0;
     for (const row of dw1) {
-      for (const v of row) sumSquares += v * v;
+      for (const v of row) weightSumSq += v * v;
     }
-    for (const v of db1) sumSquares += v * v;
     for (const row of dw2) {
-      for (const v of row) sumSquares += v * v;
+      for (const v of row) weightSumSq += v * v;
     }
-    sumSquares += db2 * db2;
-    gradientMagnitude = Math.sqrt(sumSquares);
+    weightGradientNorm = Math.sqrt(weightSumSq);
+
+    let biasSumSq = 0;
+    for (const v of db1) biasSumSq += v * v;
+    biasSumSq += db2 * db2;
+    biasGradientNorm = Math.sqrt(biasSumSq);
+
+    gradientMagnitude = Math.sqrt(weightSumSq + biasSumSq);
   }
+
+  let w1Norm = 0;
+  for (const row of w1) {
+    for (const v of row) w1Norm += v * v;
+  }
+  w1Norm = Math.sqrt(w1Norm);
+
+  let w2Norm = 0;
+  for (const row of w2) {
+    for (const v of row) w2Norm += v * v;
+  }
+  w2Norm = Math.sqrt(w2Norm);
 
   const loss = state.metrics.binary_cross_entropy ?? state.loss ?? null;
   const accuracy = state.metrics.accuracy ?? null;
@@ -253,11 +291,15 @@ export function computeNeuralNetworkXRay(
     b1,
     w2,
     b2,
+    w1Norm,
+    w2Norm,
     dw1,
     db1,
     dw2,
     db2,
     gradientMagnitude,
+    weightGradientNorm,
+    biasGradientNorm,
     loss,
     accuracy,
     probabilities,
@@ -283,4 +325,83 @@ export function formatDelta(value: number | null | undefined, maxDecimals = 4): 
 export function formatPercentage(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return "N/A";
   return `${(value * 100).toFixed(1)}%`;
+}
+
+export function getXRayNarrative(data: ModelXRayData): { what: string; why: string } {
+  if (data.algorithm === "linear_regression") {
+    if (data.isInitialState) {
+      return {
+        what: `Step 0: Initial parameters set to w = ${formatNumber(data.weights[0])}, b = ${formatNumber(data.bias)}. Initial loss is ${formatNumber(data.loss)}.`,
+        why: "Baseline regression line established before calculating MSE gradients.",
+      };
+    }
+    const lossDelta = data.frameChanges?.loss;
+    const lossText =
+      lossDelta != null && lossDelta < 0
+        ? `Loss decreased by ${formatNumber(Math.abs(lossDelta))} to ${formatNumber(data.loss)}`
+        : `Loss is ${formatNumber(data.loss)}`;
+    const weightShift = data.frameChanges?.weight;
+    const weightText = weightShift != null ? `, weight shifted by ${formatDelta(weightShift)}` : "";
+    return {
+      what: `${lossText}${weightText}.`,
+      why: "Gradient descent moves opposite to the loss gradient, stepping toward the minimum MSE error.",
+    };
+  }
+
+  if (data.algorithm === "logistic_regression") {
+    if (data.isInitialState) {
+      return {
+        what: `Step 0: Initial parameters set with loss at ${formatNumber(data.loss)} and accuracy at ${data.accuracy != null ? formatPercentage(data.accuracy) : "N/A"}.`,
+        why: "Baseline classification boundary evaluated before computing cross-entropy gradients.",
+      };
+    }
+    const lossDelta = data.frameChanges?.loss;
+    const lossText =
+      lossDelta != null && lossDelta < 0
+        ? `Loss decreased by ${formatNumber(Math.abs(lossDelta))} to ${formatNumber(data.loss)}`
+        : `Loss is ${formatNumber(data.loss)}`;
+    const accText = data.accuracy != null ? ` with accuracy at ${formatPercentage(data.accuracy)}` : "";
+    return {
+      what: `${lossText}${accText}.`,
+      why: "Cross-entropy gradients push the sigmoid decision boundary to separate the classes with higher certainty.",
+    };
+  }
+
+  if (data.algorithm === "kmeans") {
+    if (data.isInitialState) {
+      return {
+        what: `Step 0: Initialized K = ${data.clusterCount} cluster centroids with inertia at ${formatNumber(data.inertia)}.`,
+        why: "Centroid anchors placed before assigning points to their nearest cluster center.",
+      };
+    }
+    const moveText = data.totalMovement != null ? `Centroids moved by ${formatNumber(data.totalMovement)} total distance. ` : "";
+    const inertiaDelta = data.inertiaChange;
+    const inertiaText =
+      inertiaDelta != null && inertiaDelta < 0
+        ? `Inertia decreased by ${formatNumber(Math.abs(inertiaDelta))} to ${formatNumber(data.inertia)}.`
+        : `Inertia is ${formatNumber(data.inertia)}.`;
+    return {
+      what: `${moveText}${inertiaText}`,
+      why: "Centroids update to the arithmetic mean of assigned points, minimizing intra-cluster variance.",
+    };
+  }
+
+  // Neural network
+  if (data.isInitialState) {
+    return {
+      what: "Step 0: Weights initialized with Xavier scaling and biases at zero. Ready for backpropagation.",
+      why: "Appropriate variance scaling prevents vanishing or exploding gradients before forward propagation begins.",
+    };
+  }
+  const lossDelta = data.frameChanges?.loss;
+  const lossText =
+    lossDelta != null && lossDelta < 0
+      ? `Loss decreased by ${formatNumber(Math.abs(lossDelta))} to ${formatNumber(data.loss)}`
+      : `Loss is ${formatNumber(data.loss)}`;
+  const accText = data.accuracy != null ? ` (accuracy ${formatPercentage(data.accuracy)})` : "";
+  const gradText = data.gradientMagnitude != null ? `. Total gradient norm is ${formatNumber(data.gradientMagnitude, 4)}` : "";
+  return {
+    what: `${lossText}${accText}${gradText}.`,
+    why: "Backpropagation computes layer-wise error gradients (∂L/∂W, ∂L/∂b) to step weights opposite to the gradient toward lower prediction loss.",
+  };
 }

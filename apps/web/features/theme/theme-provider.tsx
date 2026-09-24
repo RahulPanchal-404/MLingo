@@ -14,8 +14,6 @@ const THEME_STORAGE_KEY = "mlingo.theme";
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const emptySubscribe = () => () => {};
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === "undefined") return "system";

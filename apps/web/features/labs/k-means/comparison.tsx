@@ -220,7 +220,7 @@ function KMeansPlot({ points, state }: { points: TrainingRun["dataset_points"]; 
                               />
                         ))}
                         {(state.centroids ?? []).map((centroid, index) => (
-                              <circle key={`centroid-${index}`} cx={x(centroid[0])} cy={y(centroid[1])} fill="#0f172a" r="6" stroke="#ffffff" strokeWidth={2} />
+                              <circle key={`centroid-${index}`} cx={x(centroid[0])} cy={y(centroid[1])} fill="var(--surface-elevated)" r="6" stroke="var(--foreground)" strokeWidth={2} />
                         ))}
                   </svg>
                   <p>Cluster membership and centroid locations are compared at the same frame across both runs.</p>

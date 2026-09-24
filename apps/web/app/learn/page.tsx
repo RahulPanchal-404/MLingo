@@ -29,8 +29,8 @@ const chapters: Chapter[] = [
     title: "Foundations of Machine Learning",
     subtitle: "From rule-based programming to iterative parameter optimization on error surfaces.",
     renderMiniVisual: () => (
-      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="Gradient Descent Descent">
-        <line x1="15" y1="58" x2="145" y2="58" stroke="#334155" strokeWidth="1" />
+      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Gradient Descent Descent">
+        <line x1="15" y1="58" x2="145" y2="58" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
         <polyline fill="none" stroke="#2dd4bf" strokeWidth="2.5" points="20,18 45,35 75,48 105,54 140,56" />
         <circle cx="75" cy="48" r="4" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
       </svg>
@@ -99,8 +99,8 @@ const chapters: Chapter[] = [
     title: "Supervised Learning & Classification",
     subtitle: "Separating categories and calculating class probabilities using the sigmoid function.",
     renderMiniVisual: () => (
-      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="Classification Boundary">
-        <line x1="15" y1="58" x2="145" y2="58" stroke="#334155" strokeWidth="1" />
+      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Classification Boundary">
+        <line x1="15" y1="58" x2="145" y2="58" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
         <circle cx="35" cy="45" r="3" fill="#38bdf8" />
         <circle cx="50" cy="35" r="3" fill="#38bdf8" />
         <circle cx="110" cy="20" r="3" fill="#f59e0b" />
@@ -128,7 +128,7 @@ const chapters: Chapter[] = [
     title: "Unsupervised Learning & Clustering",
     subtitle: "Discovering cohesive behavioral groupings without ground truth labels.",
     renderMiniVisual: () => (
-      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="K-Means Centroid Cluster">
+      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="K-Means Centroid Cluster">
         <circle cx="45" cy="35" r="2.5" fill="#14b8a6" />
         <circle cx="55" cy="30" r="2.5" fill="#14b8a6" />
         <circle cx="50" cy="32" r="6" fill="none" stroke="#2dd4bf" strokeWidth="1.5" />
@@ -157,9 +157,9 @@ const chapters: Chapter[] = [
     title: "Deep Learning & Backpropagation",
     subtitle: "Multi-layer perceptrons, non-linear activation flow, and analytical calculus gradients.",
     renderMiniVisual: () => (
-      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="Neural Network Nodes">
-        <line x1="30" y1="25" x2="80" y2="20" stroke="#334155" strokeWidth="1" />
-        <line x1="30" y1="45" x2="80" y2="50" stroke="#334155" strokeWidth="1" />
+      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Neural Network Nodes">
+        <line x1="30" y1="25" x2="80" y2="20" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
+        <line x1="30" y1="45" x2="80" y2="50" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
         <line x1="80" y1="20" x2="130" y2="35" stroke="#0f766e" strokeWidth="1.5" />
         <circle cx="30" cy="25" r="4" fill="#0284c7" />
         <circle cx="30" cy="45" r="4" fill="#0284c7" />

@@ -36,9 +36,9 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
   const renderPreview = () => {
     if (project.type === "regression") {
       return (
-        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="Regression Preview">
-          <line x1="15" y1="65" x2="145" y2="65" stroke="#334155" strokeWidth="1" />
-          <line x1="15" y1="15" x2="15" y2="65" stroke="#334155" strokeWidth="1" />
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Regression Preview">
+          <line x1="15" y1="65" x2="145" y2="65" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
+          <line x1="15" y1="15" x2="15" y2="65" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
           {[[25, 55], [40, 50], [55, 42], [70, 38], [85, 34], [100, 28], [115, 24], [130, 18]].map(([cx, cy], i) => (
             <circle key={i} cx={cx} cy={cy} r="2.5" fill="#38bdf8" />
           ))}
@@ -48,9 +48,9 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
     }
     if (project.type === "classification") {
       return (
-        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="Classification Preview">
-          <line x1="15" y1="65" x2="145" y2="65" stroke="#334155" strokeWidth="1" />
-          <line x1="15" y1="15" x2="15" y2="65" stroke="#334155" strokeWidth="1" />
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Classification Preview">
+          <line x1="15" y1="65" x2="145" y2="65" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
+          <line x1="15" y1="15" x2="15" y2="65" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="1" />
           {[[30, 55], [45, 45], [55, 50], [40, 35]].map(([cx, cy], i) => (
             <circle key={`c0-${i}`} cx={cx} cy={cy} r="3" fill="#38bdf8" />
           ))}
@@ -62,7 +62,7 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
       );
     }
     return (
-      <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg bg-slate-950 p-2" role="img" aria-label="Clustering Preview">
+      <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Clustering Preview">
         {[[35, 25], [45, 20], [30, 35], [40, 30]].map(([cx, cy], i) => (
           <circle key={`k1-${i}`} cx={cx} cy={cy} r="2.5" fill="#14b8a6" />
         ))}

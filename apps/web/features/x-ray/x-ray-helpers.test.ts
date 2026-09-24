@@ -10,6 +10,7 @@ import {
   formatDelta,
   formatNumber,
   formatPercentage,
+  getXRayNarrative,
 } from "./x-ray-helpers";
 
 describe("x-ray-helpers", () => {
@@ -284,10 +285,14 @@ describe("x-ray-helpers", () => {
       expect(xray0.accuracy).toBe(0.5);
     });
 
-    it("computes gradient norm and weight deltas on step 1", () => {
+    it("computes gradient norm, weight gradient norm, bias gradient norm, and weight deltas on step 1", () => {
       const xray1 = computeNeuralNetworkXRay(state1, state0);
       expect(xray1.isInitialState).toBe(false);
       expect(xray1.gradientMagnitude).toBeGreaterThan(0);
+      expect(xray1.weightGradientNorm).toBeGreaterThan(0);
+      expect(xray1.biasGradientNorm).toBeGreaterThan(0);
+      expect(xray1.w1Norm).toBeGreaterThan(0);
+      expect(xray1.w2Norm).toBeGreaterThan(0);
       expect(xray1.frameChanges).not.toBeNull();
       expect(xray1.frameChanges?.loss).toBeCloseTo(-0.043);
       expect(xray1.frameChanges?.accuracy).toBeCloseTo(0.25);
@@ -313,6 +318,44 @@ describe("x-ray-helpers", () => {
     it("formatPercentage formats decimal as percentage", () => {
       expect(formatPercentage(0.8523)).toBe("85.2%");
       expect(formatPercentage(null)).toBe("N/A");
+    });
+  });
+
+  describe("getXRayNarrative", () => {
+    it("generates beginner-first what and why explanations for all model architectures", () => {
+      const state0: TrainingState = {
+        step: 0,
+        loss: 0.693,
+        weights: [],
+        bias: 0,
+        gradients: [],
+        bias_gradient: null,
+        predictions: [0.5],
+        metrics: {},
+      };
+      const nn0 = computeNeuralNetworkXRay(state0, null);
+      const narrative0 = getXRayNarrative(nn0);
+      expect(narrative0.what).toContain("Step 0");
+      expect(narrative0.why).toContain("variance scaling");
+
+      const state1: TrainingState = {
+        step: 1,
+        loss: 0.65,
+        weights: [],
+        bias: 0,
+        gradients: [],
+        bias_gradient: null,
+        dw1: [[-0.01]],
+        db1: [-0.01],
+        dw2: [[-0.01]],
+        db2: -0.01,
+        predictions: [0.6],
+        metrics: { accuracy: 0.75 },
+      };
+      const nn1 = computeNeuralNetworkXRay(state1, state0);
+      const narrative1 = getXRayNarrative(nn1);
+      expect(narrative1.what).toContain("decreased");
+      expect(narrative1.why).toContain("Backpropagation");
     });
   });
 });

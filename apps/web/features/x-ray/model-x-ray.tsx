@@ -10,6 +10,7 @@ import {
   formatDelta,
   formatNumber,
   formatPercentage,
+  getXRayNarrative,
 } from "./x-ray-helpers";
 
 export type ModelXRayProps = {
@@ -21,13 +22,21 @@ export type ModelXRayProps = {
 export function ModelXRay({ run, state, currentStep }: ModelXRayProps) {
   if (!state) {
     return (
-      <section className="model-x-ray state-panel" aria-label="Model X-Ray">
-        <div className="state-heading">
-          <p className="eyebrow">Model X-Ray</p>
-          <h2>No frame selected</h2>
-          <p>Scrub the timeline or run training to inspect the model internals.</p>
+      <section className="model-x-ray rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 shadow-xs" aria-label="Model X-Ray">
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
+            Model X-Ray
+          </span>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">
+            No frame selected
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Scrub the timeline or run training to inspect the model internals.
+          </p>
         </div>
-        <p className="empty-state">No recorded frame is currently selected.</p>
+        <p className="mt-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-4 text-xs text-slate-500 dark:text-slate-400 text-center">
+          No recorded frame is currently selected.
+        </p>
       </section>
     );
   }
@@ -53,11 +62,11 @@ export function ModelXRay({ run, state, currentStep }: ModelXRayProps) {
   }
 
   return (
-    <div id="model-x-ray-panel" className="model-x-ray-anchor space-y-2">
+    <div id="model-x-ray-panel" className="model-x-ray-anchor space-y-4">
       <div className="flex justify-end">
         <Link
           href="/workbench"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 dark:text-teal-400 hover:text-teal-900 dark:hover:text-teal-300 transition-colors"
         >
           <span>View evaluation in Data Workbench →</span>
         </Link>
@@ -68,108 +77,740 @@ export function ModelXRay({ run, state, currentStep }: ModelXRayProps) {
 }
 
 /* ==========================================================================
-   LINEAR REGRESSION X-RAY
+   REUSABLE PRESENTATION COMPONENTS
    ========================================================================== */
-function LinearXRayView({ data }: { data: ReturnType<typeof computeLinearXRay> }) {
-  const { isInitialState, weights, bias, weightGradient, biasGradient, loss, predictions, frameChanges } = data;
 
+function WhatWhyBanner({
+  narrative,
+  algorithmTitle,
+  step,
+  isInitialState,
+}: {
+  narrative: { what: string; why: string };
+  algorithmTitle: string;
+  step: number;
+  isInitialState: boolean;
+}) {
   return (
-    <section className="model-x-ray state-panel" aria-label="Linear Regression Model X-Ray">
-      <div className="state-heading">
-        <p className="eyebrow">Model X-Ray / Linear Regression</p>
-        <h2>{isInitialState ? "Step 0 — Initial State" : `Step ${data.step}`}</h2>
-        <p>
-          {isInitialState
-            ? "Initial state — before the first update."
-            : "Inspecting actual parameters, gradients, and frame updates for this snapshot."}
-        </p>
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-5 shadow-xs space-y-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
+            Model X-Ray · {algorithmTitle}
+          </span>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            {isInitialState ? "Step 0 — Initial Model State" : `Training Frame ${step}`}
+          </h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
+            {isInitialState ? "Untrained Baseline" : `Step ${step}`}
+          </span>
+        </div>
       </div>
 
-      <div className="xray-content-grid">
-        {/* Model Parameters */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Model Parameters</h3>
-          <dl className="xray-metrics-list">
-            <MetricItem label="Weight (w)" value={weights[0]} />
-            <MetricItem label="Bias (b)" value={bias} />
-          </dl>
-        </div>
-
-        {/* Gradients */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Gradients</h3>
-          <p className="text-[10px] text-slate-500 mb-1.5">
-            Gradient norm summarizes how strongly the model parameters are currently being pushed to change.
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div className="rounded-xl border border-teal-200/70 dark:border-teal-900/50 bg-teal-50/50 dark:bg-teal-950/30 p-3 space-y-1">
+          <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300 text-[10px]">
+            <span>✨</span>
+            <span>What Happened</span>
+          </div>
+          <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+            {narrative.what}
           </p>
-          <dl className="xray-metrics-list">
-            <MetricItem
-              label="Weight gradient (∂L/∂w)"
-              value={weightGradient}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-            <MetricItem
-              label="Bias gradient (∂L/∂b)"
-              value={biasGradient}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-          </dl>
         </div>
 
-        {/* Training Signal */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Training Signal</h3>
-          <dl className="xray-metrics-list">
-            <MetricItem label="Loss / MSE" value={loss} />
-          </dl>
-        </div>
-
-        {/* Predictions Summary */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Predictions Summary</h3>
-          {predictions ? (
-            <dl className="xray-metrics-list">
-              <MetricItem
-                label="Prediction range"
-                textValue={`${formatNumber(predictions.min)} to ${formatNumber(predictions.max)}`}
-              />
-              <MetricItem label="Mean prediction" value={predictions.mean} />
-              {predictions.sample.length > 0 && (
-                <MetricItem
-                  label="Sample (first 3)"
-                  textValue={predictions.sample.map((v) => formatNumber(v)).join(", ")}
-                />
-              )}
-            </dl>
-          ) : (
-            <p className="empty-state">No predictions recorded.</p>
-          )}
-        </div>
-
-        {/* Changes from previous frame */}
-        <div className="xray-group xray-group-full">
-          <h3 className="xray-group-title">Changes from Previous Frame</h3>
-          {isInitialState ? (
-            <p className="xray-initial-note">Initial state — before the first update.</p>
-          ) : frameChanges ? (
-            <dl className="xray-metrics-list xray-metrics-inline">
-              <MetricDelta label="Δ Weight" delta={frameChanges.weight} />
-              <MetricDelta label="Δ Bias" delta={frameChanges.bias} />
-              <MetricDelta label="Δ Loss" delta={frameChanges.loss} />
-              {frameChanges.weightGradient !== undefined && (
-                <MetricDelta label="Δ Gradient" delta={frameChanges.weightGradient} />
-              )}
-            </dl>
-          ) : (
-            <p className="empty-state">No previous frame data.</p>
-          )}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-3 space-y-1">
+          <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 text-[10px]">
+            <span>💡</span>
+            <span>Why</span>
+          </div>
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            {narrative.why}
+          </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CardContainer({
+  title,
+  subtitle,
+  badge,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-5 shadow-xs transition-all space-y-4">
+      <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
+            {title}
+          </h3>
+          {subtitle && (
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 leading-snug">
+              {subtitle}
+            </p>
+          )}
+        </div>
+        {badge && (
+          <span className="shrink-0 rounded-full border border-teal-200 dark:border-teal-800/80 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 text-[10px] font-mono font-bold text-teal-800 dark:text-teal-300">
+            {badge}
+          </span>
+        )}
+      </div>
+      <div className="space-y-4 grow">{children}</div>
     </section>
   );
 }
 
+function MetricBlock({
+  label,
+  value,
+  explanation,
+  indicator,
+}: {
+  label: string;
+  value: string;
+  explanation?: string;
+  indicator?: "down" | "up" | "neutral";
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/60 p-3 space-y-1">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block truncate">
+        {label}
+      </span>
+      <div className="flex items-baseline gap-1.5">
+        {indicator === "down" && (
+          <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm leading-none">↓</span>
+        )}
+        {indicator === "up" && (
+          <span className="text-amber-600 dark:text-amber-400 font-bold text-sm leading-none">↑</span>
+        )}
+        <span className="text-lg sm:text-xl font-bold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
+          {value}
+        </span>
+      </div>
+      {explanation && (
+        <span className="text-[10px] text-slate-500 dark:text-slate-400 block leading-tight">
+          {explanation}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function MatrixTable({
+  title,
+  symbol,
+  dimensions,
+  matrix,
+  rowLabels,
+  colLabels,
+  decimals = 4,
+}: {
+  title: string;
+  symbol?: string;
+  dimensions?: string;
+  matrix: number[][];
+  rowLabels?: string[];
+  colLabels?: string[];
+  decimals?: number;
+}) {
+  if (!matrix || matrix.length === 0 || !matrix[0]) {
+    return (
+      <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-3 text-xs text-slate-400 text-center">
+        No matrix values recorded.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          {symbol && (
+            <span className="font-mono font-bold text-teal-700 dark:text-teal-400">
+              {symbol}
+            </span>
+          )}
+          <span>{title}</span>
+        </span>
+        {dimensions && (
+          <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500">
+            {dimensions}
+          </span>
+        )}
+      </div>
+
+      <div className="relative overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 p-3">
+        <table className="w-full text-right font-mono text-xs tabular-nums border-collapse">
+          {colLabels && (
+            <thead>
+              <tr className="border-b border-slate-200/60 dark:border-slate-800/60">
+                {rowLabels && <th className="text-left font-sans text-[10px] text-slate-400 p-1.5 w-16" />}
+                {colLabels.map((col, idx) => (
+                  <th
+                    key={idx}
+                    className="font-sans text-[10px] font-semibold text-slate-500 dark:text-slate-400 p-1.5 min-w-[5rem]"
+                  >
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+          )}
+          <tbody>
+            {matrix.map((row, rIdx) => (
+              <tr
+                key={rIdx}
+                className="hover:bg-slate-100/70 dark:hover:bg-slate-900/70 transition-colors"
+              >
+                {rowLabels && (
+                  <td className="text-left font-sans text-[10px] font-medium text-slate-500 dark:text-slate-400 p-1.5 pr-2 whitespace-nowrap">
+                    {rowLabels[rIdx]}
+                  </td>
+                )}
+                {row.map((val, cIdx) => (
+                  <td
+                    key={cIdx}
+                    className="p-1.5 text-slate-800 dark:text-slate-200 font-semibold min-w-[5rem]"
+                  >
+                    {formatNumber(val, decimals)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function VectorDisplay({
+  label,
+  values,
+  decimals = 4,
+}: {
+  label: string;
+  values: number[];
+  decimals?: number;
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/60 px-3 py-2 text-xs">
+      <span className="font-semibold text-slate-600 dark:text-slate-400 text-[11px]">{label}</span>
+      <span className="font-mono font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+        [{values.map((v) => formatDelta(v, decimals)).join(", ")}]
+      </span>
+    </div>
+  );
+}
+
+function CollapsibleDetail({
+  title,
+  badge,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  badge?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details
+      open={defaultOpen}
+      className="group/detail rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden"
+    >
+      <summary className="flex items-center justify-between p-3 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-400 select-none transition-colors">
+        <span className="flex items-center gap-2">
+          <span className="text-[10px] text-teal-600 dark:text-teal-400 group-open/detail:rotate-90 transition-transform">
+            ▶
+          </span>
+          {title}
+        </span>
+        {badge && (
+          <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+            {badge}
+          </span>
+        )}
+      </summary>
+      <div className="p-3 pt-1 border-t border-slate-200/50 dark:border-slate-800/50 space-y-3">
+        {children}
+      </div>
+    </details>
+  );
+}
+
 /* ==========================================================================
-   LOGISTIC REGRESSION X-RAY
+   1. NEURAL NETWORK X-RAY
+   ========================================================================== */
+function NeuralNetworkXRayView({ data }: { data: ReturnType<typeof computeNeuralNetworkXRay> }) {
+  const {
+    isInitialState,
+    architecture,
+    w1,
+    b1,
+    w2,
+    b2,
+    w1Norm,
+    w2Norm,
+    dw1,
+    db1,
+    dw2,
+    db2,
+    gradientMagnitude,
+    weightGradientNorm,
+    biasGradientNorm,
+    loss,
+    accuracy,
+    probabilities,
+    hiddenActivations,
+    frameChanges,
+  } = data;
+
+  const narrative = getXRayNarrative(data);
+  const hiddenCount = architecture.hidden;
+  const hLabels = Array.from({ length: hiddenCount }, (_, i) => `h${i + 1}`);
+
+  return (
+    <div className="space-y-5">
+      <WhatWhyBanner
+        narrative={narrative}
+        algorithmTitle="Neural Network (Backpropagation)"
+        step={data.step}
+        isInitialState={isInitialState}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Card 1: Model Parameters */}
+        <CardContainer
+          title="Model Parameters"
+          badge={`W₁: ${architecture.inputs}×${architecture.hidden} · W₂: ${architecture.hidden}×1`}
+          subtitle={`Input (${architecture.inputs} features) → Hidden (${architecture.hidden} neurons) → Output (1, Sigmoid)`}
+        >
+          {/* Summary View */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <MetricBlock
+              label="||W₁||₂ (Input Weights)"
+              value={w1Norm != null ? formatNumber(w1Norm, 3) : "N/A"}
+              explanation="L2 norm of input layer"
+            />
+            <MetricBlock
+              label="||W₂||₂ (Output Weights)"
+              value={w2Norm != null ? formatNumber(w2Norm, 3) : "N/A"}
+              explanation="L2 norm of hidden layer"
+            />
+          </div>
+
+          {/* Biases: Compact Vector Formatting */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Biases (b₁, b₂)
+            </span>
+            <VectorDisplay
+              label={`Hidden Layer (b₁, ${b1.length} neurons)`}
+              values={b1}
+              decimals={3}
+            />
+            <VectorDisplay
+              label="Output Layer (b₂)"
+              values={[b2]}
+              decimals={3}
+            />
+          </div>
+
+          {/* Progressive Disclosure: Structured Matrices */}
+          <div className="space-y-2 pt-1">
+            <CollapsibleDetail
+              title="Inspect full W₁ matrix (Input → Hidden)"
+              badge={`${architecture.inputs} × ${architecture.hidden}`}
+            >
+              <MatrixTable
+                title="W₁ Weights — Input to Hidden"
+                symbol="W₁"
+                dimensions={`${architecture.inputs} × ${architecture.hidden}`}
+                matrix={w1}
+                rowLabels={["in₁ (Feature 1)", "in₂ (Feature 2)"]}
+                colLabels={hLabels}
+                decimals={4}
+              />
+            </CollapsibleDetail>
+
+            <CollapsibleDetail
+              title="Inspect full W₂ matrix (Hidden → Output)"
+              badge={`${architecture.hidden} × 1`}
+            >
+              <MatrixTable
+                title="W₂ Weights — Hidden to Output"
+                symbol="W₂"
+                dimensions={`${architecture.hidden} × 1`}
+                matrix={w2}
+                rowLabels={hLabels}
+                colLabels={["out (Logit)"]}
+                decimals={4}
+              />
+            </CollapsibleDetail>
+
+            {hiddenActivations && hiddenActivations.length > 0 && (
+              <CollapsibleDetail
+                title="Inspect hidden activations sample (h₁..hₖ)"
+                badge={`${Math.min(hiddenActivations.length, 3)} pts`}
+              >
+                <MatrixTable
+                  title="Hidden Neuron Sigmoids (σ(z₁))"
+                  symbol="a₁"
+                  dimensions={`sample × ${architecture.hidden}`}
+                  matrix={hiddenActivations.slice(0, 3)}
+                  rowLabels={["Point 1", "Point 2", "Point 3"].slice(0, hiddenActivations.length)}
+                  colLabels={hLabels}
+                  decimals={3}
+                />
+              </CollapsibleDetail>
+            )}
+          </div>
+        </CardContainer>
+
+        {/* Card 2: Gradient Signal */}
+        <CardContainer
+          title="Gradient Signal"
+          badge="Backpropagation"
+          subtitle="Gradient Norm: How strongly the parameters are being pushed to change."
+        >
+          {/* Primary View: 3 Gradient Norms */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <MetricBlock
+              label="Weight Gradient"
+              value={weightGradientNorm != null ? formatNumber(weightGradientNorm, 3) : isInitialState ? "None" : "N/A"}
+              explanation="||∇W||₂ weight norm"
+            />
+            <MetricBlock
+              label="Bias Gradient"
+              value={biasGradientNorm != null ? formatNumber(biasGradientNorm, 3) : isInitialState ? "None" : "N/A"}
+              explanation="||∇b||₂ bias norm"
+            />
+            <MetricBlock
+              label="Total Gradient"
+              value={gradientMagnitude != null ? formatNumber(gradientMagnitude, 3) : isInitialState ? "None" : "N/A"}
+              explanation="||∇Loss||₂ total norm"
+            />
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/50 p-3 text-xs text-slate-600 dark:text-slate-400">
+            {isInitialState
+              ? "Baseline frame before gradient pass. Xavier-scaled weights are ready for the first forward-backward pass."
+              : "Analytical derivatives computed via the chain rule propagate backwards from cross-entropy loss through the sigmoid layers."}
+          </div>
+
+          {/* Progressive Disclosure: Detailed Gradients */}
+          {!isInitialState && (dw1 || dw2 || db1 || db2 != null) && (
+            <div className="space-y-2 pt-1">
+              <CollapsibleDetail
+                title="Inspect analytical gradient matrices (∂L/∂W, ∂L/∂b) →"
+                badge="Chain Rule"
+              >
+                {dw1 && (
+                  <MatrixTable
+                    title="∂L/∂W₁ — Hidden Weight Gradients"
+                    symbol="∇W₁"
+                    dimensions={`${architecture.inputs} × ${architecture.hidden}`}
+                    matrix={dw1}
+                    rowLabels={["in₁", "in₂"]}
+                    colLabels={hLabels}
+                    decimals={4}
+                  />
+                )}
+                {dw2 && (
+                  <MatrixTable
+                    title="∂L/∂W₂ — Output Weight Gradients"
+                    symbol="∇W₂"
+                    dimensions={`${architecture.hidden} × 1`}
+                    matrix={dw2}
+                    rowLabels={hLabels}
+                    colLabels={["out"]}
+                    decimals={4}
+                  />
+                )}
+                {db1 && (
+                  <VectorDisplay
+                    label="∂L/∂b₁ (Hidden Bias Gradients)"
+                    values={db1}
+                    decimals={4}
+                  />
+                )}
+                {db2 != null && (
+                  <VectorDisplay
+                    label="∂L/∂b₂ (Output Bias Gradient)"
+                    values={[db2]}
+                    decimals={4}
+                  />
+                )}
+              </CollapsibleDetail>
+            </div>
+          )}
+        </CardContainer>
+
+        {/* Card 3: Training Signal */}
+        <CardContainer
+          title="Training Signal"
+          badge="Classification"
+          subtitle="Empirical loss and probabilistic output distribution at this snapshot."
+        >
+          {/* 2x2 Metric Grid */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <MetricBlock
+              label="Loss / BCE"
+              value={loss != null ? formatNumber(loss, 4) : "N/A"}
+              explanation="Binary cross-entropy"
+            />
+            <MetricBlock
+              label="Accuracy"
+              value={accuracy != null ? formatPercentage(accuracy) : "N/A"}
+              explanation="Correct classifications"
+            />
+            <MetricBlock
+              label="Mean Prob."
+              value={probabilities ? formatNumber(probabilities.mean, 3) : "N/A"}
+              explanation="Average sigmoid confidence"
+            />
+            <MetricBlock
+              label="Prob. Range"
+              value={
+                probabilities
+                  ? `${formatNumber(probabilities.min, 2)}–${formatNumber(probabilities.max, 2)}`
+                  : "N/A"
+              }
+              explanation="Min to max sigmoid output"
+            />
+          </div>
+
+          {probabilities?.sample && probabilities.sample.length > 0 && (
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/50 p-2.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Sample Probabilities (first 3):</span>
+              <span className="font-mono text-slate-800 dark:text-slate-200 font-semibold">
+                {probabilities.sample.map((p) => formatNumber(p, 3)).join(", ")}
+              </span>
+            </div>
+          )}
+        </CardContainer>
+
+        {/* Card 4: Frame Updates */}
+        <CardContainer
+          title="Frame Updates"
+          badge={isInitialState ? "Baseline" : `Δ vs Frame ${data.step - 1}`}
+          subtitle="Parameter shifts and error changes between consecutive frames."
+        >
+          {isInitialState ? (
+            <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-400 space-y-1">
+              <span className="font-semibold block text-slate-600 dark:text-slate-300">Initial State</span>
+              <span>Before the first gradient step. Delta metrics will appear starting at Step 1.</span>
+            </div>
+          ) : frameChanges ? (
+            <div className="grid grid-cols-2 gap-2.5">
+              <MetricBlock
+                label="Loss Change"
+                value={formatDelta(frameChanges.loss, 4)}
+                indicator={frameChanges.loss < 0 ? "down" : frameChanges.loss > 0 ? "up" : "neutral"}
+                explanation={frameChanges.loss < 0 ? "Loss decreased" : "Loss increased"}
+              />
+              <MetricBlock
+                label="Accuracy Change"
+                value={
+                  frameChanges.accuracy !== undefined
+                    ? `${frameChanges.accuracy >= 0 ? "+" : ""}${(frameChanges.accuracy * 100).toFixed(1)}%`
+                    : "+0.0%"
+                }
+                explanation="Classification shift"
+              />
+              <MetricBlock
+                label="W₁ Movement"
+                value={frameChanges.w1DeltaNorm != null ? formatNumber(frameChanges.w1DeltaNorm, 4) : "N/A"}
+                explanation="||ΔW₁||₂ input layer shift"
+              />
+              <MetricBlock
+                label="W₂ Movement"
+                value={frameChanges.w2DeltaNorm != null ? formatNumber(frameChanges.w2DeltaNorm, 4) : "N/A"}
+                explanation="||ΔW₂||₂ output layer shift"
+              />
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 text-center py-4">No previous frame data available.</p>
+          )}
+        </CardContainer>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   2. LINEAR REGRESSION X-RAY
+   ========================================================================== */
+function LinearXRayView({ data }: { data: ReturnType<typeof computeLinearXRay> }) {
+  const { isInitialState, weights, bias, weightGradient, biasGradient, totalGradientNorm, loss, predictions, frameChanges } = data;
+  const narrative = getXRayNarrative(data);
+  const w = weights[0] ?? 0;
+
+  return (
+    <div className="space-y-5">
+      <WhatWhyBanner
+        narrative={narrative}
+        algorithmTitle="Linear Regression (Gradient Descent)"
+        step={data.step}
+        isInitialState={isInitialState}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Card 1: Model Parameters */}
+        <CardContainer
+          title="Model Parameters"
+          badge="1D Linear Fit"
+          subtitle="Slope and intercept defining the fitted regression line."
+        >
+          <div className="grid grid-cols-2 gap-2.5">
+            <MetricBlock
+              label="Weight (w, Slope)"
+              value={formatNumber(w, 4)}
+              explanation="Rise over run"
+            />
+            <MetricBlock
+              label="Bias (b, Intercept)"
+              value={formatNumber(bias, 4)}
+              explanation="Vertical axis intercept"
+            />
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/60 p-3 space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Fitted Model Equation
+            </span>
+            <div className="font-mono text-sm font-bold text-teal-800 dark:text-teal-300">
+              ŷ = {formatNumber(w, 4)} · x {bias >= 0 ? "+" : "−"} {formatNumber(Math.abs(bias), 4)}
+            </div>
+          </div>
+        </CardContainer>
+
+        {/* Card 2: Gradient Signal */}
+        <CardContainer
+          title="Gradient Signal"
+          badge="MSE Derivatives"
+          subtitle="Gradient Norm: How strongly the parameters are being pushed to change."
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <MetricBlock
+              label="Weight Gradient"
+              value={weightGradient != null ? formatNumber(weightGradient, 4) : isInitialState ? "None" : "N/A"}
+              explanation="∂L/∂w (slope error)"
+            />
+            <MetricBlock
+              label="Bias Gradient"
+              value={biasGradient != null ? formatNumber(biasGradient, 4) : isInitialState ? "None" : "N/A"}
+              explanation="∂L/∂b (bias error)"
+            />
+            <MetricBlock
+              label="Total Gradient Norm"
+              value={totalGradientNorm != null ? formatNumber(totalGradientNorm, 4) : isInitialState ? "None" : "N/A"}
+              explanation="||∇Loss||₂ total step force"
+            />
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/50 p-3 text-xs text-slate-600 dark:text-slate-400">
+            {isInitialState
+              ? "Baseline frame before gradient calculation. Gradient descent updates parameters in the direction opposite to the slope."
+              : "Parameters step downward against the gradient: w ← w − η(∂L/∂w), shifting the line toward data points."}
+          </div>
+        </CardContainer>
+
+        {/* Card 3: Training Signal */}
+        <CardContainer
+          title="Training Signal"
+          badge="MSE Loss"
+          subtitle="Mean squared error across dataset observations."
+        >
+          <div className="grid grid-cols-2 gap-2.5">
+            <MetricBlock
+              label="Loss / MSE"
+              value={loss != null ? formatNumber(loss, 4) : "N/A"}
+              explanation="Mean squared residuals"
+            />
+            <MetricBlock
+              label="Mean Prediction"
+              value={predictions ? formatNumber(predictions.mean, 4) : "N/A"}
+              explanation="Average predicted ŷ"
+            />
+            <MetricBlock
+              label="Min Prediction"
+              value={predictions ? formatNumber(predictions.min, 4) : "N/A"}
+              explanation="Minimum ŷ in batch"
+            />
+            <MetricBlock
+              label="Max Prediction"
+              value={predictions ? formatNumber(predictions.max, 4) : "N/A"}
+              explanation="Maximum ŷ in batch"
+            />
+          </div>
+
+          {predictions?.sample && predictions.sample.length > 0 && (
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/50 p-2.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Sample Predictions (first 3):</span>
+              <span className="font-mono text-slate-800 dark:text-slate-200 font-semibold">
+                {predictions.sample.map((p) => formatNumber(p, 3)).join(", ")}
+              </span>
+            </div>
+          )}
+        </CardContainer>
+
+        {/* Card 4: Frame Updates */}
+        <CardContainer
+          title="Frame Updates"
+          badge={isInitialState ? "Baseline" : `Δ vs Frame ${data.step - 1}`}
+          subtitle="Parameter shifts and error changes between consecutive frames."
+        >
+          {isInitialState ? (
+            <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-400 space-y-1">
+              <span className="font-semibold block text-slate-600 dark:text-slate-300">Initial State</span>
+              <span>Before the first gradient step. Delta metrics will appear starting at Step 1.</span>
+            </div>
+          ) : frameChanges ? (
+            <div className="grid grid-cols-2 gap-2.5">
+              <MetricBlock
+                label="Δ Loss"
+                value={formatDelta(frameChanges.loss, 4)}
+                indicator={frameChanges.loss < 0 ? "down" : frameChanges.loss > 0 ? "up" : "neutral"}
+                explanation={frameChanges.loss < 0 ? "Loss decreased" : "Loss increased"}
+              />
+              <MetricBlock
+                label="Δ Weight (w)"
+                value={formatDelta(frameChanges.weight, 4)}
+                explanation="Slope shift this step"
+              />
+              <MetricBlock
+                label="Δ Bias (b)"
+                value={formatDelta(frameChanges.bias, 4)}
+                explanation="Intercept shift this step"
+              />
+              <MetricBlock
+                label="Δ Gradient"
+                value={frameChanges.weightGradient !== undefined ? formatDelta(frameChanges.weightGradient, 4) : "0.0000"}
+                explanation="Slope curvature change"
+              />
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 text-center py-4">No previous frame data available.</p>
+          )}
+        </CardContainer>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   3. LOGISTIC REGRESSION X-RAY
    ========================================================================== */
 function LogisticXRayView({ data }: { data: ReturnType<typeof computeLogisticXRay> }) {
   const {
@@ -178,122 +819,195 @@ function LogisticXRayView({ data }: { data: ReturnType<typeof computeLogisticXRa
     bias,
     weightGradients,
     biasGradient,
+    weightGradientNorm,
+    totalGradientNorm,
     loss,
     accuracy,
     probabilities,
     frameChanges,
   } = data;
 
+  const narrative = getXRayNarrative(data);
+  const w1 = weights[0] ?? 0;
+  const w2 = weights[1] ?? 0;
+
   return (
-    <section className="model-x-ray state-panel" aria-label="Logistic Regression Model X-Ray">
-      <div className="state-heading">
-        <p className="eyebrow">Model X-Ray / Logistic Regression</p>
-        <h2>{isInitialState ? "Step 0 — Initial State" : `Step ${data.step}`}</h2>
-        <p>
-          {isInitialState
-            ? "Initial state — before the first update."
-            : "Inspecting actual parameters, gradients, and classification probabilities."}
-        </p>
-      </div>
+    <div className="space-y-5">
+      <WhatWhyBanner
+        narrative={narrative}
+        algorithmTitle="Logistic Regression (Sigmoid Classification)"
+        step={data.step}
+        isInitialState={isInitialState}
+      />
 
-      <div className="xray-content-grid">
-        {/* Model Parameters */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Model Parameters</h3>
-          <dl className="xray-metrics-list">
-            <MetricItem label="Weight 1 (w₁)" value={weights[0]} />
-            <MetricItem label="Weight 2 (w₂)" value={weights[1]} />
-            <MetricItem label="Bias (b)" value={bias} />
-          </dl>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Card 1: Model Parameters */}
+        <CardContainer
+          title="Model Parameters"
+          badge="Binary Classifier"
+          subtitle="Weights and bias defining the linear decision boundary."
+        >
+          <div className="grid grid-cols-3 gap-2.5">
+            <MetricBlock
+              label="Weight 1 (w₁)"
+              value={formatNumber(w1, 3)}
+              explanation="Feature 1 weight"
+            />
+            <MetricBlock
+              label="Weight 2 (w₂)"
+              value={formatNumber(w2, 3)}
+              explanation="Feature 2 weight"
+            />
+            <MetricBlock
+              label="Bias (b)"
+              value={formatNumber(bias, 3)}
+              explanation="Boundary threshold"
+            />
+          </div>
 
-        {/* Gradients */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Gradients</h3>
-          <p className="text-[10px] text-slate-500 mb-1.5">
-            Gradient norm summarizes how strongly the model parameters are currently being pushed to change.
-          </p>
-          <dl className="xray-metrics-list">
-            <MetricItem
-              label="Weight 1 gradient"
-              value={weightGradients[0]}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-            <MetricItem
-              label="Weight 2 gradient"
-              value={weightGradients[1]}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-            <MetricItem
-              label="Bias gradient"
-              value={biasGradient}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-          </dl>
-        </div>
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/60 p-3 space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Logit Equation z = w₁·x₁ + w₂·x₂ + b
+            </span>
+            <div className="font-mono text-xs font-bold text-teal-800 dark:text-teal-300 truncate">
+              z = {formatNumber(w1, 3)}·x₁ {w2 >= 0 ? "+" : "−"} {formatNumber(Math.abs(w2), 3)}·x₂ {bias >= 0 ? "+" : "−"} {formatNumber(Math.abs(bias), 3)}
+            </div>
+          </div>
+        </CardContainer>
 
-        {/* Training Signal & Classification */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Training Signal & Accuracy</h3>
-          <dl className="xray-metrics-list">
-            <MetricItem label="Binary Cross-Entropy (loss)" value={loss} />
-            <MetricItem
-              label="Accuracy"
-              textValue={accuracy != null ? formatPercentage(accuracy) : "N/A"}
+        {/* Card 2: Gradient Signal */}
+        <CardContainer
+          title="Gradient Signal"
+          badge="BCE Gradients"
+          subtitle="Gradient Norm: How strongly the parameters are being pushed to change."
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <MetricBlock
+              label="Weight Gradient Norm"
+              value={weightGradientNorm != null ? formatNumber(weightGradientNorm, 3) : isInitialState ? "None" : "N/A"}
+              explanation="||∇w||₂ weight norm"
             />
-          </dl>
-        </div>
+            <MetricBlock
+              label="Bias Gradient"
+              value={biasGradient != null ? formatNumber(biasGradient, 3) : isInitialState ? "None" : "N/A"}
+              explanation="∂L/∂b bias slope"
+            />
+            <MetricBlock
+              label="Total Gradient Norm"
+              value={totalGradientNorm != null ? formatNumber(totalGradientNorm, 3) : isInitialState ? "None" : "N/A"}
+              explanation="||∇Loss||₂ total norm"
+            />
+          </div>
 
-        {/* Predictions (Probabilities) */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Probabilities</h3>
-          {probabilities ? (
-            <dl className="xray-metrics-list">
-              <MetricItem
-                label="Probability range"
-                textValue={`${formatNumber(probabilities.min)} to ${formatNumber(probabilities.max)}`}
-              />
-              <MetricItem label="Mean probability" value={probabilities.mean} />
-              {probabilities.sample.length > 0 && (
-                <MetricItem
-                  label="Sample (first 3)"
-                  textValue={probabilities.sample.map((v) => formatNumber(v)).join(", ")}
+          {!isInitialState && weightGradients.length > 0 && (
+            <CollapsibleDetail title="Inspect individual weight gradients" badge="w₁, w₂">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <MetricBlock
+                  label="∂L/∂w₁ (Weight 1 Gradient)"
+                  value={formatNumber(weightGradients[0], 4)}
                 />
-              )}
-            </dl>
-          ) : (
-            <p className="empty-state">No probability scores recorded.</p>
+                <MetricBlock
+                  label="∂L/∂w₂ (Weight 2 Gradient)"
+                  value={formatNumber(weightGradients[1], 4)}
+                />
+              </div>
+            </CollapsibleDetail>
           )}
-        </div>
+        </CardContainer>
 
-        {/* Changes from previous frame */}
-        <div className="xray-group xray-group-full">
-          <h3 className="xray-group-title">Changes from Previous Frame</h3>
-          {isInitialState ? (
-            <p className="xray-initial-note">Initial state — before the first update.</p>
-          ) : frameChanges ? (
-            <dl className="xray-metrics-list xray-metrics-inline">
-              <MetricDelta label="Δ Weight 1" delta={frameChanges.weight1} />
-              {frameChanges.weight2 !== undefined && (
-                <MetricDelta label="Δ Weight 2" delta={frameChanges.weight2} />
-              )}
-              <MetricDelta label="Δ Bias" delta={frameChanges.bias} />
-              <MetricDelta label="Δ BCE" delta={frameChanges.loss} />
-              {frameChanges.accuracy !== undefined && (
-                <MetricDelta label="Δ Accuracy" delta={frameChanges.accuracy} isPercentage />
-              )}
-            </dl>
-          ) : (
-            <p className="empty-state">No previous frame data.</p>
+        {/* Card 3: Training Signal */}
+        <CardContainer
+          title="Training Signal"
+          badge="Probabilities"
+          subtitle="Binary cross-entropy loss and sigmoid classification performance."
+        >
+          <div className="grid grid-cols-2 gap-2.5">
+            <MetricBlock
+              label="Loss / BCE"
+              value={loss != null ? formatNumber(loss, 4) : "N/A"}
+              explanation="Binary cross-entropy"
+            />
+            <MetricBlock
+              label="Accuracy"
+              value={accuracy != null ? formatPercentage(accuracy) : "N/A"}
+              explanation="Correct classifications"
+            />
+            <MetricBlock
+              label="Mean Prob."
+              value={probabilities ? formatNumber(probabilities.mean, 3) : "N/A"}
+              explanation="Average sigmoid confidence"
+            />
+            <MetricBlock
+              label="Prob. Range"
+              value={
+                probabilities
+                  ? `${formatNumber(probabilities.min, 2)}–${formatNumber(probabilities.max, 2)}`
+                  : "N/A"
+              }
+              explanation="Min to max sigmoid output"
+            />
+          </div>
+
+          {probabilities?.sample && probabilities.sample.length > 0 && (
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/50 p-2.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Sample Probabilities (first 3):</span>
+              <span className="font-mono text-slate-800 dark:text-slate-200 font-semibold">
+                {probabilities.sample.map((p) => formatNumber(p, 3)).join(", ")}
+              </span>
+            </div>
           )}
-        </div>
+        </CardContainer>
+
+        {/* Card 4: Frame Updates */}
+        <CardContainer
+          title="Frame Updates"
+          badge={isInitialState ? "Baseline" : `Δ vs Frame ${data.step - 1}`}
+          subtitle="Parameter shifts and error changes between consecutive frames."
+        >
+          {isInitialState ? (
+            <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-400 space-y-1">
+              <span className="font-semibold block text-slate-600 dark:text-slate-300">Initial State</span>
+              <span>Before the first gradient step. Delta metrics will appear starting at Step 1.</span>
+            </div>
+          ) : frameChanges ? (
+            <div className="grid grid-cols-2 gap-2.5">
+              <MetricBlock
+                label="Δ Loss (BCE)"
+                value={formatDelta(frameChanges.loss, 4)}
+                indicator={frameChanges.loss < 0 ? "down" : frameChanges.loss > 0 ? "up" : "neutral"}
+                explanation={frameChanges.loss < 0 ? "Loss decreased" : "Loss increased"}
+              />
+              <MetricBlock
+                label="Δ Accuracy"
+                value={
+                  frameChanges.accuracy !== undefined
+                    ? `${frameChanges.accuracy >= 0 ? "+" : ""}${(frameChanges.accuracy * 100).toFixed(1)}%`
+                    : "+0.0%"
+                }
+                explanation="Accuracy shift"
+              />
+              <MetricBlock
+                label="Δ Weight 1"
+                value={formatDelta(frameChanges.weight1, 4)}
+                explanation="Shift in w₁"
+              />
+              <MetricBlock
+                label="Δ Weight 2"
+                value={frameChanges.weight2 !== undefined ? formatDelta(frameChanges.weight2, 4) : "N/A"}
+                explanation="Shift in w₂"
+              />
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 text-center py-4">No previous frame data available.</p>
+          )}
+        </CardContainer>
       </div>
-    </section>
+    </div>
   );
 }
 
 /* ==========================================================================
-   K-MEANS X-RAY
+   4. K-MEANS X-RAY
    ========================================================================== */
 function KMeansXRayView({ data }: { data: ReturnType<typeof computeKMeansXRay> }) {
   const {
@@ -307,331 +1021,134 @@ function KMeansXRayView({ data }: { data: ReturnType<typeof computeKMeansXRay> }
     inertiaChange,
   } = data;
 
+  const narrative = getXRayNarrative(data);
+
   return (
-    <section className="model-x-ray state-panel" aria-label="K-Means Model X-Ray">
-      <div className="state-heading">
-        <p className="eyebrow">Model X-Ray / K-Means</p>
-        <h2>{isInitialState ? "Step 0 — Initial Centroid Configuration" : `Iteration ${data.step}`}</h2>
-        <p>
-          {isInitialState
-            ? "Initial centroid configuration — before the first update."
-            : "Inspecting centroid coordinates, cluster assignment distribution, and movement."}
-        </p>
-      </div>
+    <div className="space-y-5">
+      <WhatWhyBanner
+        narrative={narrative}
+        algorithmTitle="K-Means Clustering (Centroid Relocation)"
+        step={data.step}
+        isInitialState={isInitialState}
+      />
 
-      <div className="xray-content-grid">
-        {/* Model State & Inertia */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Model State & Inertia</h3>
-          <p className="text-[10px] text-slate-500 mb-1.5">
-            Inertia measures how far points are from their assigned cluster centers. Lower usually means tighter clusters.
-          </p>
-          <dl className="xray-metrics-list">
-            <MetricItem label="Clusters (k)" textValue={String(clusterCount)} />
-            <MetricItem label="Inertia" value={inertia} />
-          </dl>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Card 1: Model State & Centroids */}
+        <CardContainer
+          title="Centroid Coordinates"
+          badge={`K = ${clusterCount} Clusters`}
+          subtitle="Coordinates of current cluster centers in 2D feature space."
+        >
+          <div className="relative overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 p-3">
+            <table className="w-full text-left font-mono text-xs tabular-nums border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200/60 dark:border-slate-800/60 text-[10px] font-sans font-semibold text-slate-500 dark:text-slate-400">
+                  <th className="p-1.5">Cluster</th>
+                  <th className="p-1.5">Centroid (x, y)</th>
+                  <th className="p-1.5 text-right">Step Shift</th>
+                </tr>
+              </thead>
+              <tbody>
+                {centroids.map((coord, idx) => (
+                  <tr key={idx} className="hover:bg-slate-100/70 dark:hover:bg-slate-900/70 transition-colors">
+                    <td className="p-1.5 font-sans font-semibold text-teal-800 dark:text-teal-400">
+                      Cluster {idx + 1}
+                    </td>
+                    <td className="p-1.5 font-semibold text-slate-800 dark:text-slate-200">
+                      ({formatNumber(coord[0], 3)}, {formatNumber(coord[1], 3)})
+                    </td>
+                    <td className="p-1.5 text-right font-semibold text-slate-600 dark:text-slate-400">
+                      {centroidMovements && centroidMovements[idx] != null
+                        ? formatNumber(centroidMovements[idx], 3)
+                        : "0.000"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContainer>
 
-        {/* Centroids */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Centroids</h3>
-          <p className="text-[10px] text-slate-500 mb-1.5">
-            A centroid is the current center of a cluster.
-          </p>
-          <dl className="xray-metrics-list">
-            {centroids.map((coord, idx) => (
-              <MetricItem
-                key={idx}
-                label={`Centroid ${idx + 1}`}
-                textValue={`(${formatNumber(coord[0], 3)}, ${formatNumber(coord[1], 3)})`}
-              />
-            ))}
-          </dl>
-        </div>
-
-        {/* Clustering State / Assignment Distribution */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Assignment Distribution</h3>
-          <dl className="xray-metrics-list">
+        {/* Card 2: Cluster Assignment Distribution */}
+        <CardContainer
+          title="Assignment Distribution"
+          badge={`${assignmentDistribution.reduce((s, a) => s + a.count, 0)} Points`}
+          subtitle="Point allocation across clusters based on nearest Euclidean centroid."
+        >
+          <div className="space-y-3">
             {assignmentDistribution.map((stat) => (
-              <MetricItem
-                key={stat.clusterIndex}
-                label={`Cluster ${stat.clusterIndex + 1}`}
-                textValue={`${stat.count} pts (${stat.percentage.toFixed(1)}%)`}
-              />
+              <div key={stat.clusterIndex} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">
+                    Cluster {stat.clusterIndex + 1}
+                  </span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white">
+                    {stat.count} pts ({stat.percentage.toFixed(1)}%)
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                  <div
+                    className="h-full bg-teal-600 dark:bg-teal-500 rounded-full transition-all duration-300"
+                    style={{ width: `${stat.percentage}%` }}
+                  />
+                </div>
+              </div>
             ))}
-          </dl>
-        </div>
+          </div>
+        </CardContainer>
 
-        {/* Movement */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Centroid Movement</h3>
+        {/* Card 3: Model Inertia */}
+        <CardContainer
+          title="Clustering Inertia"
+          badge="Objective"
+          subtitle="Inertia measures the sum of squared Euclidean distances to assigned cluster centers."
+        >
+          <div className="grid grid-cols-2 gap-2.5">
+            <MetricBlock
+              label="Inertia (WCSS)"
+              value={inertia != null ? formatNumber(inertia, 2) : "N/A"}
+              explanation="Within-cluster sum of squares"
+            />
+            <MetricBlock
+              label="Active Clusters (k)"
+              value={String(clusterCount)}
+              explanation="Configured centroid count"
+            />
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/50 p-3 text-xs text-slate-600 dark:text-slate-400">
+            Lower inertia indicates tighter, more cohesive clusters. As iterations progress, centroids gravitate to geometric centers.
+          </div>
+        </CardContainer>
+
+        {/* Card 4: Iteration Updates */}
+        <CardContainer
+          title="Iteration Updates"
+          badge={isInitialState ? "Baseline" : `Iteration ${data.step}`}
+          subtitle="Changes in inertia and centroid displacement."
+        >
           {isInitialState ? (
-            <p className="xray-initial-note">Initial centroid configuration — no movement yet.</p>
+            <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-400 space-y-1">
+              <span className="font-semibold block text-slate-600 dark:text-slate-300">Initial Centroid Placement</span>
+              <span>Before the first relocation. Movement deltas will appear starting at Iteration 1.</span>
+            </div>
           ) : (
-            <dl className="xray-metrics-list">
-              <MetricItem
-                label="Total movement"
-                value={totalMovement}
-                placeholder="0.0000"
+            <div className="grid grid-cols-2 gap-2.5">
+              <MetricBlock
+                label="Δ Inertia"
+                value={inertiaChange != null ? formatDelta(inertiaChange, 2) : "0.00"}
+                indicator={inertiaChange != null && inertiaChange < 0 ? "down" : "neutral"}
+                explanation={inertiaChange != null && inertiaChange < 0 ? "Inertia decreased" : "No change"}
               />
-              {centroidMovements?.map((mov, idx) => (
-                <MetricItem
-                  key={idx}
-                  label={`Centroid ${idx + 1} movement`}
-                  value={mov}
-                />
-              ))}
-            </dl>
+              <MetricBlock
+                label="Total Movement"
+                value={totalMovement != null ? formatNumber(totalMovement, 3) : "0.000"}
+                explanation="Sum of centroid Euclidean shifts"
+              />
+            </div>
           )}
-        </div>
-
-        {/* Changes from previous iteration */}
-        <div className="xray-group xray-group-full">
-          <h3 className="xray-group-title">Iteration Change</h3>
-          {isInitialState ? (
-            <p className="xray-initial-note">Initial centroid configuration — before the first update.</p>
-          ) : inertiaChange != null ? (
-            <dl className="xray-metrics-list xray-metrics-inline">
-              <MetricDelta label="Δ Inertia" delta={inertiaChange} />
-              {totalMovement != null && (
-                <MetricItem label="Centroid shift" value={totalMovement} />
-              )}
-            </dl>
-          ) : (
-            <p className="empty-state">No previous iteration data.</p>
-          )}
-        </div>
+        </CardContainer>
       </div>
-    </section>
-  );
-}
-
-/* ==========================================================================
-   NEURAL NETWORK X-RAY
-   ========================================================================== */
-function NeuralNetworkXRayView({ data }: { data: ReturnType<typeof computeNeuralNetworkXRay> }) {
-  const {
-    isInitialState,
-    architecture,
-    w1,
-    b1,
-    w2,
-    b2,
-    dw1,
-    db1,
-    dw2,
-    db2,
-    gradientMagnitude,
-    loss,
-    accuracy,
-    probabilities,
-    frameChanges,
-  } = data;
-
-  return (
-    <section className="model-x-ray state-panel" aria-label="Neural Network Model X-Ray">
-      <div className="state-heading">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
-          <p className="eyebrow">Model X-Ray / Neural Network</p>
-          <span className="badge" style={{ fontSize: "0.75rem" }}>
-            {architecture.inputs} → {architecture.hidden} → {architecture.outputs} (Sigmoid)
-          </span>
-        </div>
-        <h2>{isInitialState ? "Step 0 — Initial State" : `Step ${data.step}`}</h2>
-        <p>
-          {isInitialState
-            ? "Initial weights initialized via Xavier/Glorot scaling, biases at 0. Ready for backpropagation."
-            : "Inspecting frame parameters, layer activations, analytical gradients, and weight deltas."}
-        </p>
-      </div>
-
-      <div className="xray-content-grid">
-        {/* Hidden Layer (Layer 1) Parameters */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Hidden Layer (W₁, b₁)</h3>
-          <p style={{ fontSize: "0.75rem", color: "var(--color-muted)", margin: "0 0 0.5rem" }}>
-            Input (2 features) to {architecture.hidden} neurons
-          </p>
-          <dl className="xray-metrics-list">
-            {w1.map((row, i) =>
-              row.map((val, j) => (
-                <MetricItem
-                  key={`w1-${i}-${j}`}
-                  label={`W₁[${i}, ${j}] (in${i + 1} → h${j + 1})`}
-                  value={val}
-                />
-              ))
-            )}
-            {b1.map((val, j) => (
-              <MetricItem
-                key={`b1-${j}`}
-                label={`b₁[${j}] (neuron h${j + 1})`}
-                value={val}
-              />
-            ))}
-          </dl>
-        </div>
-
-        {/* Output Layer (Layer 2) Parameters */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Output Layer (W₂, b₂)</h3>
-          <p style={{ fontSize: "0.75rem", color: "var(--color-muted)", margin: "0 0 0.5rem" }}>
-            {architecture.hidden} hidden neurons to 1 output
-          </p>
-          <dl className="xray-metrics-list">
-            {w2.map((row, j) => (
-              <MetricItem
-                key={`w2-${j}`}
-                label={`W₂[${j}, 0] (h${j + 1} → out)`}
-                value={row[0]}
-              />
-            ))}
-            <MetricItem label="Bias (b₂)" value={b2} />
-          </dl>
-        </div>
-
-        {/* Analytical Gradients (Backprop) */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Backpropagation Gradients</h3>
-          <p className="text-[10px] text-slate-500 mb-1.5">
-            Gradient norm summarizes how strongly the model parameters are currently being pushed to change.
-          </p>
-          <dl className="xray-metrics-list">
-            <MetricItem
-              label="||∇Loss||₂ (Total Gradient Norm)"
-              value={gradientMagnitude}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-            {dw2 &&
-              dw2.map((row, j) => (
-                <MetricItem
-                  key={`dw2-${j}`}
-                  label={`∂L/∂W₂[${j}, 0]`}
-                  value={row[0]}
-                />
-              ))}
-            <MetricItem
-              label="∂L/∂b₂"
-              value={db2}
-              placeholder={isInitialState ? "None (initial state)" : undefined}
-            />
-            {dw1 && dw1.length > 0 && (
-              <MetricItem
-                label="∂L/∂W₁ (sample)"
-                textValue={dw1.map((r) => r.map((v) => formatNumber(v, 3)).join(", ")).join(" | ")}
-              />
-            )}
-            {db1 && (
-              <MetricItem
-                label="∂L/∂b₁"
-                textValue={db1.map((v) => formatNumber(v, 3)).join(", ")}
-              />
-            )}
-          </dl>
-        </div>
-
-        {/* Training Signal */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Training Signal</h3>
-          <dl className="xray-metrics-list">
-            <MetricItem label="Loss / BCE" value={loss} />
-            <MetricItem
-              label="Accuracy"
-              textValue={accuracy != null ? formatPercentage(accuracy) : "N/A"}
-            />
-            <MetricItem
-              label="Probabilities (mean)"
-              value={probabilities?.mean}
-              placeholder="N/A"
-            />
-            <MetricItem
-              label="Prob range"
-              textValue={
-                probabilities
-                  ? `${formatNumber(probabilities.min, 2)} – ${formatNumber(probabilities.max, 2)}`
-                  : "N/A"
-              }
-            />
-          </dl>
-        </div>
-
-        {/* Frame Changes */}
-        <div className="xray-group">
-          <h3 className="xray-group-title">Frame Updates (Δ from prev)</h3>
-          {frameChanges ? (
-            <dl className="xray-metrics-list">
-              <MetricDelta label="Δ Loss" delta={frameChanges.loss} />
-              {frameChanges.accuracy !== undefined && (
-                <MetricDelta label="Δ Accuracy" delta={frameChanges.accuracy} isPercentage />
-              )}
-              {frameChanges.w1DeltaNorm !== undefined && (
-                <MetricItem label="||ΔW₁||₂ (L1 movement)" value={frameChanges.w1DeltaNorm} />
-              )}
-              {frameChanges.w2DeltaNorm !== undefined && (
-                <MetricItem label="||ΔW₂||₂ (L2 movement)" value={frameChanges.w2DeltaNorm} />
-              )}
-            </dl>
-          ) : (
-            <p className="empty-state" style={{ padding: "0.5rem 0", fontSize: "0.85rem" }}>
-              {isInitialState ? "Initial state — no prior step." : "No previous frame data."}
-            </p>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ==========================================================================
-   REUSABLE METRIC RENDERERS
-   ========================================================================== */
-function MetricItem({
-  label,
-  value,
-  textValue,
-  placeholder,
-}: {
-  label: string;
-  value?: number | null;
-  textValue?: string;
-  placeholder?: string;
-}) {
-  const display =
-    textValue !== undefined
-      ? textValue
-      : value != null
-      ? formatNumber(value)
-      : placeholder ?? "N/A";
-
-  return (
-    <div className="xray-metric-item">
-      <dt>{label}</dt>
-      <dd>{display}</dd>
-    </div>
-  );
-}
-
-function MetricDelta({
-  label,
-  delta,
-  isPercentage = false,
-}: {
-  label: string;
-  delta: number | null | undefined;
-  isPercentage?: boolean;
-}) {
-  const display =
-    delta == null
-      ? "N/A"
-      : isPercentage
-      ? `${delta >= 0 ? "+" : ""}${(delta * 100).toFixed(1)}%`
-      : formatDelta(delta);
-
-  return (
-    <div className="xray-metric-item">
-      <dt>{label}</dt>
-      <dd className="xray-delta">{display}</dd>
     </div>
   );
 }

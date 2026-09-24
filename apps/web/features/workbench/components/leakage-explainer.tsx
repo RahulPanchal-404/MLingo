@@ -1,8 +1,8 @@
 export function LeakageExplainer() {
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-6 shadow-sm">
+    <div className="rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/20 p-6 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="rounded-full bg-amber-100 p-2 text-amber-800 shrink-0">
+        <div className="rounded-full bg-amber-100 dark:bg-amber-950/60 p-2 text-amber-800 dark:text-amber-300 shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -13,10 +13,10 @@ export function LeakageExplainer() {
           </svg>
         </div>
         <div>
-          <h3 className="text-sm font-bold text-amber-950">
+          <h3 className="text-sm font-bold text-amber-950 dark:text-amber-200">
             Why Split Before Fitting Preprocessing? (Preventing Data Leakage)
           </h3>
-          <div className="mt-2 space-y-2 text-xs text-amber-900 leading-relaxed">
+          <div className="mt-2 space-y-2 text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
             <p>
               In real-world inference, test data is completely unknown when training the model. If you compute scaling
               statistics (such as mean <span className="font-mono">μ</span>, standard deviation <span className="font-mono">σ</span>, or min/max bounds) or imputation values across the <em>entire</em> dataset before splitting, information from the test partition leaks into the training pipeline.
@@ -24,7 +24,7 @@ export function LeakageExplainer() {
             <p>
               <strong>The Golden Rule of Machine Learning Pipelines:</strong>
             </p>
-            <div className="rounded bg-white/80 p-2.5 font-mono text-[11px] text-amber-950 border border-amber-200/60">
+            <div className="rounded bg-white/80 dark:bg-surface-inset p-2.5 font-mono text-[11px] text-amber-950 dark:text-amber-200 border border-amber-200/60 dark:border-amber-800/60">
               1. Split dataset into Train and Test partitions.
               <br />
               2. Fit scaler / imputer on Training partition ONLY.
@@ -33,7 +33,7 @@ export function LeakageExplainer() {
               <br />
               4. Transform Test partition using the exact same Training parameters.
             </div>
-            <p className="text-[11px] text-amber-800">
+            <p className="text-[11px] text-amber-800 dark:text-amber-400">
               MLingo strictly enforces this: scaling and imputation parameters are never computed from test examples.
             </p>
           </div>

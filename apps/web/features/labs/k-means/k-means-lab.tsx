@@ -203,8 +203,8 @@ export function KMeansPlot({ points, state }: { points: TrainingRun["dataset_poi
                         })}
                         {(state.centroids ?? []).map((centroid, index) => (
                               <g key={`centroid-${index}`}>
-                                    <circle cx={makeX(centroid[0])} cy={makeY(centroid[1])} fill="rgba(15,23,42,0.9)" r="7" stroke="#ffffff" strokeWidth={2} />
-                                    <text x={makeX(centroid[0]) + 10} y={makeY(centroid[1]) - 8} fontSize="12" fill="#0f172a">C{index + 1}</text>
+                                    <circle cx={makeX(centroid[0])} cy={makeY(centroid[1])} fill="var(--surface-elevated)" r="7" stroke="var(--foreground)" strokeWidth={2.5} />
+                                    <text x={makeX(centroid[0]) + 10} y={makeY(centroid[1]) - 8} fontSize="12" fontWeight="700" fill="var(--foreground)">C{index + 1}</text>
                               </g>
                         ))}
                   </svg>

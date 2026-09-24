@@ -89,8 +89,8 @@ export function DecisionSurfacePlot({ points, state, resolution = 28 }: Decision
           y={pad}
           width={chartW}
           height={chartH}
-          fill="var(--color-surface-sunken, #0f172a)"
-          stroke="var(--color-border, rgba(255, 255, 255, 0.1))"
+          fill="var(--surface-inset)"
+          stroke="var(--border)"
         />
 
         {/* Probability Heatmap / Grid Cells */}

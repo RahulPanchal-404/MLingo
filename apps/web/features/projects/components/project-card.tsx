@@ -32,8 +32,70 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
       "bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800",
   }[project.type];
 
-  // Visual SVG preview based on project type
+  // Visual SVG preview tailored to each project's unique nature
   const renderPreview = () => {
+    // Project 6: Email Spam NLP
+    if (project.id === "email-spam-detection") {
+      return (
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Spam Filter Preview">
+          <rect x="20" y="20" width="120" height="40" rx="4" fill="none" stroke="#64748b" strokeWidth="1.5" />
+          <path d="M20,20 L80,45 L140,20" fill="none" stroke="#64748b" strokeWidth="1.5" />
+          <rect x="95" y="42" width="40" height="15" rx="3" fill="#f43f5e" />
+          <text x="102" y="53" fill="white" fontSize="9" fontWeight="bold" fontFamily="monospace">SPAM</text>
+        </svg>
+      );
+    }
+    // Project 7: Digit Recognition Neural Network
+    if (project.id === "digit-recognition") {
+      return (
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Digit Recognition Preview">
+          {/* Input Layer */}
+          {[20, 35, 50, 65].map((y, i) => <circle key={`in-${i}`} cx="30" cy={y} r="3" fill="#6366f1" />)}
+          {/* Hidden Layer */}
+          {[15, 30, 45, 60, 70].map((y, i) => <circle key={`hid-${i}`} cx="80" cy={y} r="3" fill="#a855f7" />)}
+          {/* Output Layer */}
+          {[25, 40, 55].map((y, i) => <circle key={`out-${i}`} cx="130" cy={y} r="3.5" fill="#10b981" />)}
+          {/* Sample Lines */}
+          <line x1="30" y1="35" x2="80" y2="30" stroke="#94a3b8" strokeWidth="0.8" opacity="0.6" />
+          <line x1="30" y1="50" x2="80" y2="45" stroke="#94a3b8" strokeWidth="0.8" opacity="0.6" />
+          <line x1="80" y1="30" x2="130" y2="40" stroke="#94a3b8" strokeWidth="0.8" opacity="0.6" />
+          <line x1="80" y1="45" x2="130" y2="40" stroke="#94a3b8" strokeWidth="0.8" opacity="0.6" />
+        </svg>
+      );
+    }
+    // Project 8: Movie Recommendations
+    if (project.id === "movie-recommendation") {
+      return (
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Movie Recommendation Preview">
+          <rect x="25" y="20" width="30" height="42" rx="3" fill="#3b82f6" opacity="0.8" />
+          <rect x="65" y="15" width="30" height="48" rx="3" fill="#f59e0b" opacity="0.9" />
+          <rect x="105" y="20" width="30" height="42" rx="3" fill="#10b981" opacity="0.8" />
+          <text x="73" y="42" fill="white" fontSize="14" fontWeight="bold">★</text>
+        </svg>
+      );
+    }
+    // Project 9: Stock Time-Series
+    if (project.id === "stock-price-prediction") {
+      return (
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Stock Trend Preview">
+          <line x1="15" y1="65" x2="145" y2="65" stroke="#475569" strokeWidth="1" />
+          <polyline fill="none" stroke="#10b981" strokeWidth="2" points="20,60 40,54 60,56 80,45 100,48 120,32 140,24" />
+          <line x1="120" y1="32" x2="145" y2="18" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3 3" />
+        </svg>
+      );
+    }
+    // Project 10: Credit Card Fraud
+    if (project.id === "fraud-detection") {
+      return (
+        <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Fraud Anomaly Preview">
+          <rect x="25" y="20" width="110" height="44" rx="4" fill="none" stroke="#e11d48" strokeWidth="1.5" />
+          <rect x="35" y="30" width="20" height="14" rx="2" fill="#fbbf24" />
+          <circle cx="115" cy="42" r="8" fill="#e11d48" />
+          <text x="112" y="46" fill="white" fontSize="11" fontWeight="bold">!</text>
+        </svg>
+      );
+    }
+    // Generic Regression
     if (project.type === "regression") {
       return (
         <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Regression Preview">
@@ -46,6 +108,7 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
         </svg>
       );
     }
+    // Generic Classification
     if (project.type === "classification") {
       return (
         <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Classification Preview">
@@ -61,6 +124,7 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
         </svg>
       );
     }
+    // Generic Clustering
     return (
       <svg viewBox="0 0 160 80" className="w-full h-20 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Clustering Preview">
         {[[35, 25], [45, 20], [30, 35], [40, 30]].map(([cx, cy], i) => (
@@ -95,6 +159,9 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
         {/* Top Badges */}
         <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-mono font-extrabold text-teal-800 dark:text-teal-300 border border-slate-200 dark:border-slate-700">
+              PROJECT {String(project.projectNumber).padStart(2, "0")}
+            </span>
             <span
               className={`rounded-full border px-2.5 py-0.5 text-[11px] font-mono font-bold uppercase tracking-wider ${typeBadgeClasses}`}
             >

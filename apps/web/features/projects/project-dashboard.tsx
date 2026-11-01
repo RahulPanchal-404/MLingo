@@ -27,6 +27,7 @@ export function ProjectStudioDashboard() {
   }, []);
 
   const stats = getOverallProjectStats(ALL_PROJECTS);
+  const totalConceptsCount = ALL_PROJECTS.reduce((acc, p) => acc + p.focusConcepts.length, 0);
 
   return (
     <section className="space-y-8 max-w-6xl mx-auto">
@@ -34,13 +35,13 @@ export function ProjectStudioDashboard() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 px-3 py-0.5 text-xs font-mono font-semibold text-teal-800 dark:text-teal-300">
-            <span>BUILD WORKSPACE // CAPSTONE PROJECTS</span>
+            <span>BUILD WORKSPACE // 10 CAPSTONE PROJECTS</span>
           </div>
           <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white sm:text-4xl tracking-tight">
             Project Studio
           </h1>
           <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
-            Apply your verified understanding to end-to-end data science projects: from missing value cleaning and scaling to gradient training, experiment comparisons, and business interpretation.
+            Apply your verified understanding to 10 end-to-end data science projects: from missing value cleaning and feature engineering to gradient optimization, scientific experimentation, and business interpretation.
           </p>
         </div>
 
@@ -67,7 +68,7 @@ export function ProjectStudioDashboard() {
             Available Projects
           </span>
           <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{ALL_PROJECTS.length}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Regression, Classification, Clustering</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Projects 01 through 10</p>
         </div>
 
         <div className="rounded-2xl border border-amber-300/80 dark:border-amber-800/80 bg-amber-50/60 dark:bg-amber-950/40 p-4 shadow-xs">
@@ -90,8 +91,8 @@ export function ProjectStudioDashboard() {
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
             Concepts Mastered
           </span>
-          <p className="mt-1 text-2xl font-black text-teal-800 dark:text-teal-400">24+</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tracked in Learning Memory</p>
+          <p className="mt-1 text-2xl font-black text-teal-800 dark:text-teal-400">{totalConceptsCount}+</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Across all 10 projects</p>
         </div>
       </div>
 

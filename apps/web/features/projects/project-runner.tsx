@@ -28,6 +28,8 @@ import { MilestoneExperimentView } from "./components/milestone-experiment-view"
 import { MilestoneEvaluateView } from "./components/milestone-evaluate-view";
 import { MilestoneInterpretView } from "./components/milestone-interpret-view";
 import { MilestoneReflectView } from "./components/milestone-reflect-view";
+import { ProjectInteractiveDemo } from "./components/interactive-demos";
+import { ProjectCodeView } from "./components/project-code-view";
 import { recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
 import type { PreprocessingConfig, SplitConfig } from "@/features/workbench/types";
 import { useTutor } from "@/features/tutor/tutor-provider";
@@ -39,8 +41,11 @@ export type ProjectRunnerProps = {
   project: ProjectDefinition;
 };
 
+export type ActiveStudioTab = "milestones" | "demo" | "code";
+
 export function ProjectRunner({ project }: ProjectRunnerProps) {
   const [state, setState] = useState<ProjectState>(() => loadProjectState(project.id));
+  const [activeTab, setActiveTab] = useState<ActiveStudioTab>("milestones");
   const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const { setTutorContext } = useTutor();
 
@@ -62,6 +67,7 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
   }, [project, state, setTutorContext]);
 
   const handleSelectMilestone = (id: ProjectMilestoneId) => {
+    setActiveTab("milestones");
     const updated = updateProjectState(project.id, { currentMilestoneId: id });
     setState(updated);
   };
@@ -143,121 +149,176 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
       {/* Project Banner & Progress Header */}
       <ProjectHeader project={project} state={state} onReset={handleReset} />
 
-      {/* Main Studio Grid: Left Stepper Navigation, Right Milestone Content */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 items-start">
-        {/* Left Column: Milestone Stepper */}
-        <aside className="lg:col-span-1 sticky top-6">
-          <ProjectStepper
-            milestones={project.milestones}
-            currentMilestoneId={state.currentMilestoneId}
-            completedMilestones={state.completedMilestones}
-            onSelectMilestone={handleSelectMilestone}
-          />
-        </aside>
+      {/* Mode Navigation Tabs */}
+      <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("milestones")}
+          className={`flex items-center gap-2 pb-3 px-3 text-xs font-mono font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "milestones"
+              ? "border-teal-700 dark:border-teal-400 text-teal-800 dark:text-teal-300"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          }`}
+        >
+          <span>🎯 Guided Studio (11 Steps)</span>
+        </button>
 
-        {/* Right Column: Contextual Active Milestone Content */}
-        <main className="lg:col-span-3 min-w-0" id="milestone-content-area">
-          {state.currentMilestoneId === "problem" && (
-            <MilestoneProblemView
-              project={project}
-              onComplete={() => handleCompleteCurrentMilestone("problem")}
-            />
-          )}
+        <button
+          type="button"
+          onClick={() => setActiveTab("demo")}
+          className={`flex items-center gap-2 pb-3 px-3 text-xs font-mono font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "demo"
+              ? "border-teal-700 dark:border-teal-400 text-teal-800 dark:text-teal-300"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          }`}
+        >
+          <span>⚡ Live Interactive Demo</span>
+        </button>
 
-          {state.currentMilestoneId === "explore" && (
-            <MilestoneExploreView
-              project={project}
-              onComplete={() => handleCompleteCurrentMilestone("explore")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "quality" && (
-            <MilestoneQualityView
-              project={project}
-              onComplete={() => handleCompleteCurrentMilestone("quality")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "preprocess" && (
-            <MilestonePreprocessView
-              project={project}
-              state={state}
-              onUpdateConfig={handleUpdatePreprocessing}
-              onComplete={() => handleCompleteCurrentMilestone("preprocess")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "split" && (
-            <MilestoneSplitView
-              project={project}
-              state={state}
-              onUpdateSplit={handleUpdateSplit}
-              onComplete={() => handleCompleteCurrentMilestone("split")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "model" && (
-            <MilestoneModelView
-              project={project}
-              onComplete={() => handleCompleteCurrentMilestone("model")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "train" && (
-            <MilestoneTrainView
-              project={project}
-              state={state}
-              onSaveRunId={handleSaveRunId}
-              onComplete={() => handleCompleteCurrentMilestone("train")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "experiment" && (
-            <MilestoneExperimentView
-              project={project}
-              state={state}
-              onRecordExperiment={handleRecordExperiment}
-              onComplete={() => handleCompleteCurrentMilestone("experiment")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "evaluate" && (
-            <MilestoneEvaluateView
-              project={project}
-              state={state}
-              onUpdateThreshold={handleUpdateThreshold}
-              onComplete={() => handleCompleteCurrentMilestone("evaluate")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "interpret" && (
-            <MilestoneInterpretView
-              project={project}
-              state={state}
-              onComplete={() => handleCompleteCurrentMilestone("interpret")}
-              onBack={handleStepBack}
-            />
-          )}
-
-          {state.currentMilestoneId === "reflect" && (
-            <MilestoneReflectView
-              project={project}
-              state={state}
-              onUpdateReflections={handleUpdateReflections}
-              onFinalizeProject={handleFinalizeProject}
-              onBack={handleStepBack}
-            />
-          )}
-        </main>
+        <button
+          type="button"
+          onClick={() => setActiveTab("code")}
+          className={`flex items-center gap-2 pb-3 px-3 text-xs font-mono font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "code"
+              ? "border-teal-700 dark:border-teal-400 text-teal-800 dark:text-teal-300"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          }`}
+        >
+          <span>💻 Complete Python Code & Guide</span>
+        </button>
       </div>
+
+      {/* Tab: Interactive Demo */}
+      {activeTab === "demo" && (
+        <div className="space-y-6">
+          <ProjectInteractiveDemo project={project} />
+        </div>
+      )}
+
+      {/* Tab: Python Code View */}
+      {activeTab === "code" && (
+        <div className="space-y-6">
+          <ProjectCodeView project={project} />
+        </div>
+      )}
+
+      {/* Tab: 11-Milestone Guided Studio */}
+      {activeTab === "milestones" && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 items-start">
+          {/* Left Column: Milestone Stepper */}
+          <aside className="lg:col-span-1 sticky top-6">
+            <ProjectStepper
+              milestones={project.milestones}
+              currentMilestoneId={state.currentMilestoneId}
+              completedMilestones={state.completedMilestones}
+              onSelectMilestone={handleSelectMilestone}
+            />
+          </aside>
+
+          {/* Right Column: Contextual Active Milestone Content */}
+          <main className="lg:col-span-3 min-w-0" id="milestone-content-area">
+            {state.currentMilestoneId === "problem" && (
+              <MilestoneProblemView
+                project={project}
+                onComplete={() => handleCompleteCurrentMilestone("problem")}
+              />
+            )}
+
+            {state.currentMilestoneId === "explore" && (
+              <MilestoneExploreView
+                project={project}
+                onComplete={() => handleCompleteCurrentMilestone("explore")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "quality" && (
+              <MilestoneQualityView
+                project={project}
+                onComplete={() => handleCompleteCurrentMilestone("quality")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "preprocess" && (
+              <MilestonePreprocessView
+                project={project}
+                state={state}
+                onUpdateConfig={handleUpdatePreprocessing}
+                onComplete={() => handleCompleteCurrentMilestone("preprocess")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "split" && (
+              <MilestoneSplitView
+                project={project}
+                state={state}
+                onUpdateSplit={handleUpdateSplit}
+                onComplete={() => handleCompleteCurrentMilestone("split")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "model" && (
+              <MilestoneModelView
+                project={project}
+                onComplete={() => handleCompleteCurrentMilestone("model")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "train" && (
+              <MilestoneTrainView
+                project={project}
+                state={state}
+                onSaveRunId={handleSaveRunId}
+                onComplete={() => handleCompleteCurrentMilestone("train")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "experiment" && (
+              <MilestoneExperimentView
+                project={project}
+                state={state}
+                onRecordExperiment={handleRecordExperiment}
+                onComplete={() => handleCompleteCurrentMilestone("experiment")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "evaluate" && (
+              <MilestoneEvaluateView
+                project={project}
+                state={state}
+                onUpdateThreshold={handleUpdateThreshold}
+                onComplete={() => handleCompleteCurrentMilestone("evaluate")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "interpret" && (
+              <MilestoneInterpretView
+                project={project}
+                state={state}
+                onComplete={() => handleCompleteCurrentMilestone("interpret")}
+                onBack={handleStepBack}
+              />
+            )}
+
+            {state.currentMilestoneId === "reflect" && (
+              <MilestoneReflectView
+                project={project}
+                state={state}
+                onUpdateReflections={handleUpdateReflections}
+                onFinalizeProject={handleFinalizeProject}
+                onBack={handleStepBack}
+              />
+            )}
+          </main>
+        </div>
+      )}
     </div>
   );
 }

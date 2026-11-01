@@ -39,15 +39,27 @@ export type ExperimentPrompt = {
   explanation: string;
 };
 
+export type ImplementationStep = {
+  step: number;
+  title: string;
+  description: string;
+};
+
+export type CodeExplanation = {
+  section: string;
+  explanation: string;
+};
+
 export type ProjectDefinition = {
   id: string;
   slug: string;
+  projectNumber: number;
   title: string;
   tagline: string;
   problemStatement: string;
   type: TaskType;
   datasetId: string;
-  difficulty: "Beginner" | "Intermediate";
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
   estimatedMinutes: number;
   modelName: string;
   learningObjectives: string[];
@@ -57,6 +69,16 @@ export type ProjectDefinition = {
   experimentPrompt: ExperimentPrompt;
   lessonsLearned: string[];
   nextConcepts: string[];
+  technologiesUsed?: string[];
+  implementationSteps?: ImplementationStep[];
+  pythonSourceCode?: string;
+  codeExplanations?: CodeExplanation[];
+  modelTrainingDescription?: string;
+  modelEvaluationDescription?: string;
+  visualizationsDescription?: string;
+  expectedOutput?: string;
+  realWorldApplications?: string[];
+  additionalExercises?: string[];
 };
 
 export type ProjectExperimentRecord = {

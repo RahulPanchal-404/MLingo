@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     tutor_provider: str = "fallback"
     tutor_api_key: str | None = None
     tutor_model: str = "gemini-2.5-flash"
+    # Cap on paid LLM calls per process per minute. Requests over the cap are
+    # answered by the deterministic fallback, so learners never see an error.
+    tutor_external_max_per_minute: int = 30
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="MLINGO_", extra="ignore")
 

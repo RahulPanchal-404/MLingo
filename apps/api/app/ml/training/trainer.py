@@ -1,3 +1,5 @@
+from dataclasses import fields, is_dataclass
+from math import isfinite
 from uuid import uuid4
 
 import numpy as np
@@ -16,6 +18,31 @@ from app.ml.training.gradient_descent import gradients
 from app.ml.training.types import ClusteringDataset, ClusteringMetrics, ClassificationDataset, RegressionDataset, RegressionMetrics, TrainingConfig, TrainingMetrics, TrainingRun, TrainingState
 
 
+def _all_finite(value: object) -> bool:
+    """True when every float inside a snapshot (nested tuples/dataclasses included) is finite."""
+    if value is None or isinstance(value, (bool, int, str)):
+        return True
+    if isinstance(value, float):
+        return isfinite(value)
+    if isinstance(value, tuple):
+        return all(_all_finite(item) for item in value)
+    if is_dataclass(value):
+        return all(_all_finite(getattr(value, field.name)) for field in fields(value))
+    return True
+
+
+def _require_finite_initial_state(state: TrainingState) -> None:
+    if not _all_finite(state):
+        raise ValueError("the initial model state is not finite; reduce the dataset slope, intercept, or noise")
+
+
+def _divergence_metadata(metadata: dict[str, str], diverged_at_step: int | None) -> dict[str, str]:
+    if diverged_at_step is not None:
+        metadata["diverged_at_step"] = str(diverged_at_step)
+        metadata["stopped_reason"] = "diverged"
+    return metadata
+
+
 def train_linear_regression(dataset: RegressionDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:
     """Train one linear model and retain an immutable state for every epoch."""
     _validate_inputs(dataset, configuration)
@@ -23,20 +50,21 @@ def train_linear_regression(dataset: RegressionDataset, configuration: TrainingC
     weights = np.array(configuration.initial_weights or (0.0,) * feature_count, dtype=np.float64)
     bias = float(configuration.initial_bias)
     history: list[TrainingState] = []
+    diverged_at_step: int | None = None
     initial_predictions = predict(dataset.features, weights, bias)
     initial_mse = mean_squared_error(initial_predictions, dataset.targets)
-    history.append(
-        TrainingState(
-            0,
-            tuple(float(value) for value in weights),
-            bias,
-            initial_mse,
-            (),
-            None,
-            tuple(float(value) for value in initial_predictions),
-            RegressionMetrics(initial_mse),
-        )
+    initial_state = TrainingState(
+        0,
+        tuple(float(value) for value in weights),
+        bias,
+        initial_mse,
+        (),
+        None,
+        tuple(float(value) for value in initial_predictions),
+        RegressionMetrics(initial_mse),
     )
+    _require_finite_initial_state(initial_state)
+    history.append(initial_state)
     for step in range(1, configuration.epochs + 1):
         errors = predict(dataset.features, weights, bias) - dataset.targets
         weight_gradients, bias_gradient = gradients(dataset.features, errors)
@@ -44,8 +72,13 @@ def train_linear_regression(dataset: RegressionDataset, configuration: TrainingC
         bias -= configuration.learning_rate * bias_gradient
         predictions = predict(dataset.features, weights, bias)
         mse = mean_squared_error(predictions, dataset.targets)
-        history.append(TrainingState(step, tuple(float(value) for value in weights), bias, mse, tuple(float(value) for value in weight_gradients), bias_gradient, tuple(float(value) for value in predictions), RegressionMetrics(mse)))
-    return TrainingRun(run_id or str(uuid4()), "linear_regression.gradient_descent", dataset.name, configuration, configuration.epochs, tuple(history), tuple(state.step for state in history), {"feature_count": str(feature_count), "sample_count": str(dataset.features.shape[0])})
+        state = TrainingState(step, tuple(float(value) for value in weights), bias, mse, tuple(float(value) for value in weight_gradients), bias_gradient, tuple(float(value) for value in predictions), RegressionMetrics(mse))
+        if not _all_finite(state):
+            diverged_at_step = step
+            break
+        history.append(state)
+    metadata = _divergence_metadata({"feature_count": str(feature_count), "sample_count": str(dataset.features.shape[0])}, diverged_at_step)
+    return TrainingRun(run_id or str(uuid4()), "linear_regression.gradient_descent", dataset.name, configuration, history[-1].step, tuple(history), tuple(state.step for state in history), metadata)
 
 
 def train_logistic_regression(dataset: ClassificationDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:
@@ -56,6 +89,7 @@ def train_logistic_regression(dataset: ClassificationDataset, configuration: Tra
     weights = np.array(configuration.initial_weights or (0.0,) * feature_count, dtype=np.float64)
     bias = float(configuration.initial_bias)
     history: list[TrainingState] = []
+    diverged_at_step: int | None = None
     for step in range(configuration.epochs + 1):
         probabilities = predict_proba(dataset.features, weights, bias)
         errors = probabilities - dataset.targets
@@ -67,14 +101,21 @@ def train_logistic_regression(dataset: ClassificationDataset, configuration: Tra
         else:
             weight_gradients = tuple(float(value) for value in previous_gradients)
             bias_gradient = previous_bias_gradient
-        history.append(TrainingState(step, tuple(float(value) for value in weights), bias, loss, weight_gradients, bias_gradient, tuple(float(value) for value in probabilities), TrainingMetrics(binary_cross_entropy=loss, accuracy=accuracy)))
+        state = TrainingState(step, tuple(float(value) for value in weights), bias, loss, weight_gradients, bias_gradient, tuple(float(value) for value in probabilities), TrainingMetrics(binary_cross_entropy=loss, accuracy=accuracy))
+        if step == 0:
+            _require_finite_initial_state(state)
+        elif not _all_finite(state):
+            diverged_at_step = step
+            break
+        history.append(state)
         if step == configuration.epochs:
             break
         previous_gradients = (dataset.features.T @ errors) / dataset.features.shape[0]
         previous_bias_gradient = float(np.mean(errors))
         weights = weights - configuration.learning_rate * previous_gradients
         bias -= configuration.learning_rate * previous_bias_gradient
-    return TrainingRun(run_id or str(uuid4()), "logistic_regression.gradient_descent", dataset.name, configuration, configuration.epochs, tuple(history), tuple(state.step for state in history), {"feature_count": str(feature_count), "sample_count": str(dataset.features.shape[0])})
+    metadata = _divergence_metadata({"feature_count": str(feature_count), "sample_count": str(dataset.features.shape[0])}, diverged_at_step)
+    return TrainingRun(run_id or str(uuid4()), "logistic_regression.gradient_descent", dataset.name, configuration, history[-1].step, tuple(history), tuple(state.step for state in history), metadata)
 
 
 def train_neural_network(dataset: ClassificationDataset, configuration: TrainingConfig, *, run_id: str | None = None) -> TrainingRun:
@@ -93,6 +134,7 @@ def train_neural_network(dataset: ClassificationDataset, configuration: Training
     previous_db1: np.ndarray | None = None
     previous_dw2: np.ndarray | None = None
     previous_db2: float | None = None
+    diverged_at_step: int | None = None
 
     for step in range(configuration.epochs + 1):
         z1, a1, z2, a2 = nn_forward(dataset.features, w1, b1, w2, b2)
@@ -100,8 +142,7 @@ def train_neural_network(dataset: ClassificationDataset, configuration: Training
         loss = nn_bce(probabilities, dataset.targets)
         accuracy = float(np.mean((probabilities >= 0.5) == dataset.targets))
         
-        history.append(
-            TrainingState(
+        state = TrainingState(
                 step=step,
                 weights=tuple(float(v) for v in w1.flatten()),
                 bias=float(b2),
@@ -120,7 +161,12 @@ def train_neural_network(dataset: ClassificationDataset, configuration: Training
                 db2=previous_db2,
                 hidden_activations=tuple(tuple(float(v) for v in row) for row in a1[:8]),
             )
-        )
+        if step == 0:
+            _require_finite_initial_state(state)
+        elif not _all_finite(state):
+            diverged_at_step = step
+            break
+        history.append(state)
         
         if step == configuration.epochs:
             break
@@ -141,14 +187,17 @@ def train_neural_network(dataset: ClassificationDataset, configuration: Training
         "neural_network",
         dataset.name,
         configuration,
-        configuration.epochs,
+        history[-1].step,
         tuple(history),
         tuple(state.step for state in history),
-        {
-            "feature_count": str(feature_count),
-            "hidden_neurons": str(hidden_count),
-            "sample_count": str(dataset.features.shape[0]),
-        },
+        _divergence_metadata(
+            {
+                "feature_count": str(feature_count),
+                "hidden_neurons": str(hidden_count),
+                "sample_count": str(dataset.features.shape[0]),
+            },
+            diverged_at_step,
+        ),
     )
 
 
@@ -159,6 +208,7 @@ def train_kmeans(dataset: ClusteringDataset, configuration: TrainingConfig, *, r
     points = np.asarray(dataset.points, dtype=np.float64)
     centroids = initialize_centroids(points, clusters=cluster_count, seed=configuration.seed)
     history: list[TrainingState] = []
+    diverged_at_step: int | None = None
     initial_assignments = assign_clusters(points, centroids)
     initial_inertia = inertia(points, centroids, initial_assignments)
     history.append(
@@ -177,14 +227,14 @@ def train_kmeans(dataset: ClusteringDataset, configuration: TrainingConfig, *, r
             None,
         )
     )
+    _require_finite_initial_state(history[0])
     for step in range(1, iteration_count + 1):
         previous_centroids = centroids.copy()
         centroids = update_centroids(points, initial_assignments, centroids)
         next_assignments = assign_clusters(points, centroids)
         current_inertia = inertia(points, centroids, next_assignments)
         centroid_movement = tuple(float(value) for value in np.linalg.norm(centroids - previous_centroids, axis=1))
-        history.append(
-            TrainingState(
+        state = TrainingState(
                 step,
                 (),
                 0.0,
@@ -198,9 +248,13 @@ def train_kmeans(dataset: ClusteringDataset, configuration: TrainingConfig, *, r
                 float(current_inertia),
                 centroid_movement,
             )
-        )
+        if not _all_finite(state):
+            diverged_at_step = step
+            break
+        history.append(state)
         initial_assignments = next_assignments
-    return TrainingRun(run_id or str(uuid4()), "kmeans", dataset.name, configuration, iteration_count, tuple(history), tuple(state.step for state in history), {"cluster_count": str(cluster_count), "sample_count": str(points.shape[0])})
+    metadata = _divergence_metadata({"cluster_count": str(cluster_count), "sample_count": str(points.shape[0])}, diverged_at_step)
+    return TrainingRun(run_id or str(uuid4()), "kmeans", dataset.name, configuration, history[-1].step, tuple(history), tuple(state.step for state in history), metadata)
 
 
 def _validate_inputs(dataset: RegressionDataset, configuration: TrainingConfig) -> None:

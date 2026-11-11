@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import numpy as np
+
 from app.ml.datasets.classification import make_logistic_regression_dataset
 from app.ml.datasets.clustering import make_kmeans_dataset
 from app.ml.datasets.synthetic import make_linear_regression_dataset
@@ -16,6 +18,13 @@ class GeneratedTrainingRun:
 
 def create_training_run(request: CreateTrainingRunRequest) -> GeneratedTrainingRun:
     """Execute a configured training run without persistence."""
+    # Unstable runs (e.g. Break Mode) overflow on purpose; the trainers stop at the
+    # first non-finite frame and record it as `diverged_at_step` in metadata.
+    with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+        return _create_training_run(request)
+
+
+def _create_training_run(request: CreateTrainingRunRequest) -> GeneratedTrainingRun:
     dataset_config = request.dataset
     training_config = request.training
     if request.algorithm == "neural_network":

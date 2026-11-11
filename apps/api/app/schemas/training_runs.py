@@ -11,7 +11,7 @@ class SyntheticDatasetRequest(BaseModel):
     slope: float = 2.0
     intercept: float = 1.0
     noise: float = Field(default=0.0, ge=0)
-    seed: int = 0
+    seed: int = Field(default=0, ge=0)
 
     @field_validator("slope", "intercept", "noise")
     @classmethod
@@ -24,7 +24,14 @@ class SyntheticDatasetRequest(BaseModel):
 class KMeansDatasetRequest(BaseModel):
     samples: int = Field(default=60, gt=0, le=10_000)
     noise: float = Field(default=0.1, ge=0)
-    seed: int = 0
+    seed: int = Field(default=0, ge=0)
+
+    @field_validator("noise")
+    @classmethod
+    def noise_must_be_finite(cls, value: float) -> float:
+        if not isfinite(value):
+            raise ValueError("value must be finite")
+        return value
 
 
 class TrainingConfigurationRequest(BaseModel):
@@ -34,8 +41,8 @@ class TrainingConfigurationRequest(BaseModel):
     initial_bias: float = 0.0
     clusters: int | None = Field(default=None, gt=0, le=10_000)
     iterations: int | None = Field(default=None, gt=0, le=10_000)
-    hidden_neurons: int | None = Field(default=3, gt=0, le=16)
-    seed: int = 0
+    hidden_neurons: int | None = Field(default=3, ge=2, le=4)
+    seed: int = Field(default=0, ge=0)
 
     @field_validator("learning_rate", "initial_weight", "initial_bias")
     @classmethod
@@ -43,6 +50,12 @@ class TrainingConfigurationRequest(BaseModel):
         if not isfinite(value):
             raise ValueError("value must be finite")
         return value
+
+
+# Upper bound on samples x recorded steps. Every step stores one prediction (or
+# cluster assignment) per sample, so this caps response size (~10 MB of JSON).
+# The UI's largest configuration (200 samples x 300 epochs) uses 60,000.
+MAX_SAMPLE_STEPS = 500_000
 
 
 class CreateTrainingRunRequest(BaseModel):
@@ -61,6 +74,13 @@ class CreateTrainingRunRequest(BaseModel):
                 raise ValueError("kmeans requires a positive cluster count")
             if self.training.iterations is None or self.training.iterations <= 0:
                 raise ValueError("kmeans requires a positive iteration count")
+            if self.training.clusters > self.dataset.samples:
+                raise ValueError("kmeans clusters cannot exceed the number of samples")
+        steps = self.training.iterations if self.algorithm == "kmeans" else self.training.epochs
+        if self.dataset.samples * (steps or 0) > MAX_SAMPLE_STEPS:
+            raise ValueError(
+                f"samples x {'iterations' if self.algorithm == 'kmeans' else 'epochs'} must not exceed {MAX_SAMPLE_STEPS:,}"
+            )
         return self
 
 

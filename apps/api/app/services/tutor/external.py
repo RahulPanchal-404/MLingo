@@ -1,5 +1,7 @@
 import json
 import logging
+import time
+from collections import deque
 from typing import Any
 
 import httpx
@@ -10,6 +12,31 @@ from app.services.tutor.base import BaseTutorProvider
 from app.services.tutor.fallback import DeterministicFallbackProvider
 
 logger = logging.getLogger(__name__)
+
+
+class _SlidingWindowLimiter:
+    """Process-wide cap on external LLM calls, to bound API spend on an unauthenticated endpoint.
+
+    Deliberately global rather than per-IP: behind a hosting proxy every client can
+    appear to share one address, which would make a per-IP limit unreliable.
+    """
+
+    def __init__(self) -> None:
+        self._calls: deque[float] = deque()
+
+    def try_acquire(self, limit: int, window_seconds: float = 60.0) -> bool:
+        if limit <= 0:
+            return False
+        now = time.monotonic()
+        while self._calls and now - self._calls[0] >= window_seconds:
+            self._calls.popleft()
+        if len(self._calls) >= limit:
+            return False
+        self._calls.append(now)
+        return True
+
+
+_external_call_limiter = _SlidingWindowLimiter()
 
 
 class ExternalLLMProvider(BaseTutorProvider):
@@ -23,6 +50,10 @@ class ExternalLLMProvider(BaseTutorProvider):
         api_key = self.settings.tutor_api_key
         if not api_key:
             logger.info("No LLM API key configured. Utilizing deterministic fallback provider.")
+            return await self.fallback.generate_response(request)
+
+        if not _external_call_limiter.try_acquire(self.settings.tutor_external_max_per_minute):
+            logger.warning("External tutor call limit reached. Utilizing deterministic fallback provider.")
             return await self.fallback.generate_response(request)
 
         try:

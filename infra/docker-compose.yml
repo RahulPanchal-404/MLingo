@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: mlingo
       POSTGRES_PASSWORD: mlingo_dev_password
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"  # local only; the dev password is in this public repo
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

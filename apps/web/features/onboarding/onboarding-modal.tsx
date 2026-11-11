@@ -75,7 +75,7 @@ export function OnboardingModal() {
       aria-label="Welcome to MLingo Onboarding"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+      <div className="keep-light relative w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-3.5">
           <div className="flex items-center gap-2">

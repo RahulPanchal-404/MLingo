@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { WatchRow } from "@/features/learning/components/watch-row";
-import { CodeBlock, MathBlock, TexText } from "@/features/theory/tex";
+import { BlockView } from "@/features/theory/blocks";
 import { THEORY, getTheory } from "@/features/theory/topics";
 
 type TheoryPageProps = { params: Promise<{ slug: string }> };
@@ -68,23 +68,7 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
         {topic.sections.map((s, n) => (
           <section key={s.heading} id={`s${n}`} className="scroll-mt-24 space-y-3">
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{n + 1}. {s.heading}</h2>
-            {s.blocks.map((b, k) =>
-              "math" in b ? (
-                <div key={k} className="rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900">
-                  <MathBlock tex={b.math} />
-                </div>
-              ) : "code" in b ? (
-                <CodeBlock key={k} code={b.code} />
-              ) : "list" in b ? (
-                <ul key={k} className="list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
-                  {b.list.map((item) => (
-                    <li key={item}><TexText text={item} /></li>
-                  ))}
-                </ul>
-              ) : (
-                <p key={k} className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300"><TexText text={b.p} /></p>
-              ),
-            )}
+            {s.blocks.map((b, k) => <BlockView key={k} b={b} />)}
           </section>
         ))}
         <WatchRow slug={topic.slug} />

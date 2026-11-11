@@ -3313,6 +3313,8 @@ main h1:not([class*="text-[clamp"]) { font-size: clamp(2.1rem, 4vw, 3.25rem); }
 /* Buttons filled with the light cyan accent need dark text in dark mode. */
 .dark .primary-button { color: #07080c; }
 .dark .run-status { color: #4ade80; border-color: #14532d; }
+/* White panels that stay white in dark mode (e.g. onboarding) keep light-mode greys. */
+.dark .keep-light { --color-slate-400: #686d7a; --color-slate-500: #5f6472; --color-slate-600: #4a4f5c; }
 /* Pastel chapter blocks keep dark text in both themes. */
 .dark .light-island, .dark .light-island * { color: #0e1016; }
 .dark .light-island :is(.bg-white\/70, .bg-white\/80) { background-color: rgba(255, 255, 255, 0.7); }

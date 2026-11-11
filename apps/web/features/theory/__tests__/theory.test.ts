@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { GAMES } from "@/features/games/registry";
 import { ALL_LESSONS, getLessonBySlug } from "@/features/learning/lessons-data";
 import { MODEL_LESSONS } from "@/features/learning/model-lessons";
-import { THEORY } from "../topics";
+import { THEORY, blockTexts } from "../topics";
 
 const inline = (s: string) => [...s.matchAll(/\$([^$]+)\$/g)].map((m) => m[1]);
 const gameExists = (href: string) => {
@@ -18,7 +18,7 @@ describe("theory & math", () => {
     for (const t of THEORY)
       for (const s of t.sections)
         for (const b of s.blocks) {
-          const texts = "code" in b ? [] : "math" in b ? [b.math] : "list" in b ? b.list.flatMap(inline) : inline(b.p);
+          const texts = blockTexts(b).flatMap((t) => (t.startsWith("$$") ? [t.slice(2, -2)] : inline(t)));
           for (const tex of texts) expect(() => katex.renderToString(tex, { throwOnError: true }), `${t.slug}: ${tex}`).not.toThrow();
         }
   });
@@ -27,6 +27,18 @@ describe("theory & math", () => {
     for (const t of THEORY) {
       if (t.learnHref?.startsWith("/learn/")) expect(getLessonBySlug(t.learnHref.slice(7)), t.slug).toBeTruthy();
       if (t.playHref) expect(gameExists(t.playHref), t.playHref).toBe(true);
+    }
+  });
+  it("core topics are complete: one-line summary, worked example, code, pitfalls and a valid quiz", () => {
+    for (const t of THEORY.filter((x) => x.group !== "Prerequisites")) {
+      const blocks = t.sections.flatMap((s) => s.blocks);
+      expect(blocks.some((b) => "callout" in b), `${t.slug} callout`).toBe(true);
+      expect(blocks.some((b) => "steps" in b), `${t.slug} worked example`).toBe(true);
+      expect(blocks.some((b) => "code" in b), `${t.slug} code`).toBe(true);
+      expect(blocks.some((b) => "pitfalls" in b), `${t.slug} pitfalls`).toBe(true);
+      const quizzes = blocks.filter((b): b is Extract<typeof b, { quiz: unknown }> => "quiz" in b);
+      expect(quizzes.length, `${t.slug} quiz`).toBeGreaterThan(0);
+      for (const { quiz } of quizzes) expect(quiz.answer >= 0 && quiz.answer < quiz.options.length, t.slug).toBe(true);
     }
   });
 });

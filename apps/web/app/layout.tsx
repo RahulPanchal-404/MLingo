@@ -7,6 +7,7 @@ import { TutorDrawer } from "@/features/tutor/components/tutor-drawer";
 import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 
 import { ThemeProvider, ThemeScript } from "@/features/theme/theme-provider";
+import { AuthProvider } from "@/features/players/auth-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,12 +36,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full transition-colors duration-200">
         <ThemeProvider>
+          <AuthProvider>
           <TutorProvider>
             {children}
             <TutorLauncher />
             <TutorDrawer />
             <OnboardingModal />
           </TutorProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

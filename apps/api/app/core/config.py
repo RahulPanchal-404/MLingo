@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str = "postgresql://mlingo:mlingo_dev_password@localhost:5432/mlingo"
     frontend_origin: str = "http://localhost:3000"
+    players_db_path: str = "data/mlingo_players.db"
+    session_days: int = 30
     tutor_provider: str = "fallback"
     tutor_api_key: str | None = None
     tutor_model: str = "gemini-2.5-flash"

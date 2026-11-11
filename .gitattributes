@@ -1,0 +1,10 @@
+# Keep Linux line endings for files that run inside containers or bash,
+# even when the repo is checked out on Windows.
+* text=auto
+Dockerfile text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+.dockerignore text eol=lf
+*.ps1 text eol=crlf

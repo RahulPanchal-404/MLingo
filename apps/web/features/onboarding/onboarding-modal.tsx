@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { hasCompletedOnboarding, markOnboardingCompleted } from "./onboarding-storage";
 
 const emptySubscribe = () => () => {};
 
 export function OnboardingModal() {
   const router = useRouter();
+  const pathname = usePathname();
   const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [isOpen, setIsOpen] = useState(() => (typeof window !== "undefined" ? !hasCompletedOnboarding() : false));
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -63,7 +64,7 @@ export function OnboardingModal() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
-  if (!isMounted || !isOpen) return null;
+  if (!isMounted || !isOpen || pathname === "/login") return null;
 
   return (
 

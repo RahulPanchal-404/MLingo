@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { PrimaryNavigation } from "@/components/layout/primary-navigation";
 import { ThemeSwitch } from "@/features/theme/theme-switch";
+import { UserChip } from "@/features/players/user-chip";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -27,6 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <div className="flex items-center gap-3">
               <ThemeSwitch />
+              <UserChip />
             </div>
           </div>
         </header>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navigationItems = [
+const navigationItems: { href: string; label: string; badge?: string }[] = [
   { href: "/", label: "Dashboard" },
   { href: "/learn", label: "Learn" },
   { href: "/labs", label: "Labs" },
@@ -11,6 +11,7 @@ const navigationItems = [
   { href: "/experiments", label: "Experiments" },
   { href: "/projects", label: "Projects" },
   { href: "/portfolio", label: "Portfolio" },
+  { href: "/games", label: "Games", badge: "New" },
   { href: "/challenges", label: "Challenges" },
   { href: "/progress", label: "Progress" },
   { href: "/profile", label: "Profile" },
@@ -28,7 +29,7 @@ export function PrimaryNavigation({ className, mobile = false }: PrimaryNavigati
   return (
     <nav aria-label="Primary navigation" className={className}>
       <ul className={listClassName}>
-        {navigationItems.map(({ href, label }) => {
+        {navigationItems.map(({ href, label, badge }) => {
           const isActive =
             href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
           return (
@@ -43,6 +44,11 @@ export function PrimaryNavigation({ className, mobile = false }: PrimaryNavigati
                 href={href}
               >
                 {label}
+                {badge ? (
+                  <span className="ml-2 rounded-full bg-orange-100 dark:bg-orange-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700 dark:text-orange-300">
+                    {badge}
+                  </span>
+                ) : null}
               </Link>
             </li>
           );

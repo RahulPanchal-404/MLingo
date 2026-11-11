@@ -1,0 +1,5 @@
+# Builds the web image with the API URL baked in (NEXT_PUBLIC_* is read at build time).
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "--build-arg", "NEXT_PUBLIC_API_URL=${_API_URL}", "-t", "${_IMAGE}", "."]
+images: ["${_IMAGE}"]

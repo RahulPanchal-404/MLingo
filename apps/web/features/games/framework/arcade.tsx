@@ -190,13 +190,28 @@ export function ArcadePlayer({ game }: { game: GameDef }) {
       ) : null}
 
       {phase.kind === "play" ? (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+          <button
+            type="button"
+            onClick={() => setPhase({ kind: "brief" })}
+            className="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          >
+            ← Back to level briefing
+          </button>
           <Round key={`${level.id}-${runs}`} level={level} onDone={finish} />
         </section>
       ) : null}
 
       {phase.kind === "done" ? (
         <div className="mx-auto max-w-xl space-y-4">
+          <div className="flex items-center justify-between text-sm font-semibold text-slate-500">
+            <button type="button" onClick={() => setPhase({ kind: "brief" })} className="hover:text-slate-800 dark:hover:text-slate-200">
+              ← Level briefing
+            </button>
+            <Link href="/games" className="hover:text-slate-800 dark:hover:text-slate-200">
+              All games
+            </Link>
+          </div>
           {phase.won ? (
             <ResultPanel
               key={`${level.id}-${runs}`}

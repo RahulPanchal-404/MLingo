@@ -80,44 +80,40 @@ export function TutorLauncher() {
     });
   };
 
-  // Pointer drag to snap to nearest corner
+  // Pointer drag to snap to nearest corner. A press only becomes a drag after it
+  // moves a few pixels, so plain clicks on the buttons (or on the icon/label
+  // inside them) always reach the button instead of being captured by the dock.
+  const DRAG_THRESHOLD = 6;
+
   const handlePointerDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).tagName.toLowerCase() === "button") return;
+    if ((e.target as HTMLElement).closest("button")) return;
     dragStartRef.current = { clientX: e.clientX, clientY: e.clientY };
-    setIsDragging(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging || !dragStartRef.current) return;
-    const dx = e.clientX - dragStartRef.current.clientX;
-    const dy = e.clientY - dragStartRef.current.clientY;
+    const start = dragStartRef.current;
+    if (!start) return;
+    const dx = e.clientX - start.clientX;
+    const dy = e.clientY - start.clientY;
+    if (!isDragging) {
+      if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+      setIsDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
     setDragOffset({ x: dx, y: dy });
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
+    const wasDragging = isDragging;
+    dragStartRef.current = null;
+    if (!wasDragging) return;
     setIsDragging(false);
     setDragOffset(null);
-    dragStartRef.current = null;
-    e.currentTarget.releasePointerCapture(e.pointerId);
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
 
-    // Calculate nearest corner based on viewport position
-    const winW = window.innerWidth;
-    const winH = window.innerHeight;
-    const clientX = e.clientX;
-    const clientY = e.clientY;
-
-    const isLeft = clientX < winW / 2;
-    const isTop = clientY < winH / 2;
-
-    let targetCorner: TutorCorner = "bottom-right";
-    if (isTop && isLeft) targetCorner = "top-left";
-    else if (isTop && !isLeft) targetCorner = "top-right";
-    else if (!isTop && isLeft) targetCorner = "bottom-left";
-    else targetCorner = "bottom-right";
-
-    saveCorner(targetCorner);
+    const isLeft = e.clientX < window.innerWidth / 2;
+    const isTop = e.clientY < window.innerHeight / 2;
+    saveCorner(isTop ? (isLeft ? "top-left" : "top-right") : isLeft ? "bottom-left" : "bottom-right");
   };
 
   // Cycle corners via quick action button
@@ -155,12 +151,13 @@ export function TutorLauncher() {
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       style={
         dragOffset
           ? { transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }
           : undefined
       }
-      className={`fixed z-40 flex items-center gap-1.5 select-none transition-all duration-200 ${
+      className={`fixed z-40 flex items-center gap-1.5 select-none ${isDragging ? "" : "transition-all duration-200"} ${
         cornerClasses[corner]
       } ${isDragging ? "cursor-grabbing opacity-90 scale-105" : "cursor-grab"}`}
       role="region"

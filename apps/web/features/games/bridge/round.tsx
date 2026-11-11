@@ -184,18 +184,29 @@ function CurveRound({ mode, onDone }: { mode: Mode; onDone: RoundProps["onDone"]
       ) : null}
       <ControlDeck>
         {mode === "line" ? <span className="text-xs text-white/70">Drag the orange ends of the bridge. The red lines are the errors.</span> : null}
-        {mode === "degree"
-          ? Array.from({ length: 12 }, (_, n) => (
-              <GameButton key={n} tone="ghost" active={degree === n + 1} onClick={() => setDegree(n + 1)} disabled={sending}>
-                {n + 1}
-              </GameButton>
-            ))
-          : null}
+        {mode === "degree" ? (
+          <div className="flex w-full flex-col gap-1.5">
+            <span className="text-xs text-white/80">
+              <b className="text-white">Bendiness (degree):</b> 1 = a straight plank, 12 = bends like a snake.{" "}
+              <b className="text-amber-300">Now: degree {degree} — {degree <= 2 ? "stiff" : degree <= 5 ? "flexible" : degree <= 8 ? "very bendy" : "wild"}</b>
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {Array.from({ length: 12 }, (_, n) => (
+                <GameButton key={n} tone="ghost" active={degree === n + 1} onClick={() => setDegree(n + 1)} disabled={sending}>
+                  {n + 1}
+                </GameButton>
+              ))}
+            </div>
+          </div>
+        ) : null}
         {mode === "ridge" ? (
           <label className="flex min-w-[240px] flex-1 items-center gap-2 text-xs text-white/70">
             <span className="whitespace-nowrap font-bold text-white">Stiffness λ</span>
+            <span className="whitespace-nowrap text-[11px] text-amber-300">🐍 bendy</span>
             <input type="range" min={0} max={1000} value={logPosition(lambda, 1e-7, 10)} onChange={(e) => setLambda(Number(logValue(Number(e.target.value), 1e-7, 10).toPrecision(2)))} disabled={sending} className="flex-1 accent-amber-400" aria-label="Regularization strength lambda" />
+            <span className="whitespace-nowrap text-[11px] text-sky-300">stiff 🪵</span>
             <span className="w-16 font-mono text-sm font-black text-white">{lambda.toExponential(0)}</span>
+            <span className="whitespace-nowrap text-[11px] font-bold text-white">{lambda < 1e-4 ? "wiggles through every pillar" : lambda < 0.1 ? "balanced" : "too stiff: flat"}</span>
           </label>
         ) : null}
         <span className="ml-auto" />

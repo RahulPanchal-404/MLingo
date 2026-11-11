@@ -1,6 +1,68 @@
 import type { GameId, Guide } from "./framework/types";
 
 export const GUIDES: Record<GameId, Guide> = {
+  bridge: {
+    story: "You're the engineer building bridges across canyons. Stone pillars stick up from the river: they show where the road needs to be. Once your bridge is built, test trucks drive across it, and every truck has a checkpoint it must pass close to.",
+    goal: "Build bridges that real traffic can cross: they should follow the pillars, but the real test is whether new trucks, which never helped you design the bridge, make it across.",
+    steps: [
+      "Look at the pillars (the training data).",
+      "Shape the bridge: drag its ends, choose how bendy it is, set its stiffness, or cut useless support beams (depends on the level).",
+      "Watch the red lines: they show how far the bridge is from each pillar (the training error).",
+      "Send the test trucks. Each checkpoint turns green if the bridge passes close enough, or 💥 if the truck falls. Each level has 3 canyons.",
+    ],
+    win: "Score compares your test error with the best bridge possible. Close to the best means more stars.",
+    lose: "A bridge that hugs every pillar but wiggles between them drops the test trucks in the river (overfitting).",
+    map: [
+      ["Pillars", "Training data"],
+      ["The bridge", "The regression model's prediction curve"],
+      ["Red lines to the pillars", "Errors (residuals)"],
+      ["Test trucks", "Unseen test data"],
+      ["Bendiness (degree)", "Model complexity (polynomial degree)"],
+      ["Stiffness λ", "Regularization strength"],
+      ["Support beams", "Features and their weights (Lasso)"],
+    ],
+  },
+  sorter: {
+    story: "You're the keeper of a creature sanctuary. Ladybirds 🐞 and bees 🐝 keep arriving, and you must send each one to the right pen. You've already sorted a batch by hand; now you set up a sorting rule for the new arrivals.",
+    goal: "Set up a sorting rule that puts new creatures in the right pen as often as possible, not just the ones you've already seen.",
+    steps: [
+      "Look at the creatures you've already sorted (the training data). The coloured background shows what your rule would say for a creature standing there.",
+      "Tune the rule: how many neighbours get a vote, whether to put features in the same units, which question to ask, or how many questions deep to go (depends on the level).",
+      "Watch the sorting map change. A jagged map follows noise; a smooth one follows the real pattern.",
+      "Release the new creatures. Green rings are sorted right, red ones wrong. Each level has 2–3 habitats.",
+    ],
+    win: "Score is based on how many new creatures are sorted correctly, compared with the best possible rule.",
+    lose: "A rule that is perfect on creatures you've seen but messy on new ones scores low (overfitting).",
+    map: [
+      ["A creature", "A data point with two features"],
+      ["🐞 / 🐝", "The two classes"],
+      ["The coloured map", "The model's decision regions"],
+      ["Asking K neighbours", "K-Nearest Neighbours"],
+      ["Yes/no questions", "Decision tree splits"],
+      ["New creatures", "Test data"],
+    ],
+  },
+  galaxy: {
+    story: "You're an astronomer mapping a new patch of sky. It's full of stars, and you need to work out which ones belong to the same galaxy, without anyone telling you the answer.",
+    goal: "Publish a star map where each real galaxy is one colour, and stray dust is marked as noise rather than forced into a galaxy.",
+    steps: [
+      "Study the star field.",
+      "Tune your method: where to cut the star family tree, how to measure distance between groups, how far each star's light reaches, and how many neighbours make a dense region (depends on the level).",
+      "Watch the stars recolour as galaxies form. Grey stars are noise.",
+      "Publish the map to see how well it matches the real galaxies. Each level has 3 skies.",
+    ],
+    win: "Your map's galaxies match the real ones (scored by how many star pairs you grouped correctly).",
+    lose: "Splitting one galaxy into many, or merging separate galaxies, lowers your score.",
+    map: [
+      ["A star", "A data point"],
+      ["A galaxy", "A cluster"],
+      ["The family tree", "The dendrogram (hierarchical clustering)"],
+      ["Cutting the tree", "Choosing the number of clusters"],
+      ["Single / complete", "Linkage method"],
+      ["Light reach ε", "DBSCAN's eps radius"],
+      ["Grey dust", "Noise points / outliers"],
+    ],
+  },
   descent: {
     story: "You're a skier dropped somewhere on a mountain. Somewhere below is the lowest point of the valley, marked with a 🚩. You ski down in jumps, and each jump uses fuel. Both edges of the mountain end in lava.",
     goal: "Reach the flag at the very bottom of the valley on every mountain, in as few jumps as possible, without falling into the lava.",

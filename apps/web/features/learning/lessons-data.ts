@@ -1,3 +1,5 @@
+import { MODEL_LESSONS } from "./model-lessons";
+
 export type LessonConceptVisual = {
   type: "diagram" | "equation" | "comparison" | "flow";
   title: string;
@@ -384,9 +386,13 @@ export const FOUNDATIONAL_LESSONS: LessonDefinition[] = [
       ],
     },
     prevLesson: { title: "Gradient Descent", slug: "gradient-descent" },
+    nextLesson: { title: "Linear Regression", slug: "linear-regression" },
   },
 ];
 
+/** Every lesson: foundations, then the model lessons (regression, classification, clustering). */
+export const ALL_LESSONS: LessonDefinition[] = [...FOUNDATIONAL_LESSONS, ...MODEL_LESSONS];
+
 export function getLessonBySlug(slug: string): LessonDefinition | undefined {
-  return FOUNDATIONAL_LESSONS.find((l) => l.slug === slug);
+  return ALL_LESSONS.find((l) => l.slug === slug);
 }

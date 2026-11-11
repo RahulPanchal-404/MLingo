@@ -179,4 +179,4 @@ def test_results_from_retired_games_do_not_break_progress() -> None:
     old = ResultRecord(id=1, game="golf", level_id="bowl", stars=3, score=900, xp=115, meta={}, local_date=str(TODAY), created_at="x")
     best = best_stars([old])
     assert "golf" not in best
-    assert set(best) == {"descent", "threshold", "clusters", "neurons", "pipeline"}
+    assert set(best) == {"descent", "bridge", "threshold", "sorter", "clusters", "galaxy", "neurons", "pipeline"}

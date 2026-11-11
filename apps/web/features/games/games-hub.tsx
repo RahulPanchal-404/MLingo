@@ -65,19 +65,22 @@ export function GamesHub() {
   const { status, player, progress, guestQueued } = useAuth();
   // One hook call per game (fixed list, so hook order is stable).
   const descent = useClearedLevels("descent");
+  const bridge = useClearedLevels("bridge");
   const threshold = useClearedLevels("threshold");
+  const sorter = useClearedLevels("sorter");
   const clusters = useClearedLevels("clusters");
+  const galaxy = useClearedLevels("galaxy");
   const neurons = useClearedLevels("neurons");
   const pipeline = useClearedLevels("pipeline");
-  const perGame = [descent, threshold, clusters, neurons, pipeline];
+  const perGame = [descent, bridge, threshold, sorter, clusters, galaxy, neurons, pipeline];
   const clearedKeys = useMemo(
     () =>
       new Set(
-        [descent.cleared, threshold.cleared, clusters.cleared, neurons.cleared, pipeline.cleared].flatMap((set, i) =>
+        [descent.cleared, bridge.cleared, threshold.cleared, sorter.cleared, clusters.cleared, galaxy.cleared, neurons.cleared, pipeline.cleared].flatMap((set, i) =>
           [...set].map((id) => `${GAMES[i].id}:${id}`),
         ),
       ),
-    [descent.cleared, threshold.cleared, clusters.cleared, neurons.cleared, pipeline.cleared],
+    [descent.cleared, bridge.cleared, threshold.cleared, sorter.cleared, clusters.cleared, galaxy.cleared, neurons.cleared, pipeline.cleared],
   );
   const pick = useMemo(() => dailyPick(clearedKeys), [clearedKeys]);
   const totalStars = GAMES.reduce((sum, g, i) => sum + g.levels.reduce((s, l) => s + perGame[i].bestStars(l.id), 0), 0);

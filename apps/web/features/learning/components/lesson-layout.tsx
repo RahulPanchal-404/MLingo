@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { levelsForLesson } from "@/features/games/registry";
+import { getTheory } from "@/features/theory/topics";
 import type { LessonDefinition } from "../lessons-data";
 
 export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
@@ -254,6 +255,19 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </section>
 
       {/* Practice it in a game */}
+      {getTheory(lesson.slug) ? (
+        <Link
+          href={`/theory/${lesson.slug}`}
+          className="flex items-center justify-between gap-4 rounded-2xl border border-violet-200 bg-violet-50/70 p-5 transition hover:border-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10"
+        >
+          <span>
+            <span className="block text-xs font-bold uppercase tracking-wider text-violet-800 dark:text-violet-300">∑ Theory &amp; Math</span>
+            <span className="block text-sm text-slate-700 dark:text-slate-300">Want the formal version? Read the equations and derivations behind {lesson.title}.</span>
+          </span>
+          <span className="shrink-0 text-sm font-bold text-violet-700 dark:text-violet-300">Read →</span>
+        </Link>
+      ) : null}
+
       {levelsForLesson(lesson.slug).length ? (
         <section className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-6 shadow-xs space-y-3">
           <h2 className="text-lg font-bold text-slate-900">🎮 Practice it: learn by playing</h2>

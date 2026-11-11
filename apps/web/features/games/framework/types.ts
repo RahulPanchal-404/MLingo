@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 
 /** Every game ID the backend accepts. Keep in sync with GAME_LEVELS in apps/api/app/players/progress.py. */
-export type GameId = "descent" | "threshold" | "clusters" | "neurons" | "pipeline";
+export type GameId = "descent" | "bridge" | "threshold" | "sorter" | "clusters" | "galaxy" | "neurons" | "pipeline";
 
 export type LevelDef = {
   id: string;

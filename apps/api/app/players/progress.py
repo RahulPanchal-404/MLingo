@@ -15,8 +15,11 @@ from app.players.store import ResultRecord
 # Keep in sync with the level IDs in apps/web/features/games/*/engine.ts.
 GAME_LEVELS: dict[str, list[str]] = {
     "descent": ["eyeball", "step-size", "ravine", "trap"],
+    "bridge": ["line", "degree", "ridge", "lasso"],
     "threshold": ["sigmoid", "balanced", "screening", "fraud"],
+    "sorter": ["knn", "scale", "tree", "depth"],
     "clusters": ["elbow", "start", "units", "rings"],
+    "galaxy": ["dendro", "linkage", "eps", "noise"],
     "neurons": ["xor", "capacity", "saturate", "lr"],
     "pipeline": ["leak", "overfit", "order", "metric"],
 }
@@ -68,8 +71,11 @@ class Badge:
 
 GAME_TITLES = {
     "descent": ("Gradient guru", "Valley Runner"),
+    "bridge": ("Chief engineer", "Bridge Builder"),
     "threshold": ("Royal gatekeeper", "Gatekeeper"),
+    "sorter": ("Head zookeeper", "Creature Sorter"),
     "clusters": ("Top dog", "Sheepdog"),
+    "galaxy": ("Astronomer royal", "Star Mapper"),
     "neurons": ("Shield master", "Shield Builder"),
     "pipeline": ("Master detective", "Data Heist"),
 }

@@ -1,6 +1,22 @@
 import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
-import { GAME_FOR_CHAPTER, getGame } from "@/features/games/registry";
+import { GAMES_FOR_CHAPTER, getGame } from "@/features/games/registry";
+import { MODEL_LESSONS } from "@/features/learning/model-lessons";
+
+/** Learn-page cards for a chapter's model lessons (tag prefix e.g. "Regression"). */
+function lessonsFor(prefix: string, concepts: Record<string, string[]>): LessonItem[] {
+  return MODEL_LESSONS.filter((l) => l.tag.startsWith(prefix)).map((l) => ({
+    href: `/learn/${l.slug}`,
+    num: l.number,
+    title: l.title,
+    summary: l.subtitle,
+    idea: l.keyIdea,
+    difficulty: l.difficulty,
+    time: `${l.estimatedMinutes} min`,
+    concepts: concepts[l.slug] ?? [],
+    tryIt: "Start lesson →",
+  }));
+}
 
 type LessonItem = {
   href: string;
@@ -95,9 +111,24 @@ const chapters: Chapter[] = [
     ],
   },
   {
-    id: "supervised",
+    id: "regression",
     chapterNumber: "02",
-    title: "Supervised Learning & Classification",
+    title: "Regression: Predicting Numbers",
+    subtitle: "Straight lines, curves, and keeping flexible models honest with regularization.",
+    renderMiniVisual: () => (
+      <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Regression line">
+        {[[20, 52], [40, 46], [60, 40], [80, 30], [100, 28], [120, 20], [140, 14]].map(([x, y]) => (
+          <circle key={x} cx={x} cy={y} r="2.5" fill="#38bdf8" />
+        ))}
+        <line x1="15" y1="56" x2="145" y2="12" stroke="#14b8a6" strokeWidth="2" />
+      </svg>
+    ),
+    lessons: lessonsFor("Regression", { "linear-regression": ["weights", "bias", "MSE", "least squares"], "polynomial-regression": ["degree", "underfitting", "overfitting", "test error"], regularization: ["ridge", "lasso", "lambda", "feature selection"] }),
+  },
+  {
+    id: "supervised",
+    chapterNumber: "03",
+    title: "Classification: Predicting Categories",
     subtitle: "Separating categories and calculating class probabilities using the sigmoid function.",
     renderMiniVisual: () => (
       <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="Classification Boundary">
@@ -109,24 +140,12 @@ const chapters: Chapter[] = [
         <line x1="60" y1="55" x2="100" y2="15" stroke="#14b8a6" strokeWidth="2" strokeDasharray="3 3" />
       </svg>
     ),
-    lessons: [
-      {
-        href: "/labs/logistic-regression",
-        num: "06",
-        title: "Logistic Regression & Decision Boundaries",
-        summary: "This model produces probabilities for binary outcomes instead of raw real-valued predictions.",
-        idea: "Classification learns a separating boundary between two classes using the sigmoid function.",
-        difficulty: "Beginner",
-        time: "8 min",
-        concepts: ["probability", "classification", "decision boundary", "log-loss"],
-        tryIt: "Open Logistic Regression lab →",
-      },
-    ],
+    lessons: lessonsFor("Classification", { "logistic-regression": ["sigmoid", "probability", "log-loss", "threshold"], "k-nearest-neighbors": ["distance", "majority vote", "choosing K", "scaling"], "decision-trees": ["splits", "Gini impurity", "depth", "overfitting"] }),
   },
   {
     id: "unsupervised",
-    chapterNumber: "03",
-    title: "Unsupervised Learning & Clustering",
+    chapterNumber: "04",
+    title: "Clustering: Finding Groups",
     subtitle: "Discovering cohesive behavioral groupings without ground truth labels.",
     renderMiniVisual: () => (
       <svg viewBox="0 0 160 70" className="w-full h-16 select-none rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2" role="img" aria-label="K-Means Centroid Cluster">
@@ -138,23 +157,11 @@ const chapters: Chapter[] = [
         <circle cx="120" cy="32" r="6" fill="none" stroke="#c084fc" strokeWidth="1.5" />
       </svg>
     ),
-    lessons: [
-      {
-        href: "/labs/k-means",
-        num: "07",
-        title: "K-Means Clustering & Centroid Dynamics",
-        summary: "K-Means groups nearby points by distance to shared geometric centroids.",
-        idea: "The algorithm repeatedly assigns points to clusters and moves centroids toward their mean locations.",
-        difficulty: "Beginner",
-        time: "8 min",
-        concepts: ["clustering", "centroids", "inertia", "within-cluster variance"],
-        tryIt: "Open K-Means lab →",
-      },
-    ],
+    lessons: lessonsFor("Clustering", { "k-means": ["centroids", "inertia", "elbow", "k-means++"], "hierarchical-clustering": ["dendrogram", "linkage", "cut height"], "dbscan": ["density", "eps", "minPts", "noise"] }),
   },
   {
     id: "deep-learning",
-    chapterNumber: "04",
+    chapterNumber: "05",
     title: "Deep Learning & Backpropagation",
     subtitle: "Multi-layer perceptrons, non-linear activation flow, and analytical calculus gradients.",
     renderMiniVisual: () => (
@@ -172,7 +179,7 @@ const chapters: Chapter[] = [
     lessons: [
       {
         href: "/labs/neural-network",
-        num: "08",
+        num: "15",
         title: "Neural Networks & Backpropagation",
         summary: "Hidden layers and nonlinear activations allow networks to learn complex decision surfaces.",
         idea: "The chain rule sends error signals backwards through the network to update all weights layer by layer.",
@@ -185,13 +192,13 @@ const chapters: Chapter[] = [
   },
   {
     id: "workflow",
-    chapterNumber: "05",
+    chapterNumber: "06",
     title: "Data Science Workflow & Analysis",
     subtitle: "Feature scaling, missing value imputation, train/test leakage prevention, and metrics.",
     lessons: [
       {
         href: "/labs/gradient-descent",
-        num: "09",
+        num: "16",
         title: "How to Read a Training Run",
         summary: "Connect loss curves, gradient norms, and parameter steps to diagnose convergence, plateaus, and instability from telemetry.",
         idea: "Evidence from telemetry explains why parameters move and how to adjust hyperparameters.",
@@ -202,7 +209,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "10",
+        num: "17",
         title: "Understanding Datasets & Feature Shapes",
         summary: "Before fitting a model, inspect row counts, feature types, unique values, and missingness to understand your data surface.",
         idea: "Data shape, types, and quality dictate which models can learn effectively.",
@@ -213,7 +220,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "11",
+        num: "18",
         title: "Missing Values & Imputation",
         summary: "Missing values disrupt linear algebra. Imputing with mean or mode allows models to process incomplete records.",
         idea: "Impute missing observations without inventing false correlations.",
@@ -224,7 +231,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "12",
+        num: "19",
         title: "Feature Scaling (Z-Score & MinMax)",
         summary: "When features have vastly different ranges, gradients oscillate wildly. Scaling balances step sizes across dimensions.",
         idea: "Standardization (Z-Score) or Min-Max scaling equalizes feature magnitudes.",
@@ -235,7 +242,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "13",
+        num: "20",
         title: "Categorical Encoding",
         summary: "Machine learning models compute numeric dot products. One-hot encoding translates qualitative categories into binary basis indicators.",
         idea: "Encode categories without imposing artificial numerical ordering.",
@@ -246,7 +253,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "14",
+        num: "21",
         title: "Train / Test Split & Generalization",
         summary: "Evaluating a model on the data used to train it gives a falsely confident score. Partitioning measures generalization to new data.",
         idea: "Reserve a hold-out test set to evaluate real generalization.",
@@ -257,7 +264,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "15",
+        num: "22",
         title: "Preventing Data Leakage",
         summary: "If test data influences preprocessing (such as scaling or imputation means), evaluation metrics become falsely optimistic.",
         idea: "Fit transformers on the training partition only, then apply to test data.",
@@ -268,7 +275,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "16",
+        num: "23",
         title: "Evaluation Metrics (MSE, MAE, R²)",
         summary: "Training loss is an optimization guide; evaluation metrics like MSE, MAE, R², and accuracy evaluate operational utility.",
         idea: "Choose metrics aligned with task objectives rather than raw loss alone.",
@@ -279,7 +286,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "17",
+        num: "24",
         title: "The Confusion Matrix",
         summary: "A 2x2 contingency table separating true positives, false positives, true negatives, and false negatives in binary classification.",
         idea: "Inspect exact counts of errors rather than just a single summary score.",
@@ -290,7 +297,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "18",
+        num: "25",
         title: "Precision vs Recall & Threshold Tuning",
         summary: "Precision asks: when the model predicts positive, how often is it right? Recall asks: what fraction of actual positives were caught?",
         idea: "Tuning the decision threshold adjusts the trade-off between precision and recall.",
@@ -301,7 +308,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/workbench",
-        num: "19",
+        num: "26",
         title: "Overfitting vs Underfitting",
         summary: "Compare training and test performance to spot when a model memorizes training noise instead of general patterns.",
         idea: "A growing gap between train and test metrics indicates a generalization gap.",
@@ -314,13 +321,13 @@ const chapters: Chapter[] = [
   },
   {
     id: "capstone",
-    chapterNumber: "06",
+    chapterNumber: "07",
     title: "Capstone Guided Projects",
     subtitle: "Synthesizing data science pipelines into verified, recruiter-ready case studies.",
     lessons: [
       {
         href: "/projects/salary-prediction",
-        num: "20",
+        num: "27",
         title: "Salary Prediction (Linear Regression)",
         summary: "Synthesize data cleaning, train/test split, and linear regression to predict engineering compensation without data leakage.",
         idea: "Connect data preprocessing, training runs, and evaluation metrics into one complete ML lifecycle.",
@@ -331,7 +338,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/projects/student-outcome",
-        num: "21",
+        num: "28",
         title: "Student Exam Outcome (Logistic Regression)",
         summary: "Build a logistic regression early-warning model to predict student admission and balance Precision vs Recall with threshold tuning.",
         idea: "Calibrate decision boundaries and evaluate classification ranking with confusion matrices and ROC curves.",
@@ -342,7 +349,7 @@ const chapters: Chapter[] = [
       },
       {
         href: "/projects/customer-segmentation",
-        num: "22",
+        num: "29",
         title: "Customer Retail Segmentation (K-Means)",
         summary: "Segment retail shoppers with unsupervised K-Means, standardizing features to discover cohesive behavioral cohorts.",
         idea: "Standardize multi-scale features and evaluate clustering cohesion using inertia and centroid analysis.",
@@ -437,13 +444,18 @@ export default function LearnPage() {
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     {chapter.subtitle}
                   </p>
-                  {GAME_FOR_CHAPTER[chapter.id] ? (
-                    <Link
-                      href={`/games/${GAME_FOR_CHAPTER[chapter.id]}`}
-                      className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-amber-950 hover:bg-amber-400"
-                    >
-                      🎮 Play it: {getGame(GAME_FOR_CHAPTER[chapter.id])?.title} →
-                    </Link>
+                  {(GAMES_FOR_CHAPTER[chapter.id] ?? []).length ? (
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {GAMES_FOR_CHAPTER[chapter.id].map((gid) => (
+                        <Link
+                          key={gid}
+                          href={`/games/${gid}`}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-amber-950 hover:bg-amber-400"
+                        >
+                          🎮 Play {getGame(gid)?.icon} {getGame(gid)?.title} →
+                        </Link>
+                      ))}
+                    </div>
                   ) : null}
                 </div>
 

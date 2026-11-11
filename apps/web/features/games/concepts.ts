@@ -2,6 +2,78 @@ import type { Concept } from "./framework/types";
 
 /** Game level → the concept it teaches. Keyed by `${gameId}:${levelId}`. */
 export const CONCEPTS: Record<string, Concept> = {
+  "bridge:line": {
+    title: "Linear regression",
+    href: "/learn/linear-regression",
+    played: "Your straight bridge was the model ŷ = w·x + b: the height of its left and right ends set the slope w and the bias b. The red lines were the errors, and the score compared your error with the least-squares line.",
+    matters: "Linear regression is the first model for any 'predict a number' problem, and the least-squares idea (make the squared errors small) underlies almost every model you'll train.",
+  },
+  "bridge:degree": {
+    title: "Polynomial regression and overfitting",
+    href: "/learn/polynomial-regression",
+    played: "Bendiness was the polynomial degree. Low degrees couldn't follow the canyon (underfit). High degrees hit every pillar but wiggled between them, so test trucks fell (overfit). The best bridge had the lowest test error, not the lowest training error.",
+    matters: "Choosing model complexity is the central decision in ML, and it must be made on held-out data.",
+  },
+  "bridge:ridge": {
+    title: "Ridge regularization",
+    href: "/learn/regularization",
+    played: "Stiffness was λ in Ridge regression. With λ near zero the degree-12 bridge wiggled through every pillar; with a huge λ it went flat. The right λ kept the shape without the wiggles.",
+    matters: "Regularization lets you use a flexible model without overfitting. Tuning λ on validation data is routine in practice.",
+  },
+  "bridge:lasso": {
+    title: "Lasso and feature selection",
+    href: "/learn/regularization",
+    played: "Each beam was a feature and its thickness its weight. Raising Lasso's λ cut junk beams (weights became exactly zero) while the real ones survived, until λ got so big it cut real beams too.",
+    matters: "Lasso gives simpler, more explainable models and automatically drops irrelevant features.",
+  },
+  "sorter:knn": {
+    title: "K-Nearest Neighbours",
+    href: "/learn/k-nearest-neighbors",
+    played: "Each spot on the map was sorted by a vote of its K nearest known creatures. K = 1 copied single creatures, including mislabelled ones (jagged map, worse on new arrivals). Very large K blurred everything. The middle won.",
+    matters: "KNN shows the bias–variance trade-off with a single dial, and it's the idea behind similarity search and recommendations.",
+  },
+  "sorter:scale": {
+    title: "Feature scaling for distance-based models",
+    href: "/learn/k-nearest-neighbors",
+    played: "Weight in grams had numbers in the hundreds, so raw distances ignored wing length, which actually decided the species. Putting features in the same units (standardizing) fixed it instantly.",
+    matters: "KNN, K-Means and SVMs all measure distance. Always standardize features before using them.",
+  },
+  "sorter:tree": {
+    title: "Decision tree splits and Gini impurity",
+    href: "/learn/decision-trees",
+    played: "At each node you chose the question that split the group into the purest halves. The score was the impurity (Gini) drop of your question compared with the best one available.",
+    matters: "This greedy 'best question first' search is exactly how decision trees, random forests and gradient boosting build their trees.",
+  },
+  "sorter:depth": {
+    title: "Tree depth and overfitting",
+    href: "/learn/decision-trees",
+    played: "Deep trees kept asking questions until every region held one creature: 100% on known creatures, worse on new ones. Shallow trees couldn't follow the shape. The best depth was in between.",
+    matters: "Max depth (and min samples per leaf) is the main control against overfitting in tree models.",
+  },
+  "galaxy:dendro": {
+    title: "Hierarchical clustering and dendrograms",
+    href: "/learn/hierarchical-clustering",
+    played: "The family tree recorded every merge of the closest groups and the distance at which it happened. Your cut height decided how many galaxies you got: the best cut sat in the biggest gap.",
+    matters: "Dendrograms show structure at every scale and let you pick the number of clusters after seeing the data.",
+  },
+  "galaxy:linkage": {
+    title: "Linkage methods",
+    href: "/learn/hierarchical-clustering",
+    played: "Single linkage (closest pair) followed long streams and rings but glued galaxies together through a thin bridge. Complete linkage (farthest pair) kept them compact.",
+    matters: "The linkage choice can completely change hierarchical clustering results, so match it to the shape of your data.",
+  },
+  "galaxy:eps": {
+    title: "DBSCAN and the eps radius",
+    href: "/learn/dbscan",
+    played: "ε was how far each star's light reached. Stars within reach of dense stars chained into one galaxy. Too small and everything was noise; too large and galaxies merged.",
+    matters: "DBSCAN finds clusters of any shape without choosing K, but ε has to suit the data's density.",
+  },
+  "galaxy:noise": {
+    title: "Outliers and minPts",
+    href: "/learn/dbscan",
+    played: "minPts set how many neighbours a star needed to count as dense. Raising it marked lonely dust as noise instead of forcing it into a galaxy.",
+    matters: "DBSCAN is widely used for anomaly detection because it labels points in sparse regions as outliers.",
+  },
   "descent:eyeball": {
     title: "Gradient descent",
     href: "/learn/gradient-descent",
@@ -28,7 +100,7 @@ export const CONCEPTS: Record<string, Concept> = {
   },
   "threshold:sigmoid": {
     title: "Logistic regression and the decision threshold",
-    href: "/labs/logistic-regression",
+    href: "/learn/logistic-regression",
     played: "The oracle's suspicion bar was a classifier's predicted probability. Your gate level was the threshold that turns that probability into a yes or no decision.",
     matters: "Logistic regression and most classifiers output probabilities, not decisions. Someone has to choose the cut-off, and 0.5 is only a default.",
   },
@@ -52,7 +124,7 @@ export const CONCEPTS: Record<string, Concept> = {
   },
   "clusters:elbow": {
     title: "Choosing K (the elbow method)",
-    href: "/labs/k-means",
+    href: "/learn/k-means",
     played: "Walking distance was the inertia (total squared distance to the nearest centroid) and each dog was one cluster. More dogs always meant less walking, so you used the point where another dog stopped saving much: the elbow.",
     matters: "K-Means can't tell you how many clusters exist. The elbow on the inertia curve is the standard first way to pick K.",
   },
@@ -64,13 +136,13 @@ export const CONCEPTS: Record<string, Concept> = {
   },
   "clusters:units": {
     title: "Feature scaling for clustering",
-    href: "/labs/k-means",
+    href: "/learn/k-means",
     played: "The dogs measured distance in raw numbers, so income (tens of thousands) drowned out visits (under 30) and two flocks that differed only in visits merged. Fixing the map scale (standardizing) let both features count.",
     matters: "Any distance-based method (K-Means, KNN, SVM) is dominated by large-number features. Standardize before clustering, every time.",
   },
   "clusters:rings": {
     title: "K-Means vs density-based clustering",
-    href: "/labs/k-means",
+    href: "/learn/dbscan",
     played: "Sheepdogs (K-Means) each guard a round patch with straight borders, so they sliced rings and moons in half. Follow-the-leader (DBSCAN) chained close neighbours together and followed any shape.",
     matters: "K-Means assumes round, similar-sized blobs. For curved or irregular groups (and for finding outliers) use a density method like DBSCAN.",
   },

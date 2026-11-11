@@ -2,7 +2,10 @@
  * The single list of games. The hub, routes, lesson links and badge list all read from here.
  * Adding a game = write its Round component, then add one entry below (and its level IDs to the API's GAME_LEVELS).
  */
+import { BridgeRound } from "./bridge/round";
 import { ClustersRound } from "./clusters/round";
+import { GalaxyRound } from "./galaxy/round";
+import { SorterRound } from "./sorter/round";
 import { DescentRound } from "./descent/round";
 import type { GameDef, GameId, LevelDef } from "./framework/types";
 import { NeuronsRound } from "./neurons/round";
@@ -32,9 +35,26 @@ export const GAMES: GameDef[] = [
     ],
   },
   {
+    id: "bridge",
+    guide: GUIDES.bridge,
+    chapter: 2,
+    chapterTitle: "Regression",
+    title: "Bridge Builder",
+    icon: "🌉",
+    tagline: "Build bridges across canyons. Fit the pillars, but only test trucks tell you if it holds.",
+    accent: "sky",
+    Round: BridgeRound,
+    levels: [
+      lv("bridge", { id: "line", number: 1, name: "Straight bridge", brief: "A straight bridge over the pillars. Get it as close to all of them as you can.", howTo: "Drag the two orange ends of the bridge, then open it to traffic.", objective: "Get your error close to the least-squares line on 3 canyons.", lesson: "Linear regression picks the line with the smallest squared errors.", lessonSlug: "linear-regression", stars: [450, 700, 880] }),
+      lv("bridge", { id: "degree", number: 2, name: "Bendy bridge", brief: "Now the bridge can bend. More bends hug the pillars better, but can trucks still cross?", howTo: "Pick the degree (1–12), then send the test trucks. One shot per canyon.", objective: "Pick the degree with the lowest test error on 3 canyons.", lesson: "The best complexity minimises test error, not training error.", lessonSlug: "polynomial-regression", stars: [450, 700, 880] }),
+      lv("bridge", { id: "ridge", number: 3, name: "Stiff bridge", brief: "A super-bendy degree-12 bridge. Add stiffness to stop it wiggling.", howTo: "Slide stiffness λ, then send the test trucks.", objective: "Find the λ with the lowest test error on 3 canyons.", lesson: "Ridge regularization calms a flexible model down.", lessonSlug: "regularization", stars: [450, 700, 880] }),
+      lv("bridge", { id: "lasso", number: 4, name: "Cut the junk beams", brief: "8 support beams, only 3 actually carry weight. Junk beams make the bridge fit noise.", howTo: "Slide Lasso λ and watch beams get cut, then load the test traffic.", objective: "Keep the real beams, cut the junk, keep test error low.", lesson: "Lasso drives useless feature weights to exactly zero.", lessonSlug: "regularization", stars: [450, 700, 880] }),
+    ],
+  },
+  {
     id: "threshold",
     guide: GUIDES.threshold,
-    chapter: 2,
+    chapter: 3,
     chapterTitle: "Classification",
     title: "Gatekeeper",
     icon: "🏰",
@@ -42,16 +62,33 @@ export const GAMES: GameDef[] = [
     accent: "rose",
     Round: ThresholdRound,
     levels: [
-      lv("threshold", { id: "sigmoid", number: 1, name: "First night", brief: "Monsters and villagers arrive cloaked. Only the oracle's suspicion bar tells them apart.", howTo: "Slide the gate level while they walk. Anyone at or above it is refused.", objective: "Keep monsters out without turning villagers away.", lesson: "A probability becomes a decision only when you pick a threshold.", stars: [450, 700, 880] }),
-      lv("threshold", { id: "balanced", number: 2, name: "Foggy oracle", brief: "The oracle is unsure tonight. Monsters and villagers have similar scores.", howTo: "Slide the gate level. Both mistakes cost the same.", objective: "Find the gate level with the fewest total mistakes.", lesson: "Raising the threshold trades false alarms for misses, and vice versa.", stars: [450, 700, 880] }),
-      lv("threshold", { id: "screening", number: 3, name: "The plague", brief: "A plague carrier inside costs 25 castle health. Refusing a healthy traveller costs just 1 gold.", howTo: "Slide the gate level. Watch the damage, not the accuracy.", objective: "Keep total damage near the minimum.", lesson: "When misses are expensive, lower the threshold, even if accuracy drops.", stars: [450, 700, 880] }),
-      lv("threshold", { id: "fraud", number: 4, name: "Spies among us", brief: "Only 1 merchant in 20 is a spy. Letting everyone in looks 95% accurate.", howTo: "Slide the gate level. Ignore the accuracy number.", objective: "Catch the spies without refusing the whole market.", lesson: "On rare events accuracy lies. Count what you caught and what mistakes cost.", stars: [450, 700, 880] }),
+      lv("threshold", { id: "sigmoid", number: 1, name: "First night", brief: "Monsters and villagers arrive cloaked. Only the oracle's suspicion bar tells them apart.", howTo: "Slide the gate level while they walk. Anyone at or above it is refused.", objective: "Keep monsters out without turning villagers away.", lesson: "A probability becomes a decision only when you pick a threshold.", lessonSlug: "logistic-regression", stars: [450, 700, 880] }),
+      lv("threshold", { id: "balanced", number: 2, name: "Foggy oracle", brief: "The oracle is unsure tonight. Monsters and villagers have similar scores.", howTo: "Slide the gate level. Both mistakes cost the same.", objective: "Find the gate level with the fewest total mistakes.", lesson: "Raising the threshold trades false alarms for misses, and vice versa.", lessonSlug: "logistic-regression", stars: [450, 700, 880] }),
+      lv("threshold", { id: "screening", number: 3, name: "The plague", brief: "A plague carrier inside costs 25 castle health. Refusing a healthy traveller costs just 1 gold.", howTo: "Slide the gate level. Watch the damage, not the accuracy.", objective: "Keep total damage near the minimum.", lesson: "When misses are expensive, lower the threshold, even if accuracy drops.", lessonSlug: "logistic-regression", stars: [450, 700, 880] }),
+      lv("threshold", { id: "fraud", number: 4, name: "Spies among us", brief: "Only 1 merchant in 20 is a spy. Letting everyone in looks 95% accurate.", howTo: "Slide the gate level. Ignore the accuracy number.", objective: "Catch the spies without refusing the whole market.", lesson: "On rare events accuracy lies. Count what you caught and what mistakes cost.", lessonSlug: "logistic-regression", stars: [450, 700, 880] }),
+    ],
+  },
+  {
+    id: "sorter",
+    guide: GUIDES.sorter,
+    chapter: 3,
+    chapterTitle: "Classification",
+    title: "Creature Sorter",
+    icon: "🐞",
+    tagline: "Sort ladybirds and bees with neighbour votes and question trees. New arrivals are the real test.",
+    accent: "amber",
+    Round: SorterRound,
+    levels: [
+      lv("sorter", { id: "knn", number: 1, name: "Ask the neighbours", brief: "Some of your hand-sorted creatures were labelled wrong. Sort new ones by asking their nearest neighbours.", howTo: "Pick K, watch the sorting map, then release the new creatures.", objective: "Sort as many new creatures correctly as possible in 3 habitats.", lesson: "Too few neighbours copies noise; too many blurs everything.", lessonSlug: "k-nearest-neighbors", stars: [450, 700, 880] }),
+      lv("sorter", { id: "scale", number: 2, name: "Grams vs centimetres", brief: "Weight is in grams (hundreds), wing length in cm (under 6). Only wing length tells species apart.", howTo: "Decide whether to put features in the same units, then release the new creatures.", objective: "Sort new creatures correctly in 3 habitats.", lesson: "Distance-based models need standardized features.", lessonSlug: "k-nearest-neighbors", stars: [450, 700, 880] }),
+      lv("sorter", { id: "tree", number: 3, name: "Ask the right question", brief: "Build a sorting flowchart. At each step, choose the yes/no question that separates the species best.", howTo: "Compare how each question splits the group, then pick one. Up to 3 questions.", objective: "Pick the best question at every node in 2 habitats.", lesson: "Trees choose the split that makes the groups purest (lowest Gini).", lessonSlug: "decision-trees", stars: [500, 750, 900] }),
+      lv("sorter", { id: "depth", number: 4, name: "Too many questions", brief: "The computer builds the tree for you. You choose how many questions deep it may go.", howTo: "Pick a max depth, watch the map, then release the new creatures.", objective: "Find the depth that sorts new creatures best in 3 habitats.", lesson: "Deep trees memorise noise. Limit depth to generalise.", lessonSlug: "decision-trees", stars: [450, 700, 880] }),
     ],
   },
   {
     id: "clusters",
     guide: GUIDES.clusters,
-    chapter: 3,
+    chapter: 4,
     chapterTitle: "Clustering",
     title: "Sheepdog",
     icon: "🐕",
@@ -59,16 +96,33 @@ export const GAMES: GameDef[] = [
     accent: "violet",
     Round: ClustersRound,
     levels: [
-      lv("clusters", { id: "elbow", number: 1, name: "Hire the dogs", brief: "More dogs means less walking for the sheep, but every dog costs wages.", howTo: "Hire or fire dogs and watch the cost bars, then sign contracts.", objective: "Hire the right number of dogs on 3 farms.", lesson: "Inertia always falls with more clusters. Pick K at the elbow.", stars: [500, 700, 900] }),
-      lv("clusters", { id: "start", number: 2, name: "Drop zone", brief: "Where the dogs start decides which flocks they end up herding.", howTo: "Tap the field to drop 4 dogs, then whistle. Re-dropping costs points.", objective: "Herd 3 fields with walking distance close to the best possible.", lesson: "Bad starts trap K-Means. Spread them out or use k-means++.", stars: [500, 700, 900] }),
-      lv("clusters", { id: "units", number: 3, name: "Wrong map scale", brief: "This map counts income in big numbers and visits in tiny ones. The dogs only see the big numbers.", howTo: "Fix the map scale (standardize), choose the number of dogs, whistle.", objective: "Find the real customer flocks on 3 farms.", lesson: "Distance is dominated by big-number features. Standardize first.", stars: [500, 700, 900] }),
-      lv("clusters", { id: "rings", number: 4, name: "Strange shapes", brief: "Blobs, rings and moons. Dogs guard round patches. Can they herd a ring?", howTo: "Look at the field, then send sheepdogs (K-Means) or follow-the-leader (DBSCAN). One try.", objective: "Separate the true flocks on all 3 fields.", lesson: "K-Means draws straight borders. Density clustering follows any shape.", stars: [500, 700, 900] }),
+      lv("clusters", { id: "elbow", number: 1, name: "Hire the dogs", brief: "More dogs means less walking for the sheep, but every dog costs wages.", howTo: "Hire or fire dogs and watch the cost bars, then sign contracts.", objective: "Hire the right number of dogs on 3 farms.", lesson: "Inertia always falls with more clusters. Pick K at the elbow.", lessonSlug: "k-means", stars: [500, 700, 900] }),
+      lv("clusters", { id: "start", number: 2, name: "Drop zone", brief: "Where the dogs start decides which flocks they end up herding.", howTo: "Tap the field to drop 4 dogs, then whistle. Re-dropping costs points.", objective: "Herd 3 fields with walking distance close to the best possible.", lesson: "Bad starts trap K-Means. Spread them out or use k-means++.", lessonSlug: "k-means", stars: [500, 700, 900] }),
+      lv("clusters", { id: "units", number: 3, name: "Wrong map scale", brief: "This map counts income in big numbers and visits in tiny ones. The dogs only see the big numbers.", howTo: "Fix the map scale (standardize), choose the number of dogs, whistle.", objective: "Find the real customer flocks on 3 farms.", lesson: "Distance is dominated by big-number features. Standardize first.", lessonSlug: "k-means", stars: [500, 700, 900] }),
+      lv("clusters", { id: "rings", number: 4, name: "Strange shapes", brief: "Blobs, rings and moons. Dogs guard round patches. Can they herd a ring?", howTo: "Look at the field, then send sheepdogs (K-Means) or follow-the-leader (DBSCAN). One try.", objective: "Separate the true flocks on all 3 fields.", lesson: "K-Means draws straight borders. Density clustering follows any shape.", lessonSlug: "dbscan", stars: [500, 700, 900] }),
+    ],
+  },
+  {
+    id: "galaxy",
+    guide: GUIDES.galaxy,
+    chapter: 4,
+    chapterTitle: "Clustering",
+    title: "Star Mapper",
+    icon: "🔭",
+    tagline: "Map galaxies from raw starlight with family trees and density. No labels, no K given.",
+    accent: "violet",
+    Round: GalaxyRound,
+    levels: [
+      lv("galaxy", { id: "dendro", number: 1, name: "Cut the family tree", brief: "The star family tree shows every merge of nearby groups. Where you cut it decides the galaxies.", howTo: "Drag the red cut line on the tree, then publish the map.", objective: "Find the real galaxies in 3 skies.", lesson: "Cut the dendrogram at the biggest gap in merge distances.", lessonSlug: "hierarchical-clustering", stars: [500, 750, 900] }),
+      lv("galaxy", { id: "linkage", number: 2, name: "Measure the gap", brief: "Is the distance between two galaxies their closest stars, or their farthest?", howTo: "Pick single or complete linkage. One try per sky.", objective: "Pick the linkage that finds the real galaxies in 3 skies.", lesson: "Single linkage follows chains; complete linkage keeps groups compact.", lessonSlug: "hierarchical-clustering", stars: [500, 750, 900] }),
+      lv("galaxy", { id: "eps", number: 3, name: "Reach of light", brief: "Stars whose light reaches each other join the same galaxy. Spirals and rings included.", howTo: "Slide ε (light reach), watch galaxies form, then publish.", objective: "Find the real galaxies in 3 skies.", lesson: "DBSCAN chains dense points, so it follows any shape.", lessonSlug: "dbscan", stars: [500, 750, 900] }),
+      lv("galaxy", { id: "noise", number: 4, name: "Space dust", brief: "Dust is scattered everywhere. Don't let it join a galaxy.", howTo: "Tune ε and minPts so dust turns grey (noise), then publish.", objective: "Keep the galaxies and flag the dust in 3 skies.", lesson: "minPts decides what counts as dense; the rest is noise.", lessonSlug: "dbscan", stars: [500, 820, 930] }),
     ],
   },
   {
     id: "neurons",
     guide: GUIDES.neurons,
-    chapter: 4,
+    chapter: 5,
     chapterTitle: "Neural networks",
     title: "Shield Builder",
     icon: "🛡️",
@@ -85,7 +139,7 @@ export const GAMES: GameDef[] = [
   {
     id: "pipeline",
     guide: GUIDES.pipeline,
-    chapter: 5,
+    chapter: 6,
     chapterTitle: "Data workflow",
     title: "Data Heist",
     icon: "🕵️",
@@ -111,13 +165,14 @@ export const ALL_LEVELS = GAMES.flatMap((g) =>
 export const levelsForLesson = (slug: string) =>
   GAMES.flatMap((g) => g.levels.filter((l) => l.lessonSlug === slug).map((l) => ({ game: g, level: l })));
 
-/** Game that matches a /learn chapter id. */
-export const GAME_FOR_CHAPTER: Record<string, GameId> = {
-  foundations: "descent",
-  supervised: "threshold",
-  unsupervised: "clusters",
-  "deep-learning": "neurons",
-  workflow: "pipeline",
+/** Games that practise each /learn chapter. */
+export const GAMES_FOR_CHAPTER: Record<string, GameId[]> = {
+  foundations: ["descent"],
+  regression: ["bridge"],
+  supervised: ["threshold", "sorter"],
+  unsupervised: ["clusters", "galaxy"],
+  "deep-learning": ["neurons"],
+  workflow: ["pipeline"],
 };
 
 /** Mirrors BADGES in apps/api/app/players/progress.py, for guests who have no server progress. */
@@ -128,8 +183,11 @@ export const BADGES = [
   { id: "unstoppable", title: "Unstoppable", description: "Keep a 7-day streak." },
   { id: "explorer", title: "Explorer", description: "Pass a level in every game." },
   { id: "descent-master", title: "Gradient guru", description: "3 stars on every Valley Runner level." },
+  { id: "bridge-master", title: "Chief engineer", description: "3 stars on every Bridge Builder level." },
   { id: "threshold-master", title: "Royal gatekeeper", description: "3 stars on every Gatekeeper level." },
+  { id: "sorter-master", title: "Head zookeeper", description: "3 stars on every Creature Sorter level." },
   { id: "clusters-master", title: "Top dog", description: "3 stars on every Sheepdog level." },
+  { id: "galaxy-master", title: "Astronomer royal", description: "3 stars on every Star Mapper level." },
   { id: "neurons-master", title: "Shield master", description: "3 stars on every Shield Builder level." },
   { id: "pipeline-master", title: "Master detective", description: "3 stars on every Data Heist level." },
   { id: "level-5", title: "Rising star", description: "Reach player level 5." },

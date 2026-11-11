@@ -10,7 +10,7 @@ import { CASES, caseScore } from "../pipeline/cases";
 
 describe("registry", () => {
   it("has 5 games x 4 levels with ascending star thresholds", () => {
-    expect(GAMES).toHaveLength(5);
+    expect(GAMES).toHaveLength(8);
     for (const g of GAMES) {
       expect(g.levels).toHaveLength(4);
       for (const l of g.levels) expect(l.stars[0] < l.stars[1] && l.stars[1] < l.stars[2]).toBe(true);

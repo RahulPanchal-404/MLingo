@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const navigationItems: { href: string; label: string; badge?: string }[] = [
   { href: "/", label: "Dashboard" },
   { href: "/learn", label: "Learn" },
+  { href: "/theory", label: "Theory & Math", badge: "New" },
   { href: "/labs", label: "Labs" },
   { href: "/workbench", label: "Workbench" },
   { href: "/experiments", label: "Experiments" },

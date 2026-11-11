@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import {
-  FOUNDATIONAL_LESSONS,
+  ALL_LESSONS,
   getLessonBySlug,
 } from "@/features/learning/lessons-data";
 import { LessonLayout } from "@/features/learning/components/lesson-layout";
@@ -12,7 +12,7 @@ type LessonPageProps = {
 };
 
 export function generateStaticParams() {
-  return FOUNDATIONAL_LESSONS.map((l) => ({ lessonSlug: l.slug }));
+  return ALL_LESSONS.map((l) => ({ lessonSlug: l.slug }));
 }
 
 export async function generateMetadata({

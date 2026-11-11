@@ -186,7 +186,7 @@ function NetDiagram({ cfg }: { cfg: NetConfig }) {
         </g>
       ))}
       {Array.from({ length: cfg.hidden }, (_, h) => (
-        <g key={h} className="g-pop">
+        <g key={h}>
           <circle cx={110} cy={hy(h)} r={13} fill="#0e7490" stroke="#22d3ee" strokeWidth={2} />
           <path d={act.icon} transform={`translate(${110 - 9},${hy(h) - 6}) scale(0.6)`} fill="none" stroke="white" strokeWidth={3} />
         </g>

@@ -182,3 +182,26 @@ describe("data heist", () => {
     expect(caseScore(0, 0, false)).toBe(0);
   });
 });
+
+describe("concepts", () => {
+  it("every level maps to a concept with a destination and both explanations", () => {
+    for (const g of GAMES)
+      for (const l of g.levels) {
+        expect(l.concept, `${g.id}:${l.id}`).toBeTruthy();
+        expect(l.concept.href.startsWith("/")).toBe(true);
+        expect(l.concept.played.length).toBeGreaterThan(40);
+        expect(l.concept.matters.length).toBeGreaterThan(40);
+      }
+  });
+});
+
+describe("guides", () => {
+  it("every game explains its story, goal, steps, win/lose and ML mapping", () => {
+    for (const g of GAMES) {
+      expect(g.guide.goal.length).toBeGreaterThan(40);
+      expect(g.guide.steps.length).toBeGreaterThanOrEqual(3);
+      expect(g.guide.map.length).toBeGreaterThanOrEqual(4);
+      expect(g.guide.win && g.guide.lose).toBeTruthy();
+    }
+  });
+});

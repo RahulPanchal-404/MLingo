@@ -19,6 +19,18 @@ export type LevelDef = {
   lessonSlug?: string;
   /** Score (0–1000) needed for 1, 2 and 3 stars. */
   stars: [number, number, number];
+  /** The ML concept this level teaches, and where to study it. */
+  concept: Concept;
+};
+
+export type Concept = {
+  title: string;
+  /** Page that teaches the concept (lesson, lab or workbench). */
+  href: string;
+  /** What the player just did, in game terms mapped to ML terms. */
+  played: string;
+  /** Why it matters in real machine learning. */
+  matters: string;
 };
 
 export type RoundResult = {
@@ -43,9 +55,25 @@ export type GameDef = {
   /** Tailwind color family used for the game's accents. */
   accent: "teal" | "violet" | "amber" | "rose" | "sky";
   levels: LevelDef[];
+  /** Shown before any level starts: what the game is and how to win it. */
+  guide: Guide;
   Round: ComponentType<RoundProps>;
 };
 
 export function starsForScore(score: number, thresholds: [number, number, number]): number {
   return thresholds.filter((t) => score >= t).length;
 }
+
+export type Guide = {
+  /** The story in two or three sentences. */
+  story: string;
+  /** The end objective of the whole game. */
+  goal: string;
+  /** Step-by-step how a round plays out. */
+  steps: string[];
+  /** How you win and lose. */
+  win: string;
+  lose: string;
+  /** Game element → the ML idea it stands for. */
+  map: [string, string][];
+};

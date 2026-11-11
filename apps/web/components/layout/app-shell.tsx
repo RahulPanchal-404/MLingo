@@ -1,9 +1,10 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { PrimaryNavigation } from "@/components/layout/primary-navigation";
 import { ThemeSwitch } from "@/features/theme/theme-switch";
 import { UserChip } from "@/features/players/user-chip";
+import { ConceptBridge } from "@/features/games/concept-bridge";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -35,7 +36,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="mx-auto grid max-w-[1480px] gap-8 px-4 sm:px-6 lg:px-8 py-8 md:grid-cols-[13rem_1fr]">
           <PrimaryNavigation className="hidden md:block" />
-          <main className="min-w-0 space-y-10">{children}</main>
+          <main className="min-w-0 space-y-10">
+            <Suspense fallback={null}>
+              <ConceptBridge />
+            </Suspense>
+            {children}
+          </main>
         </div>
       </div>
 

@@ -7,8 +7,9 @@ import { computeDatasetSummary } from "../summary";
 import { analyzeDataQuality } from "../quality";
 
 describe("Workbench Datasets & Metadata", () => {
-  it("provides deterministic educational datasets for all 3 tasks", () => {
-    expect(AVAILABLE_WORKBENCH_DATASETS).toHaveLength(3);
+  it("provides deterministic educational datasets for all 3 task types", () => {
+    // The catalogue grows over time; the three core task datasets must always exist.
+    expect(AVAILABLE_WORKBENCH_DATASETS.length).toBeGreaterThanOrEqual(3);
 
     const reg = getWorkbenchDataset("housing_regression");
     expect(reg.taskType).toBe("regression");

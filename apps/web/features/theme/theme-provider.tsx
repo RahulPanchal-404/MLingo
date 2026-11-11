@@ -5,43 +5,53 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import type { Theme, ResolvedTheme, ThemeContextValue } from "./theme-types";
 
 const THEME_STORAGE_KEY = "mlingo.theme";
+const THEME_CHANGE_EVENT = "mlingo:theme-change";
+const SYSTEM_DARK_QUERY = "(prefers-color-scheme: dark)";
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+// Used when localStorage is unavailable (e.g. blocked in a privacy mode).
+let inMemoryTheme: Theme | null = null;
+
+function readStoredTheme(): Theme {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === "light" || stored === "dark" || stored === "system") return stored;
+  } catch {
+    // LocalStorage access may fail in restricted environments
+  }
+  return inMemoryTheme ?? "system";
+}
+
+function subscribeToStoredTheme(onChange: () => void) {
+  window.addEventListener("storage", onChange); // other tabs
+  window.addEventListener(THEME_CHANGE_EVENT, onChange); // this tab
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(THEME_CHANGE_EVENT, onChange);
+  };
+}
+
+function subscribeToSystemTheme(onChange: () => void) {
+  const mediaQuery = window.matchMedia(SYSTEM_DARK_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+}
+
+const readSystemIsDark = () => window.matchMedia(SYSTEM_DARK_QUERY).matches;
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "system";
-    try {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-      if (stored === "light" || stored === "dark" || stored === "system") {
-        return stored;
-      }
-    } catch {
-      // LocalStorage access may fail in restricted environments
-    }
-    return "system";
-  });
-
-  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
-
-  // Listen to system changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      setSystemIsDark(e.matches);
-    };
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  // useSyncExternalStore renders the server snapshot during hydration, so the
+  // first client render matches the server HTML, then switches to the stored
+  // theme. Reading localStorage in a useState initializer caused a mismatch.
+  const theme = useSyncExternalStore<Theme>(subscribeToStoredTheme, readStoredTheme, () => "system");
+  const systemIsDark = useSyncExternalStore(subscribeToSystemTheme, readSystemIsDark, () => false);
 
   const resolvedTheme: ResolvedTheme =
     theme === "system" ? (systemIsDark ? "dark" : "light") : theme;
@@ -59,12 +69,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [resolvedTheme]);
 
   const setTheme = useCallback((nextTheme: Theme) => {
-    setThemeState(nextTheme);
+    inMemoryTheme = nextTheme;
     try {
       localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     } catch {
-      // Ignore
+      // Ignore; inMemoryTheme keeps this tab consistent
     }
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }, []);
 
   return (

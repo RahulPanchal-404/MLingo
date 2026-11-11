@@ -149,14 +149,14 @@ describe("Project Studio Storage & State Management", () => {
 
   it("computes overall project statistics across all projects", () => {
     const stats0 = getOverallProjectStats(ALL_PROJECTS);
-    expect(stats0.notStarted).toBe(3);
+    expect(stats0.notStarted).toBe(ALL_PROJECTS.length);
     expect(stats0.inProgress).toBe(0);
     expect(stats0.completed).toBe(0);
 
     // Start one project
     markMilestoneComplete("salary-prediction", "problem");
     const stats1 = getOverallProjectStats(ALL_PROJECTS);
-    expect(stats1.notStarted).toBe(2);
+    expect(stats1.notStarted).toBe(ALL_PROJECTS.length - 1);
     expect(stats1.inProgress).toBe(1);
     expect(stats1.completed).toBe(0);
   });

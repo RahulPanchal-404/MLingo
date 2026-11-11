@@ -154,7 +154,7 @@ export function NeuralNetworkLab({ breakMode }: NeuralNetworkLabProps = {}) {
 
   return (
     <div className="lab-layout">
-      <section className="lab-intro">
+      <section className="lab-intro" data-chapter style={{ ["--chapter-fill" as string]: "#ffd166" }}>
         <div className="lab-intro-copy">
           <p className="eyebrow">Lab 04 / Deep Learning Foundations</p>
           <h1>Neural network & backprop, frame by frame.</h1>

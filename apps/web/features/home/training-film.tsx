@@ -147,9 +147,9 @@ export function TrainingFilm() {
             >
               {s.kicker ? <p className="mb-5 text-[15px] text-slate-400">{s.kicker}</p> : null}
               {i === 0 ? (
-                <h1 className="text-[clamp(3.5rem,8vw,8rem)] text-[#eeece6]">{s.title}</h1>
+                <h1 className="text-[clamp(2.75rem,6.2vw,6rem)] text-[#eeece6]">{s.title}</h1>
               ) : (
-                <h2 className="text-[clamp(2.75rem,5.5vw,5.5rem)] text-[#eeece6]">{s.title}</h2>
+                <h2 className="text-[clamp(2.25rem,4.4vw,4.25rem)] text-[#eeece6]">{s.title}</h2>
               )}
               <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-slate-300 lg:mt-6 lg:text-lg">{s.body}</p>
             </div>
@@ -214,7 +214,7 @@ function StillFrame() {
     <section className="bg-slate-950 px-6 py-20 text-[#eeece6] sm:px-10 lg:px-[6vw]" aria-label="Training run, final frame">
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr]">
         <div>
-          <h1 className="text-[clamp(3.5rem,8vw,8rem)] text-[#eeece6]">Watch a model learn.</h1>
+          <h1 className="text-[clamp(2.75rem,6.2vw,6rem)] text-[#eeece6]">Watch a model learn.</h1>
           <p className="mt-6 max-w-[40ch] text-lg leading-relaxed text-slate-300">
             This line started out wrong and walked downhill for {STEPS} steps of gradient descent until the loss settled at {loss.toFixed(3)}. In MLingo you can pause, rewind and break any frame.
           </p>

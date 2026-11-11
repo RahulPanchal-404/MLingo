@@ -21,7 +21,7 @@ export default function LearnPage() {
         <header className="grid items-end gap-8 border-b-2 border-[var(--ink)] pb-10 lg:grid-cols-[1.5fr_1fr]">
           <div>
             <p className="mb-4 text-slate-500">{list.length} chapters, {totalLessons} lessons</p>
-            <h1 className="text-[clamp(3rem,7vw,5.5rem)] text-slate-950 dark:text-white">The learning path</h1>
+            <h1 className="text-[clamp(2.5rem,5.5vw,4.5rem)] text-slate-950 dark:text-white">The learning path</h1>
             <p className="mt-5 max-w-[50ch] text-lg leading-relaxed text-slate-600 dark:text-slate-400">
               Start with what a model is and how it learns, then work through regression, classification, clustering and neural networks. Every lesson ends with something to try.
             </p>
@@ -50,7 +50,7 @@ export default function LearnPage() {
                 <section aria-labelledby={`chapter-${chapter.id}`} className="min-w-0 pb-4">
                   <div className="flex flex-wrap items-start justify-between gap-6">
                     <div className="max-w-[46ch]">
-                      <h2 id={`chapter-${chapter.id}`} className="scroll-mt-28 text-[clamp(2rem,4vw,3rem)] text-slate-950 dark:text-white">
+                      <h2 id={`chapter-${chapter.id}`} className="scroll-mt-28 text-[clamp(1.6rem,3vw,2.4rem)] text-slate-950 dark:text-white">
                         {chapter.title}
                       </h2>
                       <p className="mt-3 text-slate-600 dark:text-slate-400">{chapter.subtitle}</p>

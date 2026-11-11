@@ -42,7 +42,7 @@ export function ChapterIndex() {
                   {i + 1}
                 </span>
                 <span
-                  className={`font-display text-[clamp(1.75rem,3vw,2.6rem)] leading-none transition-[color,transform] duration-300 ease-[var(--ease-enter)] ${
+                  className={`font-display text-[clamp(1.4rem,2.3vw,2rem)] leading-none transition-[color,transform] duration-300 ease-[var(--ease-enter)] ${
                     on ? "translate-x-2 text-slate-950 dark:text-white" : "text-slate-400 group-hover:text-slate-700 dark:text-slate-600 dark:group-hover:text-slate-300"
                   }`}
                 >

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Inter_Tight, Geist_Mono } from "next/font/google";
+import { Gabarito, Geist_Mono, Lexend } from "next/font/google";
 import "./globals.css";
 import { TutorProvider } from "@/features/tutor/tutor-provider";
 import { TutorLauncher } from "@/features/tutor/components/tutor-launcher";
@@ -9,16 +9,15 @@ import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 import { ThemeProvider, ThemeScript } from "@/features/theme/theme-provider";
 import { AuthProvider } from "@/features/players/auth-provider";
 
-const body = Inter_Tight({
+const body = Lexend({
   variable: "--font-body",
   subsets: ["latin"],
 });
 
-const display = Instrument_Serif({
+const display = Gabarito({
   variable: "--font-display-face",
   subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  weight: ["600", "700", "800"],
 });
 
 const geistMono = Geist_Mono({

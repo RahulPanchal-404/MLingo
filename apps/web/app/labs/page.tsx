@@ -221,7 +221,7 @@ export default function LabsPage() {
       <div className="space-y-10 py-2">
         {/* Hero Section */}
         <header className="grid items-end gap-8 border-b-2 border-[var(--ink)] pb-10 lg:grid-cols-[1.4fr_1fr]">
-          <h1 className="text-[clamp(3rem,7vw,5.5rem)] text-slate-950 dark:text-white">What do you want to watch learn?</h1>
+          <h1 className="text-[clamp(2.5rem,5.5vw,4.5rem)] text-slate-950 dark:text-white">What do you want to watch learn?</h1>
           <p className="max-w-[46ch] text-lg leading-relaxed text-slate-600 dark:text-slate-400">
             Each lab trains a real model in your browser. Scrub through the frames, change the settings, and watch the weights and the loss respond.
           </p>

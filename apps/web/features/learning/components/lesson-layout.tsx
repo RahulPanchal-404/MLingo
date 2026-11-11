@@ -21,7 +21,7 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
   return (
     <article className="max-w-4xl mx-auto space-y-8 pb-16">
       {/* Top Navigation Bar */}
-      <nav aria-label="Curriculum breadcrumb" className="flex items-center justify-between border-b border-slate-200 pb-4">
+      <nav aria-label="Curriculum breadcrumb" className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
         <Link
           href="/learn"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
@@ -34,7 +34,7 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </nav>
 
       {/* Header */}
-      <header className="relative space-y-4 overflow-hidden rounded-3xl border-2 border-slate-950 p-6 sm:p-8" style={{ background: color.fill }}>
+      <header className="light-island relative space-y-4 overflow-hidden rounded-3xl border-2 border-slate-950 p-6 sm:p-8" style={{ background: color.fill }}>
         <ChapterMotif id={chapterId} className="pointer-events-none absolute right-5 top-5 hidden h-24 w-40 sm:block" />
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="rounded-full bg-white/80 px-2.5 py-0.5 font-semibold text-slate-800">
@@ -53,7 +53,7 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
         </p>
 
         {lesson.prerequisites && (
-          <div className="rounded-xl bg-white/70 p-3 text-sm text-slate-600">
+          <div className="rounded-xl bg-white/70 p-3 text-sm text-slate-700">
             <span className="font-semibold text-slate-700">Prerequisites: </span>
             {lesson.prerequisites}
           </div>
@@ -61,27 +61,27 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </header>
 
       {/* Key Idea Callout Box */}
-      <section className="rounded-2xl border-2 border-slate-950 p-6 space-y-2" style={{ background: color.fill }}>
+      <section className="light-island rounded-2xl border-2 border-slate-950 p-6 space-y-2" style={{ background: color.fill }}>
         <div className="flex items-center gap-2">
           <span className="text-lg">💡</span>
           <span className="text-sm font-bold text-slate-950">
             Key Idea
           </span>
         </div>
-        <p className="text-sm font-semibold text-slate-900 leading-relaxed">
+        <p className="text-sm font-semibold text-slate-900 leading-relaxed dark:text-white">
           {lesson.keyIdea}
         </p>
       </section>
 
       {/* 1. What Am I Learning? */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
           <span>🎯</span> What am I learning?
         </h2>
         <ul className="space-y-2.5">
           {lesson.whatAmILearning.map((point, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-700 leading-relaxed">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold">
+            <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-700 leading-relaxed dark:text-slate-200">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold dark:bg-teal-950/40 dark:border-teal-800 dark:text-teal-200">
                 {idx + 1}
               </span>
               <span>{point}</span>
@@ -91,9 +91,9 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </section>
 
       {/* 2. Visual / Concept Intuition */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
             <span>🔬</span> Concept Intuition: {lesson.visual.title}
           </h2>
           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
@@ -107,11 +107,11 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
               key={idx}
               className={`rounded-xl border p-4 space-y-1.5 ${
                 item.highlight
-                  ? "border-teal-300 bg-teal-50/60 ring-1 ring-teal-200"
-                  : "border-slate-200 bg-slate-50/60"
+                  ? "border-teal-300 bg-teal-50/60 ring-1 ring-teal-200 dark:border-teal-800 dark:bg-teal-950/40"
+                  : "border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900"
               }`}
             >
-              <span className={`text-xs font-bold block ${item.highlight ? "text-teal-950" : "text-slate-800"}`}>
+              <span className={`text-xs font-bold block ${item.highlight ? "text-teal-950 dark:text-teal-200" : "text-slate-800 dark:text-slate-200"}`}>
                 {item.label}
               </span>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -123,8 +123,8 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </section>
 
       {/* 3. Why Does It Matter? */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3">
-        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
           <span>🌍</span> Why does it matter?
         </h2>
         <p className="text-xs text-slate-600 leading-relaxed">
@@ -133,43 +133,43 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </section>
 
       {/* 4. Concrete Example */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
           <span>📐</span> Concrete Example: {lesson.concreteExample.context}
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-800 dark:bg-slate-900">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Input</span>
-            <p className="font-mono text-slate-800">{lesson.concreteExample.input}</p>
+            <p className="font-mono text-slate-800 dark:text-slate-200">{lesson.concreteExample.input}</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-800 dark:bg-slate-900">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Model Prediction</span>
-            <p className="font-mono text-slate-800">{lesson.concreteExample.prediction}</p>
+            <p className="font-mono text-slate-800 dark:text-slate-200">{lesson.concreteExample.prediction}</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-800 dark:bg-slate-900">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">True Target</span>
-            <p className="font-mono text-slate-800">{lesson.concreteExample.target}</p>
+            <p className="font-mono text-slate-800 dark:text-slate-200">{lesson.concreteExample.target}</p>
           </div>
-          <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-3 space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800">Learning Insight</span>
-            <p className="text-teal-950">{lesson.concreteExample.errorNote}</p>
+          <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-3 space-y-1 dark:border-teal-800 dark:bg-teal-950/40">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200">Learning Insight</span>
+            <p className="text-teal-950 dark:text-teal-200">{lesson.concreteExample.errorNote}</p>
           </div>
         </div>
       </section>
 
       {/* 5. Think Before You Continue (Checkpoint) */}
       {lesson.thinkPrompt && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-teal-700 text-xs text-white">
               ?
             </span>
-            <h2 className="text-sm font-bold text-slate-900">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
               Think Before You Continue
             </h2>
           </div>
 
-          <p className="text-xs text-slate-700 font-medium">
+          <p className="text-xs text-slate-700 font-medium dark:text-slate-200">
             {lesson.thinkPrompt.question}
           </p>
 
@@ -184,9 +184,9 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
                   className={`w-full text-left rounded-xl border p-3 text-xs transition-all cursor-pointer ${
                     isSelected
                       ? opt.correct
-                        ? "border-emerald-500 bg-emerald-50/80 text-emerald-950 font-medium"
-                        : "border-amber-400 bg-amber-50/80 text-amber-950 font-medium"
-                      : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/60"
+                        ? "border-emerald-500 bg-emerald-50/80 text-emerald-950 font-medium dark:bg-emerald-950/40 dark:text-emerald-200"
+                        : "border-amber-400 bg-amber-50/80 text-amber-950 font-medium dark:bg-amber-950/40 dark:text-amber-200"
+                      : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -196,7 +196,7 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
                           ? opt.correct
                             ? "border-emerald-600 bg-emerald-600 text-white font-bold"
                             : "border-amber-600 bg-amber-600 text-white font-bold"
-                          : "border-slate-300 bg-white"
+                          : "border-slate-300 bg-white dark:border-slate-800 dark:bg-slate-900"
                       }`}
                     >
                       {isSelected ? (opt.correct ? "✓" : "!") : ""}
@@ -212,8 +212,8 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
             <div
               className={`rounded-xl border p-3 text-xs animate-in fade-in-50 duration-200 ${
                 selectedOption.correct
-                  ? "border-emerald-200 bg-emerald-50/60 text-emerald-900"
-                  : "border-amber-200 bg-amber-50/60 text-amber-900"
+                  ? "border-emerald-200 bg-emerald-50/60 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+                  : "border-amber-200 bg-amber-50/60 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
               }`}
             >
               <span className="font-bold mr-1">
@@ -226,13 +226,13 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       )}
 
       {/* 6. Now Try It Action Card */}
-      <section className="rounded-2xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white p-6 sm:p-8 shadow-xs space-y-5">
+      <section className="rounded-2xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white p-6 sm:p-8 shadow-xs space-y-5 dark:border-teal-800 dark:from-teal-950/40 dark:to-slate-900">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <span className="rounded-full bg-teal-100 text-teal-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+            <span className="rounded-full bg-teal-100 text-teal-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider dark:bg-teal-950/40 dark:text-teal-200">
               Hands-On Practice
             </span>
-            <h2 className="text-xl font-extrabold text-slate-900">
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
               {lesson.nowTryIt.headline}
             </h2>
           </div>
@@ -245,14 +245,14 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
           </Link>
         </div>
 
-        <div className="rounded-xl border border-teal-200 bg-white/90 p-4 space-y-2">
-          <span className="text-xs font-bold text-teal-950 uppercase tracking-wider block">
+        <div className="rounded-xl border border-teal-200 bg-white/90 p-4 space-y-2 dark:border-teal-800 dark:bg-slate-900">
+          <span className="text-xs font-bold text-teal-950 uppercase tracking-wider block dark:text-teal-200">
             What to observe in the lab:
           </span>
           <ul className="space-y-1.5">
             {lesson.nowTryIt.whatToObserve.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-xs text-slate-700">
-                <span className="text-teal-700 font-bold shrink-0">→</span>
+              <li key={idx} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
+                <span className="text-teal-700 font-bold shrink-0 dark:text-teal-200">→</span>
                 <span>{item}</span>
               </li>
             ))}
@@ -275,21 +275,21 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       ) : null}
 
       {levelsForLesson(lesson.slug).length ? (
-        <section className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-6 shadow-xs space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">🎮 Practice it: learn by playing</h2>
+        <section className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-6 shadow-xs space-y-3 dark:border-amber-800 dark:from-amber-950/40 dark:to-slate-900">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">🎮 Practice it: learn by playing</h2>
           <p className="text-sm text-slate-600">Put this lesson to work in a level that uses the real algorithm.</p>
           <ul className="space-y-2">
             {levelsForLesson(lesson.slug).map(({ game, level }) => (
               <li key={`${game.id}-${level.id}`}>
                 <Link
                   href={`/games/${game.id}?level=${level.id}`}
-                  className="group flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white px-4 py-3 hover:border-amber-400"
+                  className="group flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white px-4 py-3 hover:border-amber-400 dark:border-amber-800 dark:bg-slate-900"
                 >
                   <span>
-                    <span className="block text-xs font-mono uppercase tracking-wider text-amber-700">{game.title} · Level {level.number}</span>
-                    <span className="block font-semibold text-slate-900">{level.name}</span>
+                    <span className="block text-xs font-mono uppercase tracking-wider text-amber-700 dark:text-amber-200">{game.title} · Level {level.number}</span>
+                    <span className="block font-semibold text-slate-900 dark:text-white">{level.name}</span>
                   </span>
-                  <span className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-bold text-amber-950 group-hover:bg-amber-400">Play it →</span>
+                  <span className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-bold text-amber-950 group-hover:bg-amber-400 dark:text-amber-200">Play it →</span>
                 </Link>
               </li>
             ))}
@@ -298,11 +298,11 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       ) : null}
 
       {/* Lesson Navigation Footer */}
-      <footer className="flex items-center justify-between border-t border-slate-200 pt-6">
+      <footer className="flex items-center justify-between border-t border-slate-200 pt-6 dark:border-slate-800">
         {lesson.prevLesson ? (
           <Link
             href={`/learn/${lesson.prevLesson.slug}`}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
           >
             ← Previous: {lesson.prevLesson.title}
           </Link>

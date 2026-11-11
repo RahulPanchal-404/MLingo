@@ -49,19 +49,19 @@ export function PredictBeforeReveal({
   const isSelectedAccurate = selectedId === actualOutcome?.accurateOptionId;
 
   return (
-    <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/60 to-slate-50 p-5 shadow-xs space-y-4">
+    <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/60 to-slate-50 p-5 shadow-xs space-y-4 dark:border-teal-800 dark:from-teal-950/40">
       {/* Header Badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-700 text-sm text-white shadow-xs">
             🤔
           </span>
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-900">
+          <span className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-200">
             {title}
           </span>
         </div>
         {isLocked && !showOutcome && (
-          <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-semibold text-teal-800">
+          <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-semibold text-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
             Prediction locked in
           </span>
         )}
@@ -69,7 +69,7 @@ export function PredictBeforeReveal({
 
       {/* Question */}
       <div className="space-y-1">
-        <h3 className="text-sm font-bold text-slate-900 leading-snug">
+        <h3 className="text-sm font-bold text-slate-900 leading-snug dark:text-white">
           {question}
         </h3>
         {contextNote && (
@@ -85,17 +85,17 @@ export function PredictBeforeReveal({
           const isSelected = selectedId === opt.id;
           const isAccurate = actualOutcome?.accurateOptionId === opt.id;
 
-          let optionStyle = "border-slate-200 bg-white hover:border-slate-300 text-slate-700";
+          let optionStyle = "border-slate-200 bg-white hover:border-slate-300 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200";
           if (isSelected) {
-            optionStyle = "border-teal-600 bg-teal-50/80 text-teal-950 ring-1 ring-teal-600";
+            optionStyle = "border-teal-600 bg-teal-50/80 text-teal-950 ring-1 ring-teal-600 dark:bg-teal-950/40 dark:text-teal-200";
           }
           if (showOutcome) {
             if (isAccurate) {
-              optionStyle = "border-emerald-500 bg-emerald-50/90 text-emerald-950 ring-1 ring-emerald-500 font-semibold";
+              optionStyle = "border-emerald-500 bg-emerald-50/90 text-emerald-950 ring-1 ring-emerald-500 font-semibold dark:bg-emerald-950/40 dark:text-emerald-200";
             } else if (isSelected && !isAccurate) {
-              optionStyle = "border-amber-400 bg-amber-50/70 text-slate-700 line-through opacity-80";
+              optionStyle = "border-amber-400 bg-amber-50/70 text-slate-700 line-through opacity-80 dark:bg-amber-950/40 dark:text-slate-200";
             } else {
-              optionStyle = "border-slate-200 bg-white/70 text-slate-400 opacity-60";
+              optionStyle = "border-slate-200 bg-white/70 text-slate-400 opacity-60 dark:border-slate-800 dark:bg-slate-900";
             }
           }
 
@@ -114,7 +114,7 @@ export function PredictBeforeReveal({
                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px] ${
                     isSelected
                       ? "border-teal-600 bg-teal-600 text-white font-bold"
-                      : "border-slate-300 bg-white"
+                      : "border-slate-300 bg-white dark:border-slate-800 dark:bg-slate-900"
                   }`}
                 >
                   {isSelected ? "✓" : ""}
@@ -122,7 +122,7 @@ export function PredictBeforeReveal({
                 <span>{opt.label}</span>
               </div>
               {showOutcome && isAccurate && (
-                <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                   Observed Outcome
                 </span>
               )}
@@ -147,14 +147,14 @@ export function PredictBeforeReveal({
 
       {/* Revealed Outcome Explanation */}
       {showOutcome && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2 animate-in fade-in-50 duration-200">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2 animate-in fade-in-50 duration-200 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2">
             <span className="text-base">{isSelectedAccurate ? "🎉" : "💡"}</span>
-            <div className="text-xs font-bold text-slate-900">
+            <div className="text-xs font-bold text-slate-900 dark:text-white">
               {isSelectedAccurate ? "Your hypothesis was confirmed!" : "Here is what actually happened:"}
             </div>
           </div>
-          <div className="text-xs font-semibold text-teal-900">
+          <div className="text-xs font-semibold text-teal-900 dark:text-teal-200">
             {actualOutcome.headline}
           </div>
           <p className="text-xs text-slate-600 leading-relaxed">

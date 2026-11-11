@@ -31,7 +31,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-[1320px] px-5 py-20 sm:px-8 lg:py-28">
         <div className="grid items-end gap-8 lg:grid-cols-[1.4fr_1fr]">
-          <h2 className="text-[clamp(2.75rem,6vw,5.5rem)] text-slate-950 dark:text-white">Now you drive.</h2>
+          <h2 className="text-[clamp(2.25rem,4.8vw,4.25rem)] text-slate-950 dark:text-white">Now you drive.</h2>
           <div className="space-y-6">
             <p className="max-w-[44ch] text-lg leading-relaxed text-slate-600 dark:text-slate-400">
               Every lesson ends with something to play with. Start with the five-minute tour, or jump straight into the first lesson.
@@ -49,13 +49,13 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-[1320px] px-5 pb-24 sm:px-8" aria-labelledby="chapters-heading">
-        <h2 id="chapters-heading" className="mb-8 text-[clamp(2.25rem,4vw,3.5rem)] text-slate-950 dark:text-white">What you will learn</h2>
+        <h2 id="chapters-heading" className="mb-8 text-[clamp(1.9rem,3.2vw,2.75rem)] text-slate-950 dark:text-white">What you will learn</h2>
         <ChapterIndex />
       </section>
 
       <section className="border-t-2 border-[var(--ink)] bg-white dark:bg-slate-900" aria-labelledby="pathways-heading">
         <div className="mx-auto grid max-w-[1320px] gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[1fr_2fr]">
-          <h2 id="pathways-heading" className="text-[clamp(2.25rem,4vw,3.5rem)] text-slate-950 dark:text-white">Beyond the lessons</h2>
+          <h2 id="pathways-heading" className="text-[clamp(1.9rem,3.2vw,2.75rem)] text-slate-950 dark:text-white">Beyond the lessons</h2>
           <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
             {PATHWAYS.map((group) => (
               <div key={group.title}>

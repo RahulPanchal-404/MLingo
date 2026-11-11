@@ -123,7 +123,7 @@ export function KMeansLab({ breakMode }: KMeansLabProps = {}) {
 
       return (
             <div className="lab-layout">
-                  <section className="lab-intro">
+                  <section className="lab-intro" data-chapter style={{ ["--chapter-fill" as string]: "#b9a6ff" }}>
                         <div className="lab-intro-copy">
                               <p className="eyebrow">Lab 03 / clustering</p>
                               <h1>K-Means, step by step.</h1>

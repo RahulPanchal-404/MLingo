@@ -5,7 +5,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
-import { MathBlock, TexText } from "@/features/theory/tex";
+import { WatchRow } from "@/features/learning/components/watch-row";
+import { CodeBlock, MathBlock, TexText } from "@/features/theory/tex";
 import { THEORY, getTheory } from "@/features/theory/topics";
 
 type TheoryPageProps = { params: Promise<{ slug: string }> };
@@ -72,6 +73,8 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
                 <div key={k} className="rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900">
                   <MathBlock tex={b.math} />
                 </div>
+              ) : "code" in b ? (
+                <CodeBlock key={k} code={b.code} />
               ) : "list" in b ? (
                 <ul key={k} className="list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
                   {b.list.map((item) => (
@@ -84,6 +87,7 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
             )}
           </section>
         ))}
+        <WatchRow slug={topic.slug} />
         <nav className="flex justify-between gap-4 border-t border-slate-200 pt-6 text-sm dark:border-slate-800">
           {prev ? <Link href={`/theory/${prev.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">← {prev.title}</Link> : <span />}
           {next ? <Link href={`/theory/${next.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">{next.title} →</Link> : <span />}

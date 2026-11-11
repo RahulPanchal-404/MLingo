@@ -25,6 +25,8 @@ export type LessonItem = {
   time: string;
   concepts: string[];
   tryIt: string;
+  /** Optional sub-heading inside a chapter (e.g. "Before you start"). */
+  group?: string;
 };
 
 export type Chapter = {
@@ -51,6 +53,78 @@ export const chapters: Chapter[] = [
     ),
     lessons: [
       {
+        href: "/learn/vectors-matrices-notation",
+        num: "P1",
+        title: "Vectors, Matrices & Notation",
+        summary: "How datasets, weights and predictions are written: shapes, dot products, norms.",
+        idea: "How datasets, weights and predictions are written: shapes, dot products, norms.",
+        difficulty: "Beginner",
+        time: "10 min",
+        concepts: [],
+        tryIt: "Start lesson →",
+        group: "Before you start: Math & Python",
+      },
+      {
+        href: "/learn/derivatives-chain-rule",
+        num: "P2",
+        title: "Derivatives & the Chain Rule",
+        summary: "Slopes tell a model which way to move; the chain rule finds them through layers.",
+        idea: "Slopes tell a model which way to move; the chain rule finds them through layers.",
+        difficulty: "Beginner",
+        time: "12 min",
+        concepts: [],
+        tryIt: "Start lesson →",
+        group: "Before you start: Math & Python",
+      },
+      {
+        href: "/learn/partial-derivatives-gradients",
+        num: "P3",
+        title: "Partial Derivatives & Gradients",
+        summary: "Every slope in one vector, and the update rule θ ← θ − η∇L.",
+        idea: "Every slope in one vector, and the update rule θ ← θ − η∇L.",
+        difficulty: "Beginner",
+        time: "12 min",
+        concepts: [],
+        tryIt: "Start lesson →",
+        group: "Before you start: Math & Python",
+      },
+      {
+        href: "/learn/probability-statistics",
+        num: "P4",
+        title: "Probability & Statistics Essentials",
+        summary: "Mean, spread, correlation, Bayes' rule and the normal distribution.",
+        idea: "Mean, spread, correlation, Bayes' rule and the normal distribution.",
+        difficulty: "Beginner",
+        time: "14 min",
+        concepts: [],
+        tryIt: "Start lesson →",
+        group: "Before you start: Math & Python",
+      },
+      {
+        href: "/learn/python-numpy-pandas",
+        num: "P5",
+        title: "Python for ML: NumPy & pandas",
+        summary: "Vectorised arrays and DataFrames: from a CSV file to model inputs.",
+        idea: "Vectorised arrays and DataFrames: from a CSV file to model inputs.",
+        difficulty: "Beginner",
+        time: "15 min",
+        concepts: [],
+        tryIt: "Start lesson →",
+        group: "Before you start: Math & Python",
+      },
+      {
+        href: "/learn/python-plotting-sklearn",
+        num: "P6",
+        title: "Plotting & the scikit-learn Workflow",
+        summary: "Plot first, then split, preprocess, fit, predict and evaluate.",
+        idea: "Plot first, then split, preprocess, fit, predict and evaluate.",
+        difficulty: "Beginner",
+        time: "12 min",
+        concepts: [],
+        tryIt: "Start lesson →",
+        group: "Before you start: Math & Python",
+      },
+      {
         href: "/learn/what-is-machine-learning",
         num: "01",
         title: "What is Machine Learning?",
@@ -60,6 +134,7 @@ export const chapters: Chapter[] = [
         time: "5 min",
         concepts: ["features", "targets", "predictions", "training vs inference"],
         tryIt: "Start lesson →",
+        group: "Core ideas",
       },
       {
         href: "/learn/how-models-learn",
@@ -71,6 +146,7 @@ export const chapters: Chapter[] = [
         time: "6 min",
         concepts: ["prediction", "error", "parameter updates", "repeated improvement"],
         tryIt: "Start lesson →",
+        group: "Core ideas",
       },
       {
         href: "/learn/loss-functions",
@@ -82,6 +158,7 @@ export const chapters: Chapter[] = [
         time: "6 min",
         concepts: ["loss", "error vs loss", "MSE", "objective function"],
         tryIt: "Start lesson →",
+        group: "Core ideas",
       },
       {
         href: "/learn/gradient-descent",
@@ -93,6 +170,7 @@ export const chapters: Chapter[] = [
         time: "7 min",
         concepts: ["gradient descent", "slope", "parameter updates", "convergence"],
         tryIt: "Start lesson →",
+        group: "Core ideas",
       },
       {
         href: "/learn/learning-rate",
@@ -104,6 +182,7 @@ export const chapters: Chapter[] = [
         time: "7 min",
         concepts: ["learning rate", "step size", "instability", "divergence"],
         tryIt: "Start lesson →",
+        group: "Core ideas",
       },
     ],
   },

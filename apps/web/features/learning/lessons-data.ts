@@ -1,4 +1,5 @@
 import { MODEL_LESSONS } from "./model-lessons";
+import { PREREQ_LESSONS } from "./prereq-lessons";
 
 export type LessonConceptVisual = {
   type: "diagram" | "equation" | "comparison" | "flow";
@@ -55,7 +56,7 @@ export const FOUNDATIONAL_LESSONS: LessonDefinition[] = [
     subtitle: "How models discover patterns from data instead of hand-written rules.",
     difficulty: "Beginner",
     estimatedMinutes: 5,
-    prerequisites: "Basic programming curiosity (Python or any language). No advanced math required.",
+    prerequisites: "None. If the maths or Python later feels unfamiliar, the Before you start lessons (P1 to P6) cover it.",
     whatAmILearning: [
       "Traditional programming vs machine learning: instead of writing exact if/else rules, a model adjusts internal parameters from examples.",
       "The core machine learning pipeline: Input Features (x) → Model (with internal parameters) → Prediction (ŷ).",
@@ -111,6 +112,7 @@ export const FOUNDATIONAL_LESSONS: LessonDefinition[] = [
         "Scrub the timeline in Step 3 to see how predictions improve frame by frame.",
       ],
     },
+    prevLesson: { title: "Plotting & the scikit-learn Workflow", slug: "python-plotting-sklearn" },
     nextLesson: { title: "How Does a Model Learn?", slug: "how-models-learn" },
   },
   {
@@ -391,7 +393,7 @@ export const FOUNDATIONAL_LESSONS: LessonDefinition[] = [
 ];
 
 /** Every lesson: foundations, then the model lessons (regression, classification, clustering). */
-export const ALL_LESSONS: LessonDefinition[] = [...FOUNDATIONAL_LESSONS, ...MODEL_LESSONS];
+export const ALL_LESSONS: LessonDefinition[] = [...PREREQ_LESSONS, ...FOUNDATIONAL_LESSONS, ...MODEL_LESSONS];
 
 export function getLessonBySlug(slug: string): LessonDefinition | undefined {
   return ALL_LESSONS.find((l) => l.slug === slug);

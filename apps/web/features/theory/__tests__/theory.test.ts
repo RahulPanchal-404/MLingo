@@ -18,7 +18,7 @@ describe("theory & math", () => {
     for (const t of THEORY)
       for (const s of t.sections)
         for (const b of s.blocks) {
-          const texts = "math" in b ? [b.math] : "list" in b ? b.list.flatMap(inline) : inline(b.p);
+          const texts = "code" in b ? [] : "math" in b ? [b.math] : "list" in b ? b.list.flatMap(inline) : inline(b.p);
           for (const tex of texts) expect(() => katex.renderToString(tex, { throwOnError: true }), `${t.slug}: ${tex}`).not.toThrow();
         }
   });

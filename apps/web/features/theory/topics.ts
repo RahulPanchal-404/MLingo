@@ -2,11 +2,11 @@
  * Theory & Math: the formal side of every topic. Text uses $…$ for inline maths;
  * `math` blocks are display equations (KaTeX syntax).
  */
-export type Block = { p: string } | { math: string } | { list: string[] };
+export type Block = { p: string } | { math: string } | { list: string[] } | { code: string };
 export type Section = { heading: string; blocks: Block[] };
 export type TheoryTopic = {
   slug: string;
-  group: "Foundations" | "Regression" | "Classification" | "Clustering" | "Neural networks" | "Workflow";
+  group: "Prerequisites" | "Foundations" | "Regression" | "Classification" | "Clustering" | "Neural networks" | "Workflow";
   title: string;
   summary: string;
   /** Matching lesson or lab, if there is one. */
@@ -16,9 +16,11 @@ export type TheoryTopic = {
   sections: Section[];
 };
 
+import { PREREQ_THEORY } from "./prereq-topics";
+
 const r = String.raw;
 
-export const THEORY: TheoryTopic[] = [
+const CORE_THEORY: TheoryTopic[] = [
   // ======================= Foundations =======================
   {
     slug: "what-is-machine-learning",
@@ -603,5 +605,7 @@ export const THEORY: TheoryTopic[] = [
   },
 ];
 
-export const THEORY_GROUPS = ["Foundations", "Regression", "Classification", "Clustering", "Neural networks", "Workflow"] as const;
+export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY];
+
+export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Clustering", "Neural networks", "Workflow"] as const;
 export const getTheory = (slug: string) => THEORY.find((t) => t.slug === slug);

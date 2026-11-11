@@ -26,11 +26,19 @@ export default function LearnPage() {
               Start with what a model is and how it learns, then work through regression, classification, clustering and neural networks. Every lesson ends with something to try.
             </p>
           </div>
-          <Link href={first.href} className="group block rounded-2xl border bg-white p-5 dark:bg-slate-900">
-            <span className="block text-sm text-slate-500">Start here</span>
-            <span className="mt-1 block text-xl font-bold text-slate-950 dark:text-white">{first.title}</span>
-            <span className="mt-1 block text-sm text-slate-600 dark:text-slate-400">{first.time} · {first.difficulty}</span>
-          </Link>
+          <div className="space-y-3">
+            <Link href={first.href} className="group block rounded-2xl border bg-white p-5 dark:bg-slate-900">
+              <span className="block text-sm text-slate-500">Start here</span>
+              <span className="mt-1 block text-xl font-bold text-slate-950 dark:text-white">{first.title}</span>
+              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-400">{first.time} · {first.difficulty}</span>
+            </Link>
+            <p className="px-1 text-sm text-slate-600 dark:text-slate-400">
+              Comfortable with the maths and Python already?{" "}
+              <Link href="/learn/what-is-machine-learning" className="font-semibold text-teal-700 underline-offset-4 hover:underline dark:text-teal-300">
+                Skip to What is Machine Learning?
+              </Link>
+            </p>
+          </div>
         </header>
 
         <ol className="mt-4">
@@ -61,8 +69,11 @@ export default function LearnPage() {
                   </div>
 
                   <ul className="mt-7 border-t-2 border-[var(--ink)]">
-                    {chapter.lessons.map((lesson) => (
+                    {chapter.lessons.map((lesson, li) => (
                       <li key={lesson.title} className="border-b-2 border-[var(--panel-line)]">
+                        {lesson.group && lesson.group !== chapter.lessons[li - 1]?.group ? (
+                          <p className={`pb-1 text-sm font-bold text-slate-950 dark:text-white ${li === 0 ? "pt-4" : "pt-8"}`}>{lesson.group}</p>
+                        ) : null}
                         <Link href={lesson.href} className="group relative grid grid-cols-[3rem_1fr_auto] items-baseline gap-4 py-4 pl-3 transition-colors duration-150 hover:bg-[var(--chapter-tint)]" style={{ ["--chapter-tint" as string]: `${color.fill}33` }}>
                           <span aria-hidden="true" className="absolute inset-y-2 left-0 w-1 origin-center scale-y-0 rounded-full transition-transform duration-200 ease-[var(--ease-enter)] group-hover:scale-y-100" style={{ background: color.ink }} />
                           <span className="text-sm font-semibold tabular-nums text-[var(--c-ink)] dark:text-[var(--c-fill)]" style={{ ["--c-ink" as string]: color.ink, ["--c-fill" as string]: color.fill }}>{lesson.num}</span>

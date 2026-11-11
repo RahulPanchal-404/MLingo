@@ -6,6 +6,7 @@ import { levelsForLesson } from "@/features/games/registry";
 import { getTheory } from "@/features/theory/topics";
 import type { LessonDefinition } from "../lessons-data";
 import { ChapterMotif } from "../chapter-motif";
+import { WatchRow } from "./watch-row";
 import { chapterForLabel, chapterStyle } from "../chapter-style";
 
 export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
@@ -247,7 +248,7 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
 
         <div className="rounded-xl border border-teal-200 bg-white/90 p-4 space-y-2 dark:border-teal-800 dark:bg-slate-900">
           <span className="text-xs font-bold text-teal-950 uppercase tracking-wider block dark:text-teal-200">
-            What to observe in the lab:
+            {lesson.nowTryIt.href.startsWith("/theory") ? "What you will find there:" : "What to observe in the lab:"}
           </span>
           <ul className="space-y-1.5">
             {lesson.nowTryIt.whatToObserve.map((item, idx) => (
@@ -261,7 +262,7 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </section>
 
       {/* Practice it in a game */}
-      {getTheory(lesson.slug) ? (
+      {getTheory(lesson.slug) && lesson.nowTryIt.href !== `/theory/${lesson.slug}` ? (
         <Link
           href={`/theory/${lesson.slug}`}
           className="flex items-center justify-between gap-4 rounded-2xl border border-violet-200 bg-violet-50/70 p-5 transition hover:border-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10"
@@ -296,6 +297,8 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
           </ul>
         </section>
       ) : null}
+
+      <WatchRow slug={lesson.slug} />
 
       {/* Lesson Navigation Footer */}
       <footer className="flex items-center justify-between border-t border-slate-200 pt-6 dark:border-slate-800">

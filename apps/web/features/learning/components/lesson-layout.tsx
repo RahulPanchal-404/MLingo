@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { levelsForLesson } from "@/features/games/registry";
 import type { LessonDefinition } from "../lessons-data";
 
 export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
@@ -251,6 +252,30 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
           </ul>
         </div>
       </section>
+
+      {/* Practice it in a game */}
+      {levelsForLesson(lesson.slug).length ? (
+        <section className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-6 shadow-xs space-y-3">
+          <h2 className="text-lg font-bold text-slate-900">🎮 Practice it: learn by playing</h2>
+          <p className="text-sm text-slate-600">Put this lesson to work in a level that uses the real algorithm.</p>
+          <ul className="space-y-2">
+            {levelsForLesson(lesson.slug).map(({ game, level }) => (
+              <li key={`${game.id}-${level.id}`}>
+                <Link
+                  href={`/games/${game.id}?level=${level.id}`}
+                  className="group flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white px-4 py-3 hover:border-amber-400"
+                >
+                  <span>
+                    <span className="block text-xs font-mono uppercase tracking-wider text-amber-700">{game.title} · Level {level.number}</span>
+                    <span className="block font-semibold text-slate-900">{level.name}</span>
+                  </span>
+                  <span className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-bold text-amber-950 group-hover:bg-amber-400">Play it →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {/* Lesson Navigation Footer */}
       <footer className="flex items-center justify-between border-t border-slate-200 pt-6">

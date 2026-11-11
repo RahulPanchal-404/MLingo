@@ -45,7 +45,7 @@ class AuthResponse(BaseModel):
 
 
 class GameResultIn(BaseModel):
-    game: Literal["golf", "rewind"]
+    game: Literal["descent", "threshold", "clusters", "neurons", "pipeline"]
     level_id: str = Field(min_length=1, max_length=40)
     stars: int = Field(ge=0, le=3)
     score: int = Field(ge=0)

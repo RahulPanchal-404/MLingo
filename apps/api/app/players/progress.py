@@ -12,9 +12,13 @@ from datetime import date, timedelta
 
 from app.players.store import ResultRecord
 
+# Keep in sync with the level IDs in apps/web/features/games/*/engine.ts.
 GAME_LEVELS: dict[str, list[str]] = {
-    "golf": ["bowl", "valley", "plateau", "bunker", "saddle", "canyon"],
-    "rewind": ["overshoot", "warmup", "outlier", "crawl"],
+    "descent": ["eyeball", "step-size", "ravine", "trap"],
+    "threshold": ["sigmoid", "balanced", "screening", "fraud"],
+    "clusters": ["elbow", "start", "units", "rings"],
+    "neurons": ["xor", "capacity", "saturate", "lr"],
+    "pipeline": ["leak", "overfit", "order", "metric"],
 }
 
 DAILY_XP_GOAL = 60
@@ -62,15 +66,22 @@ class Badge:
     description: str
 
 
+GAME_TITLES = {
+    "descent": ("Gradient guru", "Descent"),
+    "threshold": ("Threshold tuner", "Threshold"),
+    "clusters": ("Cluster commander", "Cluster Wars"),
+    "neurons": ("Neuron surgeon", "Neuron Surgeon"),
+    "pipeline": ("Pipeline detective", "Pipeline Detective"),
+}
+
+# Mirrored in apps/web/features/games/registry.ts (BADGES) for guests.
 BADGES: list[Badge] = [
-    Badge("first-steps", "First steps", "Finish your first game."),
+    Badge("first-steps", "First steps", "Pass your first level."),
+    Badge("first-try", "First try", "Pass a level on your first run."),
     Badge("on-fire", "On fire", "Keep a 3-day streak."),
     Badge("unstoppable", "Unstoppable", "Keep a 7-day streak."),
-    Badge("hole-in-one", "Hole in one", "Sink a Gradient Golf hole in a single shot."),
-    Badge("course-champion", "Course champion", "Get 3 stars on every golf hole."),
-    Badge("time-lord", "Time lord", "Save a run in Rewind using only one rewind."),
-    Badge("last-second", "Last second save", "Rewind in the final quarter of a run and still save it."),
-    Badge("rewind-master", "Rewind master", "Get 3 stars on every Rewind scenario."),
+    Badge("explorer", "Explorer", "Pass a level in every game."),
+    *[Badge(f"{game}-master", title, f"3 stars on every {name} level.") for game, (title, name) in GAME_TITLES.items()],
     Badge("level-5", "Rising star", "Reach player level 5."),
 ]
 
@@ -78,6 +89,8 @@ BADGES: list[Badge] = [
 def best_stars(results: list[ResultRecord]) -> dict[str, dict[str, dict[str, int]]]:
     best: dict[str, dict[str, dict[str, int]]] = {game: {} for game in GAME_LEVELS}
     for r in results:
+        if r.game not in GAME_LEVELS:  # results from retired games stay in history but don't count
+            continue
         entry = best.setdefault(r.game, {}).setdefault(r.level_id, {"stars": 0, "best_score": 0, "plays": 0})
         entry["stars"] = max(entry["stars"], r.stars)
         entry["best_score"] = max(entry["best_score"], r.score)
@@ -87,7 +100,7 @@ def best_stars(results: list[ResultRecord]) -> dict[str, dict[str, dict[str, int
 
 def earned_badges(results: list[ResultRecord], best_streak: int, level: int) -> set[str]:
     earned: set[str] = set()
-    if results:
+    if any(r.stars > 0 for r in results):
         earned.add("first-steps")
     if best_streak >= 3:
         earned.add("on-fire")
@@ -96,15 +109,11 @@ def earned_badges(results: list[ResultRecord], best_streak: int, level: int) -> 
     if level >= 5:
         earned.add("level-5")
     best = best_stars(results)
-    for r in results:
-        if r.game == "golf" and r.stars > 0 and r.meta.get("strokes") == 1:
-            earned.add("hole-in-one")
-        if r.game == "rewind" and r.stars > 0:
-            if r.meta.get("rewinds_used") == 1:
-                earned.add("time-lord")
-            if float(r.meta.get("rewind_fraction", 0)) >= 0.75:
-                earned.add("last-second")
-    for game, badge in (("golf", "course-champion"), ("rewind", "rewind-master")):
-        if all(best.get(game, {}).get(lvl, {}).get("stars", 0) == 3 for lvl in GAME_LEVELS[game]):
-            earned.add(badge)
+    if any(r.game in GAME_LEVELS and r.stars > 0 and r.meta.get("attempts") == 1 for r in results):
+        earned.add("first-try")
+    if all(any(lvl.get("stars", 0) > 0 for lvl in best.get(game, {}).values()) for game in GAME_LEVELS):
+        earned.add("explorer")
+    for game, levels in GAME_LEVELS.items():
+        if all(best.get(game, {}).get(lvl, {}).get("stars", 0) == 3 for lvl in levels):
+            earned.add(f"{game}-master")
     return earned

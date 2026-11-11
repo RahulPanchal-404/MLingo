@@ -86,26 +86,26 @@ def test_recording_results_updates_xp_streak_and_badges(client: TestClient) -> N
     result = client.post(
         "/api/v1/players/me/results",
         headers=_auth(token),
-        json={"game": "golf", "level_id": "bowl", "stars": 3, "score": 900, "meta": {"strokes": 1}, "local_date": str(TODAY)},
+        json={"game": "descent", "level_id": "eyeball", "stars": 3, "score": 900, "meta": {"attempts": 1}, "local_date": str(TODAY)},
     )
     assert result.status_code == 201
     body = result.json()
     assert body["xp_gained"] == 10 + 45 + 60
     assert body["streak_extended"] is True
     earned = {b["id"] for b in body["new_badges"]}
-    assert {"first-steps", "hole-in-one"} <= earned
+    assert {"first-steps", "first-try"} <= earned
 
     again = client.post(
         "/api/v1/players/me/results",
         headers=_auth(token),
-        json={"game": "golf", "level_id": "bowl", "stars": 3, "score": 950, "meta": {"strokes": 1}, "local_date": str(TODAY)},
+        json={"game": "descent", "level_id": "eyeball", "stars": 3, "score": 950, "meta": {"attempts": 1}, "local_date": str(TODAY)},
     ).json()
     assert again["xp_gained"] == 55
     assert again["new_badges"] == []
 
     progress = client.get(f"/api/v1/players/me/progress?local_date={TODAY}", headers=_auth(token)).json()
     assert progress["current_streak"] == 1
-    assert progress["games"]["golf"]["bowl"] == {"stars": 3, "best_score": 950, "plays": 2}
+    assert progress["games"]["descent"]["eyeball"] == {"stars": 3, "best_score": 950, "plays": 2}
     assert progress["calendar"][-1] == {"date": str(TODAY), "active": True}
 
 
@@ -115,7 +115,7 @@ def test_players_are_isolated(client: TestClient) -> None:
     client.post(
         "/api/v1/players/me/results",
         headers=_auth(a),
-        json={"game": "rewind", "level_id": "overshoot", "stars": 2, "score": 500, "local_date": str(TODAY)},
+        json={"game": "threshold", "level_id": "fraud", "stars": 2, "score": 500, "local_date": str(TODAY)},
     )
     progress_b = client.get(f"/api/v1/players/me/progress?local_date={TODAY}", headers=_auth(b)).json()
     assert progress_b["xp"] == 0 and progress_b["games_played"] == 0
@@ -126,13 +126,13 @@ def test_rejects_unknown_level_and_far_dates(client: TestClient) -> None:
     unknown = client.post(
         "/api/v1/players/me/results",
         headers=_auth(token),
-        json={"game": "golf", "level_id": "moon", "stars": 1, "score": 1, "local_date": str(TODAY)},
+        json={"game": "descent", "level_id": "moon", "stars": 1, "score": 1, "local_date": str(TODAY)},
     )
     assert unknown.status_code == 422
     future = client.post(
         "/api/v1/players/me/results",
         headers=_auth(token),
-        json={"game": "golf", "level_id": "bowl", "stars": 1, "score": 1, "local_date": str(TODAY + timedelta(days=5))},
+        json={"game": "descent", "level_id": "eyeball", "stars": 1, "score": 1, "local_date": str(TODAY + timedelta(days=5))},
     )
     assert future.status_code == 422
 
@@ -153,3 +153,30 @@ def test_levels_and_xp() -> None:
     assert level_for_xp(300) == (3, 0, 300)
     assert xp_for_result(0, 0) == 10
     assert xp_for_result(2, 1) == 60
+
+
+def test_explorer_and_master_badges(client: TestClient) -> None:
+    from app.players.progress import GAME_LEVELS
+
+    token = _signup(client, "grace@example.com")
+    earned: set[str] = set()
+    for game, levels in GAME_LEVELS.items():
+        for level in levels:
+            body = client.post(
+                "/api/v1/players/me/results",
+                headers=_auth(token),
+                json={"game": game, "level_id": level, "stars": 3, "score": 900, "meta": {"attempts": 1}, "local_date": str(TODAY)},
+            ).json()
+            earned |= {b["id"] for b in body["new_badges"]}
+    assert "explorer" in earned
+    assert {f"{game}-master" for game in GAME_LEVELS} <= earned
+
+
+def test_results_from_retired_games_do_not_break_progress() -> None:
+    from app.players.progress import best_stars
+    from app.players.store import ResultRecord
+
+    old = ResultRecord(id=1, game="golf", level_id="bowl", stars=3, score=900, xp=115, meta={}, local_date=str(TODAY), created_at="x")
+    best = best_stars([old])
+    assert "golf" not in best
+    assert set(best) == {"descent", "threshold", "clusters", "neurons", "pipeline"}

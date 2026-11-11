@@ -3,7 +3,8 @@ import { apiBaseUrl } from "@/lib/api";
 export type Player = { id: number; email: string; display_name: string; created_at: string };
 export type Badge = { id: string; title: string; description: string; earned: boolean };
 export type LevelBest = { stars: number; best_score: number; plays: number };
-export type GameId = "golf" | "rewind";
+import type { GameId } from "@/features/games/framework/types";
+export type { GameId };
 
 export type Progress = {
   player: Player;

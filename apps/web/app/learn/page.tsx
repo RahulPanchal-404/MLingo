@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
+import { GAME_FOR_CHAPTER, getGame } from "@/features/games/registry";
 
 type LessonItem = {
   href: string;
@@ -436,6 +437,14 @@ export default function LearnPage() {
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     {chapter.subtitle}
                   </p>
+                  {GAME_FOR_CHAPTER[chapter.id] ? (
+                    <Link
+                      href={`/games/${GAME_FOR_CHAPTER[chapter.id]}`}
+                      className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-amber-950 hover:bg-amber-400"
+                    >
+                      🎮 Play it: {getGame(GAME_FOR_CHAPTER[chapter.id])?.title} →
+                    </Link>
+                  ) : null}
                 </div>
 
                 {chapter.renderMiniVisual && (

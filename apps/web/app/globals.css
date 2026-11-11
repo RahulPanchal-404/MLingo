@@ -4,26 +4,26 @@
 
 :root {
   /* Surfaces */
-  --background: #f4f6fa;
-  --background-subtle: #eaeff5;
+  --background: #edf0ee;
+  --background-subtle: #e4e9e8;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
-  --surface-inset: #eef2f7;
+  --surface-inset: #e9edec;
 
   /* Typography */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --foreground: #0f172a;
+  --text-primary: #15213a;
+  --text-secondary: #4b5870;
+  --text-muted: #627083;
+  --foreground: #15213a;
 
   /* Borders */
-  --border: #cbd5e1;
-  --border-strong: #94a3b8;
+  --border: #c3ccd1;
+  --border-strong: #8996a3;
 
   /* Accent (MLingo Teal) */
-  --accent: #0f766e;
-  --accent-hover: #115e59;
-  --accent-soft: rgba(15, 118, 110, 0.1);
+  --accent: #2f49d8;
+  --accent-hover: #263bb4;
+  --accent-soft: rgba(47, 73, 216, 0.1);
 
   /* Status Colors */
   --success: #16a34a;
@@ -32,15 +32,15 @@
   --info: #0284c7;
 
   /* Charts & Visualizations */
-  --chart-primary: #0f766e;
-  --chart-secondary: #f59e0b;
+  --chart-primary: #2f49d8;
+  --chart-secondary: #e9a400;
   --chart-axis: #94a3b8;
   --chart-grid: #e2e8f0;
   --chart-point: #0284c7;
 
   /* Timeline */
   --timeline-track: #e2e8f0;
-  --timeline-playhead: #0f766e;
+  --timeline-playhead: #2f49d8;
   --timeline-marker: #d97706;
 
   /* Elevation Shadows */
@@ -54,26 +54,26 @@
 
 .dark {
   /* Surfaces */
-  --background: #080d1a;
-  --background-subtle: #0e1526;
-  --surface: #121a2d;
-  --surface-elevated: #1a253c;
-  --surface-inset: #0a0f1d;
+  --background: #0e182e;
+  --background-subtle: #121e37;
+  --surface: #16233f;
+  --surface-elevated: #1d2c4c;
+  --surface-inset: #0b1428;
 
   /* Typography */
-  --text-primary: #f8fafc;
+  --text-primary: #e7ecf4;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --foreground: #f8fafc;
+  --text-muted: #627083;
+  --foreground: #e7ecf4;
 
   /* Borders */
-  --border: #1e293b;
-  --border-strong: #334155;
+  --border: #243049;
+  --border-strong: #36435c;
 
   /* Accent (Teal / Cyan) */
-  --accent: #14b8a6;
-  --accent-hover: #2dd4bf;
-  --accent-soft: rgba(20, 184, 166, 0.16);
+  --accent: #8e9eff;
+  --accent-hover: #b0bcff;
+  --accent-soft: rgba(142, 158, 255, 0.16);
 
   /* Status Colors */
   --success: #22c55e;
@@ -82,15 +82,15 @@
   --info: #38bdf8;
 
   /* Charts & Visualizations */
-  --chart-primary: #14b8a6;
-  --chart-secondary: #f59e0b;
+  --chart-primary: #8e9eff;
+  --chart-secondary: #e9a400;
   --chart-axis: #334155;
   --chart-grid: #1e293b;
   --chart-point: #38bdf8;
 
   /* Timeline */
   --timeline-track: #1e293b;
-  --timeline-playhead: #14b8a6;
+  --timeline-playhead: #8e9eff;
   --timeline-marker: #fbbf24;
 
   /* Elevation Shadows */
@@ -129,14 +129,59 @@
   --color-timeline-track: var(--timeline-track);
   --color-timeline-playhead: var(--timeline-playhead);
   --color-timeline-marker: var(--timeline-marker);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display-face);
   --font-mono: var(--font-geist-mono);
+}
+
+/* ==========================================================================
+   ML Lingo identity: "loss landscape" palette.
+   Neutrals are ink-blue tinted (the map), the accent is cobalt (your model),
+   marigold is reserved for the descent path / live progress.
+   Remapping Tailwind's slate + teal scales reskins every page at once.
+   ========================================================================== */
+@theme {
+  --color-slate-50: #f4f6f5;
+  --color-slate-100: #e9edec;
+  --color-slate-200: #d6dddf;
+  --color-slate-300: #b7c2c8;
+  --color-slate-400: #8996a3;
+  --color-slate-500: #627083;
+  --color-slate-600: #4b5870;
+  --color-slate-700: #36435c;
+  --color-slate-800: #243049;
+  --color-slate-900: #182339;
+  --color-slate-950: #0e182e;
+
+  --color-teal-50: #eef1fe;
+  --color-teal-100: #dde3fd;
+  --color-teal-200: #bcc7fb;
+  --color-teal-300: #94a4f7;
+  --color-teal-400: #6c80f0;
+  --color-teal-500: #4a62e6;
+  --color-teal-600: #2f49d8;
+  --color-teal-700: #263bb4;
+  --color-teal-800: #22338f;
+  --color-teal-900: #1f2e72;
+  --color-teal-950: #141c45;
+
+  --color-marigold: #e9a400;
+  --color-contour: #c3ccd1;
+
+  /* Motion tokens (web-motion-design skill: Corporate personality) */
+  --ease-std: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --ease-settle: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --dur-quick: 200ms;
+  --dur-std: 300ms;
+  --dur-slow: 450ms;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   transition: background-color 150ms ease, color 150ms ease;
 }
 
@@ -3083,4 +3128,78 @@ button:disabled {
 }
 @media (prefers-reduced-motion: reduce) {
   .game-pop, .game-rise, .game-flicker, .game-shake, .game-confetti-piece, .game-crt { animation: none; }
+}
+
+
+/* ==========================================================================
+   Typography: Bricolage Grotesque for headings, Atkinson Hyperlegible body.
+   ========================================================================== */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display-face), var(--font-body), system-ui, sans-serif;
+  font-optical-sizing: auto;
+}
+h1 { letter-spacing: -0.025em; }
+h2, h3 { letter-spacing: -0.015em; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Motion system
+   ========================================================================== */
+
+/* Route change: one quiet entrance per page (template.tsx remounts per route). */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.page-enter { animation: page-enter var(--dur-std) var(--ease-enter) both; }
+
+/* Press feedback for primary actions. */
+.press { transition: transform 120ms var(--ease-std), background-color var(--dur-quick) var(--ease-std), border-color var(--dur-quick) var(--ease-std); }
+.press:active { transform: scale(0.97); }
+
+/* Hero signature: contour lines draw in, then the descent path traces to the minimum. */
+@keyframes contour-draw { to { stroke-dashoffset: 0; } }
+@keyframes descent-dot {
+  0% { offset-distance: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 1; }
+}
+@keyframes minimum-pulse {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.contour-line {
+  stroke-dasharray: var(--len, 1200);
+  stroke-dashoffset: var(--len, 1200);
+  animation: contour-draw 1100ms var(--ease-std) forwards;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.descent-path {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: contour-draw 800ms var(--ease-enter) 650ms forwards;
+}
+.descent-dot {
+  offset-rotate: 0deg;
+  animation: descent-dot 800ms var(--ease-enter) 650ms both;
+}
+.minimum-mark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: minimum-pulse 400ms var(--ease-settle) 1400ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

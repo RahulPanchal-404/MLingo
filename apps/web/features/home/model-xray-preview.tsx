@@ -31,9 +31,6 @@ export function ModelXRayPreview() {
     <section className="space-y-6" aria-labelledby="xray-preview-heading">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-0.5 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
-            <span>03 // DEEP INSPECTION</span>
-          </div>
           <h2
             id="xray-preview-heading"
             className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"

@@ -372,9 +372,6 @@ export default function LearnPage() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 px-3 py-0.5 text-xs font-mono font-semibold text-teal-800 dark:text-teal-300">
-                <span>CURRICULUM // LEARNING JOURNEY</span>
-              </div>
               <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white sm:text-4xl tracking-tight">
                 The MLingo Learning Journey
               </h1>

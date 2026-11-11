@@ -113,9 +113,6 @@ export function LearningLoopInteractive() {
   return (
     <section className="space-y-6" aria-labelledby="learning-loop-heading">
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-0.5 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
-          <span>04 // THE CORE PEDAGOGY</span>
-        </div>
         <h2
           id="learning-loop-heading"
           className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"

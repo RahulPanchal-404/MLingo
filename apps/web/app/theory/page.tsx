@@ -14,7 +14,7 @@ export default function TheoryIndexPage() {
     <AppShell>
       <div className="space-y-8">
         <header className="space-y-2">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-violet-700 dark:text-violet-300">Theory &amp; Math</p>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700 dark:text-teal-300">Theory &amp; Math</p>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">The maths behind every topic</h1>
           <p className="max-w-3xl text-slate-600 dark:text-slate-400">
             Lessons build intuition and games let you feel it. This section is for when you want the formal version: definitions, equations,
@@ -29,9 +29,9 @@ export default function TheoryIndexPage() {
                 <Link
                   key={t.slug}
                   href={`/theory/${t.slug}`}
-                  className="group rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-violet-400 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-violet-600"
+                  className="group rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-teal-400 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-teal-600"
                 >
-                  <h3 className="font-bold text-slate-900 group-hover:text-violet-700 dark:text-white dark:group-hover:text-violet-300">{t.title}</h3>
+                  <h3 className="font-bold text-slate-900 group-hover:text-teal-700 dark:text-white dark:group-hover:text-teal-300">{t.title}</h3>
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t.summary}</p>
                   <p className="mt-2 font-mono text-[11px] text-slate-400">{t.sections.length} sections · read →</p>
                 </Link>

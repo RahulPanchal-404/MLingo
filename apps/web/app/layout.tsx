@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Atkinson_Hyperlegible, Bricolage_Grotesque, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TutorProvider } from "@/features/tutor/tutor-provider";
 import { TutorLauncher } from "@/features/tutor/components/tutor-launcher";
@@ -9,8 +9,14 @@ import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 import { ThemeProvider, ThemeScript } from "@/features/theme/theme-provider";
 import { AuthProvider } from "@/features/players/auth-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const body = Atkinson_Hyperlegible({
+  variable: "--font-body",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const display = Bricolage_Grotesque({
+  variable: "--font-display-face",
   subsets: ["latin"],
 });
 
@@ -20,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MLingo — Machine Learning, Frame by Frame",
+  title: "MLingo: watch machine learning happen",
   description: "An interactive platform for learning machine learning.",
 };
 
@@ -29,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${body.variable} ${display.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <ThemeScript />

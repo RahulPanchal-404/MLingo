@@ -34,7 +34,7 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
           <Link href="/theory" className="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
             ← All theory topics
           </Link>
-          <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-0.5 font-mono text-xs font-semibold text-violet-800 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200">
+          <span className="rounded-full border border-teal-200 bg-teal-50 px-3 py-0.5 font-mono text-xs font-semibold text-teal-800 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-200">
             {topic.group} · Theory &amp; Math
           </span>
         </nav>
@@ -59,7 +59,7 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
           <ol className="list-decimal space-y-0.5 pl-5">
             {topic.sections.map((s, n) => (
               <li key={s.heading}>
-                <a href={`#s${n}`} className="text-violet-700 hover:underline dark:text-violet-300">{s.heading}</a>
+                <a href={`#s${n}`} className="text-teal-700 hover:underline dark:text-teal-300">{s.heading}</a>
               </li>
             ))}
           </ol>
@@ -85,8 +85,8 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
           </section>
         ))}
         <nav className="flex justify-between gap-4 border-t border-slate-200 pt-6 text-sm dark:border-slate-800">
-          {prev ? <Link href={`/theory/${prev.slug}`} className="font-semibold text-violet-700 hover:underline dark:text-violet-300">← {prev.title}</Link> : <span />}
-          {next ? <Link href={`/theory/${next.slug}`} className="font-semibold text-violet-700 hover:underline dark:text-violet-300">{next.title} →</Link> : <span />}
+          {prev ? <Link href={`/theory/${prev.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">← {prev.title}</Link> : <span />}
+          {next ? <Link href={`/theory/${next.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">{next.title} →</Link> : <span />}
         </nav>
       </article>
     </AppShell>

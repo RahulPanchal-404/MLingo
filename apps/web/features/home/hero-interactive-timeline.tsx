@@ -105,10 +105,6 @@ export function HeroInteractiveTimeline() {
         aria-hidden="true"
       />
       <div
-        className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
         className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"
         aria-hidden="true"
       />

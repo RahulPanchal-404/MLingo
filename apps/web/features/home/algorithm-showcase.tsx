@@ -145,9 +145,6 @@ export function AlgorithmShowcase() {
     <section className="space-y-6" aria-labelledby="algorithm-showcase-heading">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-0.5 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
-            <span>05 // ALGORITHM ARCHITECTURE</span>
-          </div>
           <h2
             id="algorithm-showcase-heading"
             className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"

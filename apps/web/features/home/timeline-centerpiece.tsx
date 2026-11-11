@@ -55,9 +55,6 @@ export function TimelineCenterpiece() {
     <section className="space-y-6" aria-labelledby="timeline-centerpiece-heading">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 dark:bg-teal-950/80 border border-teal-200 dark:border-teal-500/30 px-3 py-0.5 text-xs font-mono font-semibold text-teal-800 dark:text-teal-300">
-            <span>02 // THE CENTERPIECE INTERFACE</span>
-          </div>
           <h2
             id="timeline-centerpiece-heading"
             className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"

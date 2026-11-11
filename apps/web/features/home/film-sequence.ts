@@ -15,25 +15,41 @@ type Track = Record<string, Key[]>;
 
 /** One row per object, one track per prop. Times in sequence units (0..10). */
 export const KEYS: Record<string, Track> = {
-  scene0: { opacity: [[0, 1], [0.7, 1], [1.1, 0]], y: [[0, 0], [1.1, -24]] },
-  scene1: { opacity: [[0.9, 0], [1.3, 1], [2.6, 1], [3, 0]], y: [[0.9, 24], [1.3, 0], [3, -24]] },
-  scene2: { opacity: [[2.8, 0], [3.2, 1], [8.1, 1], [8.5, 0]], y: [[2.8, 24], [3.2, 0], [8.5, -24]] },
-  scene3: { opacity: [[8.3, 0], [8.7, 1], [10, 1]], y: [[8.3, 24], [8.7, 0]] },
-  // Camera: starts pulled back, pushes in on the fit while it trains, settles wide at the end.
-  plot: { scale: [[0, 0.92], [1.3, 1], [6, 1.08], [9, 1]], x: [[0, 30], [1.3, 0], [6, -20], [9, 0]] },
-  loss: { opacity: [[0, 0], [1.6, 0], [2.2, 1]], y: [[1.6, 16], [2.2, 0]] },
-  gaps: { opacity: [[0.6, 0], [1.2, 1], [8, 0.35]] },
+  // Title card: pops in, holds, lifts away.
+  title: { opacity: [[0, 0], [0.3, 1], [1.5, 1], [1.9, 0]], y: [[0, 30], [0.3, 0], [1.9, -40]], scale: [[0, 0.85], [0.45, 1]] },
+  // Data points drop in (per-point stagger and bounce are computed from this 0..1 value).
+  points: { drop: [[1.6, 0], [2.7, 1]] },
+  // The model's first guess swings in.
+  line: { opacity: [[2.5, 0], [2.8, 1]], swing: [[2.5, -30], [3, 0]] },
+  gaps: { opacity: [[2.8, 0], [3.1, 1], [8, 0.2]] },
+  meter: { opacity: [[2.8, 0], [3.2, 1]], x: [[2.8, 40], [3.2, 0]] },
+  badge: { opacity: [[2.8, 0], [3.1, 1]] },
+  // Subtitles, one per beat.
+  cap1: { opacity: [[1.8, 0], [2, 1], [2.7, 1], [2.9, 0]] },
+  cap2: { opacity: [[2.9, 0], [3.1, 1], [4.2, 1], [4.4, 0]] },
+  cap3: { opacity: [[4.4, 0], [4.6, 1], [7.8, 1], [8, 0]] },
+  cap4: { opacity: [[8, 0], [8.2, 1], [10, 1]] },
+  // End stamp lands with a slap.
+  stamp: { opacity: [[8.1, 0], [8.3, 1]], scale: [[8.1, 1.7], [8.45, 1]], rotate: [[8.1, -32], [8.45, -8]] },
 };
 
 const DEFAULTS: Record<string, Record<string, number>> = {
-  scene0: { opacity: 1, y: 0 },
-  scene1: { opacity: 0, y: 0 },
-  scene2: { opacity: 0, y: 0 },
-  scene3: { opacity: 0, y: 0 },
-  plot: { scale: 1, x: 0 },
-  loss: { opacity: 0, y: 0 },
+  title: { opacity: 1, y: 0, scale: 1 },
+  points: { drop: 0 },
+  line: { opacity: 0, swing: 0 },
   gaps: { opacity: 0 },
+  meter: { opacity: 0, x: 0 },
+  badge: { opacity: 0 },
+  cap1: { opacity: 0 },
+  cap2: { opacity: 0 },
+  cap3: { opacity: 0 },
+  cap4: { opacity: 0 },
+  stamp: { opacity: 0, scale: 1, rotate: 0 },
 };
+
+/** Training happens between these sequence positions. */
+export const TRAIN_START = 3.2;
+export const TRAIN_END = 8;
 
 // Theatre bezier handles [rightX, rightY, leftX, leftY]: ease-out entrances (web-motion-design §3).
 const EASE = [0.05, 0.7, 0.1, 1];

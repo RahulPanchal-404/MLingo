@@ -2,20 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { createFilm, type FilmValues } from "./film-sequence";
+import { createFilm, FILM_LENGTH, TRAIN_END, TRAIN_START, type FilmValues } from "./film-sequence";
 
 /**
- * A training run that plays like a short video. A Theatre.js sequence drives the scene text,
- * camera and loss card; the plot itself is data: every frame is a real gradient-descent step on
- * 32 fixed points. It autoplays, holds on the last frame, then loops. Two controls only:
- * play/pause and a progress bar you can click to jump.
+ * The home page opener: a short motion-graphics clip of a model learning.
+ * A Theatre.js sequence choreographs the beats (title card, data dropping in, the first guess,
+ * training, the "Fitted!" stamp). The plot itself is real: every frame is a gradient-descent
+ * step on 32 fixed points. It autoplays, holds the last frame, then loops.
+ * Two controls only: play/pause and a progress bar you can click.
  */
 const STEPS = 40;
-const SCENES = [
-  { kicker: "", title: "Watch a model learn.", body: "This is a real training run: 40 steps of gradient descent fitting a line to 32 points." },
-  { kicker: "Step 0", title: "It starts out wrong.", body: "Random weights. The line misses almost every point. The orange gaps are the error it will try to shrink." },
-  { kicker: "Steps 1 to 20", title: "Then it walks downhill.", body: "Each step nudges the weights against the gradient. The loss falls fast at first, then slows down." },
-  { kicker: "Step 40", title: "Until it settles.", body: "Converged. That was linear regression. In MLingo you can pause, rewind and break any frame of any model." },
+const DOT_COLORS = ["#7be0c3", "#8fd3ff", "#ff9a8a", "#b9a6ff", "#ffd166", "#ffb3d9"];
+const CAPTIONS = [
+  { key: "cap1", text: "Here is some data: 32 points." },
+  { key: "cap2", text: "The model's first guess. The orange sticks show how wrong it is." },
+  { key: "cap3", text: "Each step, gradient descent nudges the line to shrink the error." },
+  { key: "cap4", text: "Fitted. That was linear regression, start to finish." },
 ];
 
 function run() {
@@ -37,22 +39,34 @@ function run() {
       l += e * e;
     });
     frames.push({ w, b, loss: l / 32 });
-    w -= (0.18 * gw) / 16;
-    b -= (0.18 * gb) / 16;
+    // Small learning rate so the fit visibly improves across all 40 steps.
+    w -= (0.06 * gw) / 16;
+    b -= (0.06 * gb) / 16;
   }
   return { xs, ys, frames };
 }
 
 const { xs, ys, frames } = run();
 
-const sx = (x: number) => 40 + (x + 1) * 170;
-const sy = (y: number) => 400 - (y + 2) * 80;
+// Plot area inside the 1200 x 560 stage.
+const sx = (x: number) => 300 + (x + 1) * 280;
+const sy = (y: number) => 470 - (y + 2) * 82;
+
+const easeOutBack = (t: number) => {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+};
+
+type Film = ReturnType<typeof createFilm> & { loop?: () => Promise<void> };
 
 export function TrainingFilm() {
   const [p, setP] = useState(0);
   const [v, setV] = useState<FilmValues | null>(null);
   const [still, setStill] = useState(false);
-  const filmRef = useRef<ReturnType<typeof createFilm> | null>(null);
+  const [playing, setPlaying] = useState(true);
+  const playingRef = useRef(true);
+  const filmRef = useRef<Film | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -62,11 +76,8 @@ export function TrainingFilm() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  const [playing, setPlaying] = useState(true);
-  const playingRef = useRef(true);
-
   useEffect(() => {
-    const film = createFilm();
+    const film: Film = createFilm();
     filmRef.current = film;
     const offValues = film.subscribe(setV);
     const offProgress = film.onProgress(setP);
@@ -80,14 +91,14 @@ export function TrainingFilm() {
         if (!alive || !playingRef.current) return;
         film.seek(0);
         void loop();
-      }, 2500);
+      }, 3000);
     };
+    film.loop = loop;
     void film.ready.then(() => {
       if (!alive) return;
       setV(film.read());
-      if (playingRef.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) void loop();
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) void loop();
     });
-    (film as { loop?: () => Promise<void> }).loop = loop;
     return () => {
       alive = false;
       window.clearTimeout(timer);
@@ -98,7 +109,7 @@ export function TrainingFilm() {
   }, []);
 
   function toggle() {
-    const film = filmRef.current as (ReturnType<typeof createFilm> & { loop?: () => Promise<void> }) | null;
+    const film = filmRef.current;
     if (!film) return;
     if (playing) {
       playingRef.current = false;
@@ -118,113 +129,159 @@ export function TrainingFilm() {
     const r = e.currentTarget.getBoundingClientRect();
     film.pause();
     film.seek((e.clientX - r.left) / r.width);
-    if (playingRef.current) void (film as { loop?: () => Promise<void> }).loop?.();
+    if (playingRef.current) void film.loop?.();
   }
 
-  if (still) return <StillFrame />;
-
-  const step = Math.min(STEPS, Math.round(Math.max(0, (p - 0.2) / 0.68) * STEPS));
-  const { w, b, loss } = frames[step];
-  const scene = p < 0.11 ? 0 : p < 0.29 ? 1 : p < 0.84 ? 2 : 3;
-  const val = (obj: string, prop: string, fallback: number) => v?.[obj]?.[prop] ?? fallback;
-  const lossPath = frames.map((f, i) => `${i ? "L" : "M"}${14 + i * 4.8} ${108 - (f.loss / frames[0].loss) * 76}`).join("");
-  const lossLen = 260;
+  if (still) return <Stage values={null} pos={FILM_LENGTH} />;
 
   return (
-    <section className="relative bg-slate-950 text-[#eeece6]" aria-label="Training run animation">
-      <div className="relative grid min-h-[calc(100vh-64px)] content-center items-center gap-6 overflow-hidden px-6 sm:px-10 lg:grid-cols-[1fr_1.2fr] lg:gap-10 lg:px-[6vw]">
-        <div className="relative h-[36vh] lg:h-[60vh]">
-          {SCENES.map((s, i) => (
-            <div
-              key={s.title}
-              aria-hidden={i !== scene}
-              className="absolute inset-0 flex flex-col justify-center will-change-transform"
-              style={{
-                opacity: val(`scene${i}`, "opacity", i === scene ? 1 : 0),
-                transform: `translateY(${val(`scene${i}`, "y", 0)}px)`,
-                pointerEvents: i === scene ? "auto" : "none",
-              }}
-            >
-              {s.kicker ? <p className="mb-5 text-[15px] text-slate-400">{s.kicker}</p> : null}
-              {i === 0 ? (
-                <h1 className="text-[clamp(2.75rem,6.2vw,6rem)] text-[#eeece6]">{s.title}</h1>
-              ) : (
-                <h2 className="text-[clamp(2.25rem,4.4vw,4.25rem)] text-[#eeece6]">{s.title}</h2>
-              )}
-              <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-slate-300 lg:mt-6 lg:text-lg">{s.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <svg
-          viewBox="0 0 640 460"
-          className="mx-auto block w-full max-w-sm overflow-visible lg:max-w-none"
-          aria-hidden="true"
-          style={{ transform: `translateX(${val("plot", "x", 0)}px) scale(${val("plot", "scale", 1)})`, transformOrigin: "40% 55%" }}
+    <Stage values={v} pos={p * FILM_LENGTH}>
+      <div className="flex items-center gap-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={playing ? "Pause animation" : "Play animation"}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-950 text-white dark:bg-white dark:text-slate-950"
         >
-          {Array.from({ length: 9 }, (_, i) => (
-            <line key={i} x1="40" x2="380" y1={80 + i * 40} y2={80 + i * 40} className="stroke-slate-800" />
-          ))}
-          <g opacity={val("gaps", "opacity", 0)}>
-            {xs.map((x, i) => (
-              <line key={i} x1={sx(x)} x2={sx(x)} y1={sy(ys[i])} y2={sy(w * x + b)} className="stroke-ember" strokeWidth="1.5" />
-            ))}
-          </g>
-          {xs.map((x, i) => (
-            <circle key={i} cx={sx(x)} cy={sy(ys[i])} r="4" fill="#eeece6" />
-          ))}
-          <line x1={sx(-1)} x2={sx(1)} y1={sy(-w + b)} y2={sy(w + b)} className="stroke-teal-300" strokeWidth="3" strokeLinecap="round" />
-          <g transform={`translate(400,${40 + val("loss", "y", 0)})`} opacity={val("loss", "opacity", 0)}>
-            <rect width="220" height="120" rx="10" className="fill-slate-900 stroke-slate-800" />
-            <path d={lossPath} fill="none" className="stroke-ember" strokeWidth="2" pathLength={lossLen} strokeDasharray={lossLen} strokeDashoffset={lossLen * (1 - step / STEPS)} />
-            <text x="14" y="22" className="fill-slate-400" fontSize="12">loss</text>
-            <text x="206" y="22" textAnchor="end" fill="#eeece6" fontSize="13" fontWeight="600">{loss.toFixed(3)}</text>
-          </g>
-        </svg>
-
-        <div className="absolute inset-x-6 bottom-8 flex items-center gap-4 text-[13px] font-semibold text-slate-400 sm:inset-x-10 lg:inset-x-[6vw]">
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={playing ? "Pause animation" : "Play animation"}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-600 text-[#eeece6] transition-colors duration-150 hover:border-teal-300 hover:text-teal-300"
-          >
-            {playing ? (
-              <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden="true"><rect x="2" y="1" width="3" height="10" fill="currentColor" /><rect x="7" y="1" width="3" height="10" fill="currentColor" /></svg>
-            ) : (
-              <svg viewBox="0 0 12 12" className="ml-0.5 h-3 w-3" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>
-            )}
-          </button>
-          <span className="w-16 tabular-nums">step {String(step).padStart(2, "0")}</span>
-          <button type="button" onClick={jump} aria-label="Jump to a point in the animation" className="group relative h-6 flex-1">
-            <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-slate-800" />
-            <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 origin-left rounded-full bg-ember" style={{ transform: `translateY(-50%) scaleX(${p})` }} />
-          </button>
-          <span>step {STEPS}</span>
-        </div>
+          {playing ? (
+            <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden="true"><rect x="2" y="1" width="3" height="10" fill="currentColor" /><rect x="7" y="1" width="3" height="10" fill="currentColor" /></svg>
+          ) : (
+            <svg viewBox="0 0 12 12" className="ml-0.5 h-3.5 w-3.5" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>
+          )}
+        </button>
+        <button type="button" onClick={jump} aria-label="Jump to a point in the animation" className="relative h-8 flex-1">
+          <span className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full border-2 border-slate-950 bg-white dark:border-slate-600 dark:bg-slate-800" />
+          <span className="absolute left-0 right-0 top-1/2 h-2 origin-left -translate-y-1/2 rounded-full bg-[#ff9a8a]" style={{ transform: `translateY(-50%) scaleX(${p})` }} />
+        </button>
       </div>
-    </section>
+    </Stage>
   );
 }
 
-/** Reduced motion: no scroll-scrubbing, just the converged result and the story in one frame. */
-function StillFrame() {
-  const { w, b, loss } = frames[STEPS];
+/** The clip itself. values=null renders the final frame (reduced motion). */
+function Stage({ values, pos, children }: { values: FilmValues | null; pos: number; children?: React.ReactNode }) {
+  const final = values === null;
+  const val = (obj: string, prop: string, fallback: number) => (final ? fallback : (values?.[obj]?.[prop] ?? fallback));
+
+  const t = Math.min(1, Math.max(0, (pos - TRAIN_START) / (TRAIN_END - TRAIN_START)));
+  const step = final ? STEPS : Math.round(t * STEPS);
+  const { w, b, loss } = frames[step];
+  const lossShare = loss / frames[0].loss;
+  const drop = val("points", "drop", 1);
+  const swing = val("line", "swing", 0);
+  const titleOpacity = final ? 0 : val("title", "opacity", 1);
+
+  const cx = sx(0);
+  const cy = sy(b);
+
   return (
-    <section className="bg-slate-950 px-6 py-20 text-[#eeece6] sm:px-10 lg:px-[6vw]" aria-label="Training run, final frame">
-      <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr]">
-        <div>
-          <h1 className="text-[clamp(2.75rem,6.2vw,6rem)] text-[#eeece6]">Watch a model learn.</h1>
-          <p className="mt-6 max-w-[40ch] text-lg leading-relaxed text-slate-300">
-            This line started out wrong and walked downhill for {STEPS} steps of gradient descent until the loss settled at {loss.toFixed(3)}. In MLingo you can pause, rewind and break any frame.
-          </p>
+    <section className="relative border-b-2 border-[var(--ink)] bg-[var(--background)]" aria-label="Animation: a model learning to fit a line">
+      <h1 className="sr-only">Watch a model learn</h1>
+      <div className="mx-auto max-w-[1320px] px-5 pb-6 pt-8 sm:px-8">
+        <div className="film-paper relative overflow-hidden rounded-[28px] border-2 border-[var(--ink)] bg-white dark:bg-slate-900">
+          <svg viewBox="0 0 1200 560" className="block h-auto w-full" aria-hidden="true">
+            {/* Step badge */}
+            <g opacity={val("badge", "opacity", 1)}>
+              <rect x="32" y="28" width="168" height="48" rx="24" className="fill-white stroke-slate-950 dark:fill-slate-900 dark:stroke-slate-300" strokeWidth="2.5" />
+              <text x="116" y="59" textAnchor="middle" className="fill-slate-950 dark:fill-white" fontSize="20" fontWeight="700">
+                step {String(step).padStart(2, "0")} / {STEPS}
+              </text>
+            </g>
+
+            {/* Error meter */}
+            <g opacity={val("meter", "opacity", 1)} transform={`translate(${1060 + val("meter", "x", 0)},90)`}>
+              <text x="40" y="-14" textAnchor="middle" className="fill-slate-700 dark:fill-slate-300" fontSize="18" fontWeight="700">error</text>
+              <rect x="10" y="0" width="60" height="340" rx="16" className="fill-white stroke-slate-950 dark:fill-slate-900 dark:stroke-slate-300" strokeWidth="2.5" />
+              <rect x="16" y={6 + 328 * (1 - lossShare)} width="48" height={328 * lossShare} rx="11" fill="#ff9a8a" />
+              <text x="40" y="372" textAnchor="middle" className="fill-slate-950 dark:fill-white" fontSize="20" fontWeight="700">{loss.toFixed(2)}</text>
+            </g>
+
+            {/* Error sticks */}
+            <g opacity={val("gaps", "opacity", 0.2)}>
+              {xs.map((x, i) => (
+                <line key={i} x1={sx(x)} x2={sx(x)} y1={sy(ys[i])} y2={sy(w * x + b)} stroke="#ff7a59" strokeWidth="4" strokeLinecap="round" />
+              ))}
+            </g>
+
+            {/* The model: thick ink line with a cyan core */}
+            <g opacity={val("line", "opacity", 1)} transform={`rotate(${swing} ${cx} ${cy})`}>
+              <line x1={sx(-1.08)} x2={sx(1.08)} y1={sy(-1.08 * w + b)} y2={sy(1.08 * w + b)} className="stroke-slate-950 dark:stroke-slate-200" strokeWidth="11" strokeLinecap="round" />
+              <line x1={sx(-1.08)} x2={sx(1.08)} y1={sy(-1.08 * w + b)} y2={sy(1.08 * w + b)} stroke="#6fd3ff" strokeWidth="5" strokeLinecap="round" />
+            </g>
+
+            {/* Data points drop in with a bounce, staggered left to right */}
+            {xs.map((x, i) => {
+              const local = Math.min(1, Math.max(0, drop * 1.6 - (i / xs.length) * 0.6));
+              const e = local === 0 ? 0 : easeOutBack(local);
+              const y = sy(ys[i]);
+              return (
+                <circle
+                  key={i}
+                  cx={sx(x)}
+                  cy={y - (1 - e) * 140}
+                  r="10"
+                  opacity={local > 0 ? 1 : 0}
+                  fill={DOT_COLORS[i % DOT_COLORS.length]}
+                  className="stroke-slate-950 dark:stroke-slate-200"
+                  strokeWidth="2.5"
+                />
+              );
+            })}
+
+            {/* Fitted! stamp */}
+            <g
+              opacity={val("stamp", "opacity", 1)}
+              transform={`translate(880 470) rotate(${val("stamp", "rotate", -8)}) scale(${val("stamp", "scale", 1)})`}
+            >
+              <rect x="-110" y="-42" width="220" height="84" rx="18" fill="#c6f07a" stroke="#0e1016" strokeWidth="4" />
+              <text x="0" y="16" textAnchor="middle" fill="#0e1016" fontSize="44" fontWeight="800" style={{ fontFamily: "var(--font-display-face)" }}>
+                Fitted!
+              </text>
+            </g>
+          </svg>
+
+          {/* Title card */}
+          {titleOpacity > 0.01 ? (
+            <div
+              className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/85 dark:bg-slate-900/85"
+              style={{ opacity: titleOpacity }}
+            >
+              <p
+                className="font-display px-6 text-center text-[clamp(2.5rem,7vw,6.5rem)] leading-none text-slate-950 dark:text-white"
+                style={{ transform: `translateY(${val("title", "y", 0)}px) scale(${val("title", "scale", 1)})` }}
+              >
+                {["Watch", "a", "model", "learn."].map((word, i) => (
+                  <span
+                    key={word}
+                    className="mx-[0.12em] inline-block rounded-2xl px-[0.18em] pb-[0.08em]"
+                    style={{ background: i === 2 ? "#ffd166" : "transparent" }}
+                  >
+                    {word}
+                  </span>
+                ))}
+              </p>
+            </div>
+          ) : null}
         </div>
-        <svg viewBox="0 0 400 460" className="mx-auto w-full max-w-sm" aria-hidden="true">
-          {xs.map((x, i) => (
-            <circle key={i} cx={sx(x)} cy={sy(ys[i])} r="4" fill="#eeece6" />
-          ))}
-          <line x1={sx(-1)} x2={sx(1)} y1={sy(-w + b)} y2={sy(w + b)} className="stroke-teal-300" strokeWidth="3" strokeLinecap="round" />
-        </svg>
+
+        {/* Subtitles */}
+        <div className="relative mt-5 min-h-[3.5rem]" aria-live="polite">
+          {CAPTIONS.map((c, i) => {
+            const o = final ? (i === CAPTIONS.length - 1 ? 1 : 0) : val(c.key, "opacity", 0);
+            return (
+              <p
+                key={c.key}
+                aria-hidden={o < 0.5}
+                className="absolute inset-x-0 text-center text-[clamp(1.05rem,1.8vw,1.4rem)] font-medium text-slate-800 dark:text-slate-100"
+                style={{ opacity: o, transform: `translateY(${(1 - o) * 8}px)` }}
+              >
+                {c.text}
+              </p>
+            );
+          })}
+        </div>
+
+        {children ? <div className="mx-auto mt-2 max-w-3xl">{children}</div> : null}
       </div>
     </section>
   );

@@ -10,13 +10,14 @@ describe("training film choreography (Theatre.js)", () => {
   it("seeks the sequence from scroll progress", async () => {
     const film = createFilm();
     await film.ready;
-    film.seek(0);
-    expect(film.read().scene0.opacity).toBeCloseTo(1);
-    expect(film.read().scene3.opacity).toBeCloseTo(0);
+    film.seek(0.08);
+    expect(film.read().title.opacity).toBeCloseTo(1);
+    expect(film.read().stamp.opacity).toBeCloseTo(0);
     film.seek(1);
-    expect(film.read().scene3.opacity).toBeCloseTo(1);
-    expect(film.read().scene0.opacity).toBeCloseTo(0);
-    film.seek(0.5);
-    expect(film.read().scene2.opacity).toBeCloseTo(1);
+    expect(film.read().stamp.opacity).toBeCloseTo(1);
+    expect(film.read().title.opacity).toBeCloseTo(0);
+    expect(film.read().points.drop).toBeCloseTo(1);
+    film.seek(0.6);
+    expect(film.read().cap3.opacity).toBeCloseTo(1);
   });
 });

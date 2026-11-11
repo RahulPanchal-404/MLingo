@@ -3321,3 +3321,13 @@ main h1:not([class*="text-[clamp"]) { font-size: clamp(2.1rem, 4vw, 3.25rem); }
 .lab-intro[data-chapter] .lab-intro-copy, .lab-intro[data-chapter] .lab-intro-copy * { color: #0e1016; }
 .lab-intro[data-chapter] .lab-intro-copy .eyebrow { color: #0e1016; opacity: 0.75; }
 .dark .lab-intro:not([data-chapter]) { background: var(--surface); border-color: var(--border); }
+
+/* Home clip: graph paper, because this is a plot. */
+.film-paper {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  --grid-line: rgba(14, 16, 22, 0.06);
+}
+.dark .film-paper { --grid-line: rgba(238, 236, 230, 0.06); }

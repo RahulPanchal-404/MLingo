@@ -50,7 +50,7 @@ export function MilestoneTrainView({
         metrics: isClustering
           ? { inertia: Number(loss.toFixed(4)) }
           : { accuracy: Number((0.5 + progress * 0.46).toFixed(4)) },
-        centroids: isClustering ? [[1.0 - progress * 0.5, 0.8], [-0.5, -0.8 + progress * 0.3], [0.8, -0.4]] : undefined,
+        centroids: isClustering ? ([[1.0 - progress * 0.5, 0.8], [-0.5, -0.8 + progress * 0.3], [0.8, -0.4]] as Array<[number, number]>) : undefined,
       });
     }
 

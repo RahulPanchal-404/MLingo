@@ -43,7 +43,7 @@ function GameCard({ game }: { game: GameDef }) {
           <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">Chapter {game.chapter} · {game.chapterTitle}</span>
           <span className="font-mono text-xs text-white/70">{stars} / {game.levels.length * 3} ★</span>
         </div>
-        <h2 className="text-2xl font-extrabold tracking-tight">{game.title}</h2>
+        <h2 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight"><span aria-hidden="true" className="text-3xl">{game.icon}</span>{game.title}</h2>
         <p className="text-sm text-white/85">{game.tagline}</p>
         <ul className="space-y-1">
           {game.levels.map((l) => (
@@ -118,7 +118,7 @@ export function GamesHub() {
                       : streak > 0
                         ? `Play one game today to keep your ${streak}-day streak.`
                         : "Play one game today to start a streak."
-                    : "One game per chapter, built on real training runs. Pass levels, earn stars, keep your streak."}
+                    : "One game per chapter. Every game runs the real algorithm, so playing well means understanding the concept."}
                 </p>
               </div>
             </div>

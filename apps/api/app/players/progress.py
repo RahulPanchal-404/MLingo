@@ -67,11 +67,11 @@ class Badge:
 
 
 GAME_TITLES = {
-    "descent": ("Gradient guru", "Descent"),
-    "threshold": ("Threshold tuner", "Threshold"),
-    "clusters": ("Cluster commander", "Cluster Wars"),
-    "neurons": ("Neuron surgeon", "Neuron Surgeon"),
-    "pipeline": ("Pipeline detective", "Pipeline Detective"),
+    "descent": ("Gradient guru", "Valley Runner"),
+    "threshold": ("Royal gatekeeper", "Gatekeeper"),
+    "clusters": ("Top dog", "Sheepdog"),
+    "neurons": ("Shield master", "Shield Builder"),
+    "pipeline": ("Master detective", "Data Heist"),
 }
 
 # Mirrored in apps/web/features/games/registry.ts (BADGES) for guests.

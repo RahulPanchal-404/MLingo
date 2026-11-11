@@ -29,6 +29,12 @@ describe("theory & math", () => {
       if (t.playHref) expect(gameExists(t.playHref), t.playHref).toBe(true);
     }
   });
+  it("every topic has depth sections", () => {
+    for (const t of THEORY) {
+      const headings = t.sections.map((s) => s.heading);
+      for (const h of ["Explained in depth", "Practice problems", "Interview and viva questions", "Summary"]) expect(headings, `${t.slug}: ${h}`).toContain(h);
+    }
+  });
   it("core topics are complete: one-line summary, worked example, code, pitfalls and a valid quiz", () => {
     for (const t of THEORY.filter((x) => x.group !== "Prerequisites")) {
       const blocks = t.sections.flatMap((s) => s.blocks);
@@ -39,6 +45,9 @@ describe("theory & math", () => {
       const quizzes = blocks.filter((b): b is Extract<typeof b, { quiz: unknown }> => "quiz" in b);
       expect(quizzes.length, `${t.slug} quiz`).toBeGreaterThan(0);
       for (const { quiz } of quizzes) expect(quiz.answer >= 0 && quiz.answer < quiz.options.length, t.slug).toBe(true);
+      const headings = t.sections.map((s) => s.heading);
+      for (const h of ["Explained in depth", "Practice problems", "Interview and viva questions", "Summary"]) expect(headings, `${t.slug}: ${h}`).toContain(h);
+      expect(quizzes.length, `${t.slug} quizzes`).toBeGreaterThanOrEqual(3);
     }
   });
 });

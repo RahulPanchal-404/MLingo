@@ -30,7 +30,9 @@ export type Block =
   | { tryit: WidgetId; caption?: string }
   | { table: { head: string[]; rows: string[][] } }
   | { pitfalls: { mistake: string; fix: string }[] }
-  | { quiz: { q: string; options: string[]; answer: number; why: string } };
+  | { quiz: { q: string; options: string[]; answer: number; why: string } }
+  /** A practice problem whose worked solution is folded away. */
+  | { problem: { q: string; solution: Block[] } };
 
 /** Every piece of text in a block (for tests and search). Display maths is returned wrapped in $$. */
 export function blockTexts(b: Block): string[] {
@@ -44,6 +46,7 @@ export function blockTexts(b: Block): string[] {
   if ("tryit" in b) return b.caption ? [b.caption] : [];
   if ("table" in b) return [...b.table.head, ...b.table.rows.flat()];
   if ("pitfalls" in b) return b.pitfalls.flatMap((x) => [x.mistake, x.fix]);
+  if ("problem" in b) return [b.problem.q, ...b.problem.solution.flatMap(blockTexts)];
   return [b.quiz.q, ...b.quiz.options, b.quiz.why];
 }
 export type Section = { heading: string; blocks: Block[] };
@@ -60,6 +63,8 @@ export type TheoryTopic = {
 };
 
 import { PREREQ_THEORY } from "./prereq-topics";
+import { DEEP } from "./deep";
+import { mergeDeep } from "./deep/types";
 
 import { FOUNDATIONS_THEORY } from "./core/foundations";
 import { REGRESSION_THEORY, CLASSIFICATION_THEORY } from "./core/regression-classification";
@@ -80,7 +85,7 @@ const CORE_THEORY: TheoryTopic[] = [
   ...MORE_WORKFLOW_THEORY,
 ];
 
-export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY];
+export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => mergeDeep(t, DEEP[t.slug]));
 
 export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Unsupervised learning", "Neural networks", "Workflow"] as const;
 export const getTheory = (slug: string) => THEORY.find((t) => t.slug === slug);

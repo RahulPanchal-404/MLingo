@@ -54,6 +54,19 @@ export function BlockView({ b }: { b: Block }) {
         </div>
       </details>
     );
+  if ("problem" in b)
+    return (
+      <details className="group rounded-2xl border-2 border-[var(--panel-line)] bg-white dark:bg-slate-900">
+        <summary className="flex cursor-pointer list-none items-start justify-between gap-3 px-5 py-4 text-[15px] font-semibold text-slate-950 dark:text-white">
+          <span><TexText text={b.problem.q} /></span>
+          <span className="shrink-0 rounded-full border-2 border-slate-950 bg-[#ffd166] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show solution</span>
+          <span className="hidden shrink-0 rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+        </summary>
+        <div className="space-y-3 border-t-2 border-[var(--panel-line)] px-5 py-4">
+          {b.problem.solution.map((inner, i) => <BlockView key={i} b={inner} />)}
+        </div>
+      </details>
+    );
   if ("tryit" in b) return <TryIt id={b.tryit} caption={b.caption} />;
   if ("table" in b)
     return (

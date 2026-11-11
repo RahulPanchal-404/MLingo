@@ -162,7 +162,9 @@ class TrainingRunResponse(BaseModel):
         request: CreateTrainingRunRequest,
         dataset_points: tuple[dict[str, float | int], ...],
     ) -> "TrainingRunResponse":
-        dataset_payload = request.dataset.model_dump(include=request.dataset.model_fields_set)
+        # Echo only the fields the client sent, but always include `samples`, which the
+        # response requires; otherwise a request that omits `dataset` fails with a 500.
+        dataset_payload = request.dataset.model_dump(include=request.dataset.model_fields_set | {"samples"})
         training_payload = request.training.model_dump(include=request.training.model_fields_set)
         return cls(
             id=run.id,

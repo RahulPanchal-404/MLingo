@@ -134,3 +134,76 @@ def test_external_call_limiter_caps_calls_per_window() -> None:
 
     assert [limiter.try_acquire(limit=2) for _ in range(3)] == [True, True, False]
     assert limiter.try_acquire(limit=0) is False
+
+
+# --- Follow-up fixes -------------------------------------------------------------
+
+
+def test_training_run_without_dataset_block_returns_201() -> None:
+    response = client.post("/api/v1/training-runs", json={"algorithm": "linear_regression", "training": {"epochs": 5}})
+
+    assert response.status_code == 201
+    assert response.json()["dataset"]["samples"] == 32
+
+
+def test_openai_provider_setting_never_uses_the_gemini_client() -> None:
+    from app.core.config import Settings
+    from app.services.tutor.factory import get_tutor_provider
+    from app.services.tutor.fallback import DeterministicFallbackProvider
+
+    provider = get_tutor_provider(Settings(tutor_provider="openai", tutor_api_key="sk-test"))
+
+    assert isinstance(provider, DeterministicFallbackProvider)
+
+
+def test_history_is_mapped_to_gemini_roles_without_duplicating_current_question() -> None:
+    from app.schemas.tutor import TutorRequest
+
+    request = TutorRequest(
+        message="and now?",
+        conversation_history=[
+            {"role": "system", "content": "ignored"},
+            {"role": "user", "content": "why did loss drop?"},
+            {"role": "assistant", "content": "Because the gradient was large."},
+            {"role": "user", "content": "and now?"},
+        ],
+    )
+
+    turns = external._history_to_gemini(request)
+
+    assert [turn["role"] for turn in turns] == ["user", "model"]
+    assert turns[1]["parts"][0]["text"] == "Because the gradient was large."
+
+
+def test_gemini_key_is_sent_in_header_not_url(monkeypatch) -> None:
+    import asyncio
+
+    from app.core.config import Settings
+    from app.schemas.tutor import TutorRequest
+
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        status_code = 200
+        text = ""
+
+        def json(self) -> dict[str, object]:
+            return {"candidates": [{"content": {"parts": [{"text": '{"answer": "ok", "evidence": []}'}]}}]}
+
+    class FakeClient:
+        def __init__(self, *args: object, **kwargs: object) -> None: ...
+        async def __aenter__(self) -> "FakeClient":
+            return self
+        async def __aexit__(self, *args: object) -> None: ...
+        async def post(self, url: str, json: object, headers: dict[str, str]) -> FakeResponse:
+            captured.update(url=url, headers=headers)
+            return FakeResponse()
+
+    monkeypatch.setattr(external.httpx, "AsyncClient", FakeClient)
+    provider = external.ExternalLLMProvider(Settings(tutor_provider="gemini", tutor_api_key="secret-key"))
+
+    result = asyncio.run(provider.generate_response(TutorRequest(message="hi")))
+
+    assert result.provider == "external_llm"
+    assert "secret-key" not in str(captured["url"])
+    assert captured["headers"] == {"x-goog-api-key": "secret-key"}

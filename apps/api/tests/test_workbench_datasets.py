@@ -2,7 +2,7 @@
 
 import pytest
 from app.ml.datasets.workbench import (
-    analyze_data_quality,
+    compute_data_quality_report,
     get_dataset,
     summarize_dataset,
 )
@@ -67,9 +67,9 @@ def test_summarize_dataset_classification() -> None:
     assert features_by_name["tutoring"].dtype == "categorical"
 
 
-def test_analyze_data_quality() -> None:
+def test_compute_data_quality_report() -> None:
     data, _, target_col = get_dataset("student_classification")
-    quality = analyze_data_quality(data, target_col)
+    quality = compute_data_quality_report(data, target_col)
 
     assert quality.total_missing_values == 1
     assert "study_hours" in quality.columns_with_missing
@@ -88,6 +88,6 @@ def test_analyze_data_quality_with_duplicates_and_constants() -> None:
         {"a": 1, "b": "const", "target": 0},  # duplicate
         {"a": 2, "b": "const", "target": 1},
     ]
-    quality = analyze_data_quality(data, "target")
+    quality = compute_data_quality_report(data, "target")
     assert quality.duplicate_rows_count == 1
     assert "b" in quality.constant_columns

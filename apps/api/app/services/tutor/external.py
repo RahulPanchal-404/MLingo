@@ -39,6 +39,22 @@ class _SlidingWindowLimiter:
 _external_call_limiter = _SlidingWindowLimiter()
 
 
+MAX_HISTORY_TURNS_SENT = 10
+
+
+def _history_to_gemini(request: TutorRequest) -> list[dict[str, Any]]:
+    """Map recent chat turns to Gemini's roles so follow-up questions keep their context."""
+    turns = []
+    for message in request.conversation_history[-MAX_HISTORY_TURNS_SENT:]:
+        if message.role == "system" or not message.content.strip():
+            continue
+        turns.append({"role": "model" if message.role == "assistant" else "user", "parts": [{"text": message.content}]})
+    # The web client includes the current question as the last history item; don't send it twice.
+    if turns and turns[-1]["role"] == "user" and turns[-1]["parts"][0]["text"].strip() == request.message.strip():
+        turns.pop()
+    return turns
+
+
 class ExternalLLMProvider(BaseTutorProvider):
     """External LLM provider with strict context grounding and automatic deterministic fallback."""
 
@@ -72,12 +88,12 @@ class ExternalLLMProvider(BaseTutorProvider):
             context_json = request.context.model_dump_json(exclude_none=True)
             user_content = f"Learner Query: {request.message}\n\nCurrent MLingo Telemetry Context:\n{context_json}"
 
-            # Call Google Gemini API
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.settings.tutor_model}:generateContent?key={api_key}"
+            # Call Google Gemini API. The key goes in a header, not the URL, so it never
+            # appears in proxy or access logs.
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.settings.tutor_model}:generateContent"
             payload = {
-                "contents": [
-                    {"role": "user", "parts": [{"text": f"{system_prompt}\n\n{user_content}"}]}
-                ],
+                "systemInstruction": {"parts": [{"text": system_prompt}]},
+                "contents": [*_history_to_gemini(request), {"role": "user", "parts": [{"text": user_content}]}],
                 "generationConfig": {
                     "responseMimeType": "application/json",
                     "temperature": 0.2,
@@ -85,7 +101,7 @@ class ExternalLLMProvider(BaseTutorProvider):
             }
 
             async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.post(url, json=payload)
+                response = await client.post(url, json=payload, headers={"x-goog-api-key": api_key})
 
             if response.status_code != 200:
                 logger.warning("External provider error %s: %s", response.status_code, response.text)

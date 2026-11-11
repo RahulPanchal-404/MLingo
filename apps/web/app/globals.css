@@ -3268,3 +3268,33 @@ h3 { letter-spacing: -0.01em; }
 
 /* Page titles: large serif everywhere unless a page sets its own clamp size. */
 main h1:not([class*="text-[clamp"]) { font-size: clamp(2.6rem, 5vw, 4.25rem); }
+
+/* ==========================================================================
+   Chapter motion graphics (ambient loops, sine easing, low amplitude).
+   ========================================================================== */
+@keyframes motif-roll { 0%, 10% { offset-distance: 0%; } 70%, 100% { offset-distance: 100%; } }
+.motif-roll { animation: motif-roll 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes motif-fit { 0%, 15% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-22deg); } }
+.motif-fit { animation: motif-fit 4s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate; }
+@keyframes motif-boundary { 0%, 15% { transform: translateX(-38px) rotate(25deg); } 60%, 100% { transform: none; } }
+.motif-boundary { animation: motif-boundary 4s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate; }
+@keyframes motif-gather { 0%, 15% { transform: none; } 65%, 100% { transform: translate(var(--tx), var(--ty)); } }
+.motif-gather { animation: motif-gather 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate; }
+@keyframes motif-pulse { from { stroke-dashoffset: 128; } to { stroke-dashoffset: 0; } }
+.motif-pulse { animation: motif-pulse 1.8s linear infinite; }
+@keyframes motif-travel { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }
+.motif-travel { animation: motif-travel 3s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes motif-grow { 0% { transform: scaleY(0.15); } 50%, 100% { transform: scaleY(1); } }
+.motif-grow { animation: motif-grow 3.6s cubic-bezier(0.05, 0.7, 0.1, 1) infinite alternate; }
+@keyframes motif-check { 0%, 40% { stroke-dashoffset: 60; } 70%, 100% { stroke-dashoffset: 0; } }
+.motif-check { animation: motif-check 3.6s cubic-bezier(0.05, 0.7, 0.1, 1) infinite alternate; }
+
+/* Reduced motion: show the resolved frame of every motif, no looping. */
+@media (prefers-reduced-motion: reduce) {
+  .motif-roll, .motif-travel { animation: none !important; offset-distance: 100%; }
+  .motif-fit { animation: none !important; transform: rotate(-22deg); }
+  .motif-boundary, .motif-grow { animation: none !important; transform: none; }
+  .motif-gather { animation: none !important; transform: translate(var(--tx), var(--ty)); }
+  .motif-pulse { animation: none !important; stroke-dasharray: none; }
+  .motif-check { animation: none !important; stroke-dashoffset: 0; }
+}

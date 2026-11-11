@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { GAMES_FOR_CHAPTER, getGame } from "@/features/games/registry";
+import { ChapterMotif } from "@/features/learning/chapter-motif";
+import { chapterStyle } from "@/features/learning/chapter-style";
 import { chapters } from "@/features/learning/chapters";
 
 /**
@@ -16,6 +18,7 @@ export function ChapterIndex() {
   const [active, setActive] = useState(list[0].id);
   const chapter = list.find((c) => c.id === active) ?? list[0];
   const games = (GAMES_FOR_CHAPTER[chapter.id] ?? []).map((g) => getGame(g)).filter(Boolean);
+  const color = chapterStyle(chapter.id);
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
@@ -32,7 +35,12 @@ export function ChapterIndex() {
                 aria-pressed={on}
                 className="group flex w-full items-baseline gap-5 py-5 text-left"
               >
-                <span className={`w-6 text-sm tabular-nums transition-colors duration-200 ${on ? "text-teal-700 dark:text-teal-300" : "text-slate-400"}`}>{i + 1}</span>
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold tabular-nums transition-[transform,background-color] duration-300 ease-[var(--ease-settle)] ${on ? "scale-110 border-slate-950 text-slate-950" : "border-transparent text-slate-500"}`}
+                  style={{ background: on ? chapterStyle(c.id).fill : "transparent" }}
+                >
+                  {i + 1}
+                </span>
                 <span
                   className={`font-display text-[clamp(1.75rem,3vw,2.6rem)] leading-none transition-[color,transform] duration-300 ease-[var(--ease-enter)] ${
                     on ? "translate-x-2 text-slate-950 dark:text-white" : "text-slate-400 group-hover:text-slate-700 dark:text-slate-600 dark:group-hover:text-slate-300"
@@ -48,7 +56,12 @@ export function ChapterIndex() {
       </ol>
 
       <div className="lg:sticky lg:top-24 lg:self-start">
-        <article key={chapter.id} className="page-enter rounded-3xl border bg-white p-7 dark:bg-slate-900">
+        <article key={chapter.id} className="page-enter overflow-hidden rounded-3xl border bg-white dark:bg-slate-900">
+          <div className="flex items-center justify-between gap-4 border-b-2 border-slate-950 px-7 py-5" style={{ background: color.fill }}>
+            <span className="text-sm font-bold text-slate-950">{color.label}</span>
+            <ChapterMotif id={chapter.id} className="h-20 w-32" />
+          </div>
+          <div className="p-7">
           <h3 className="text-2xl font-bold text-slate-950 dark:text-white">{chapter.title}</h3>
           <p className="mt-2 text-slate-600 dark:text-slate-400">{chapter.subtitle}</p>
           <ul className="mt-6 space-y-2.5">
@@ -69,6 +82,7 @@ export function ChapterIndex() {
                 Play {g!.title}
               </Link>
             ))}
+          </div>
           </div>
         </article>
       </div>

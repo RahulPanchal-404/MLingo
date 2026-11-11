@@ -5,6 +5,8 @@ import { useState } from "react";
 import { levelsForLesson } from "@/features/games/registry";
 import { getTheory } from "@/features/theory/topics";
 import type { LessonDefinition } from "../lessons-data";
+import { ChapterMotif } from "../chapter-motif";
+import { chapterForLabel, chapterStyle } from "../chapter-style";
 
 export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
@@ -12,6 +14,9 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
   const selectedOption = selectedOptionIndex !== null && lesson.thinkPrompt
     ? lesson.thinkPrompt.options[selectedOptionIndex]
     : null;
+
+  const chapterId = chapterForLabel(lesson.tag);
+  const color = chapterStyle(chapterId);
 
   return (
     <article className="max-w-4xl mx-auto space-y-8 pb-16">
@@ -23,31 +28,32 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
         >
           <span>← Back to Curriculum</span>
         </Link>
-        <span className="text-xs font-mono font-semibold text-teal-800 bg-teal-50 border border-teal-200 rounded-full px-3 py-0.5">
+        <span className="rounded-full border-2 border-slate-950 px-3 py-0.5 text-xs font-semibold text-slate-950" style={{ background: color.fill }}>
           {lesson.tag}
         </span>
       </nav>
 
       {/* Header */}
-      <header className="space-y-4">
+      <header className="relative space-y-4 overflow-hidden rounded-3xl border-2 border-slate-950 p-6 sm:p-8" style={{ background: color.fill }}>
+        <ChapterMotif id={chapterId} className="pointer-events-none absolute right-5 top-5 hidden h-24 w-40 sm:block" />
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 font-semibold text-slate-700">
+          <span className="rounded-full bg-white/80 px-2.5 py-0.5 font-semibold text-slate-800">
             {lesson.difficulty}
           </span>
-          <span className="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-slate-600">
+          <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-slate-700">
             ⏱️ {lesson.estimatedMinutes} min read & practice
           </span>
         </div>
 
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl leading-tight">
+        <h1 className="max-w-[16ch] text-slate-950">
           {lesson.title}
         </h1>
-        <p className="text-base text-slate-600 leading-relaxed">
+        <p className="max-w-[52ch] text-lg leading-relaxed text-slate-800">
           {lesson.subtitle}
         </p>
 
         {lesson.prerequisites && (
-          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3 text-xs text-slate-500">
+          <div className="rounded-xl bg-white/70 p-3 text-sm text-slate-600">
             <span className="font-semibold text-slate-700">Prerequisites: </span>
             {lesson.prerequisites}
           </div>
@@ -55,10 +61,10 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
       </header>
 
       {/* Key Idea Callout Box */}
-      <section className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/80 to-white p-6 shadow-xs space-y-2">
+      <section className="rounded-2xl border-2 border-slate-950 p-6 space-y-2" style={{ background: color.fill }}>
         <div className="flex items-center gap-2">
           <span className="text-lg">💡</span>
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-900">
+          <span className="text-sm font-bold text-slate-950">
             Key Idea
           </span>
         </div>

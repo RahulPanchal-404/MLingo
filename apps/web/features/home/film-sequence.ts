@@ -1,12 +1,14 @@
 /**
  * Theatre.js choreography for the home-page training film.
- * Scroll progress (0..1) maps onto a 10-unit sequence. Keyframes are authored in KEYS below
+ * The sequence is 10 units long and plays like a video (FILM_RATE stretches it to ~24s). Keyframes are authored in KEYS below
  * and turned into Theatre project state, so the film can also be opened and re-timed in
  * Theatre Studio during development.
  */
-import { getProject, types, type ISheetObject } from "@theatre/core";
+import { getProject, onChange, types, type ISheetObject } from "@theatre/core";
 
 export const FILM_LENGTH = 10;
+/** Playback speed: 10 units / 0.42 ≈ 24 seconds, enough time to read each scene. */
+export const FILM_RATE = 0.42;
 
 type Key = [position: number, value: number];
 type Track = Record<string, Key[]>;
@@ -79,6 +81,11 @@ export function createFilm() {
     seek: (progress: number) => {
       sheet.sequence.position = Math.min(1, Math.max(0, progress)) * FILM_LENGTH;
     },
+    /** Plays from the current position to the end; resolves true if it finished, false if paused. */
+    play: () => sheet.sequence.play({ rate: FILM_RATE }),
+    pause: () => sheet.sequence.pause(),
+    /** Calls back with playhead progress 0..1 on every frame. */
+    onProgress: (fn: (p: number) => void) => onChange(sheet.sequence.pointer.position, (pos) => fn(pos / FILM_LENGTH)),
     read: (): FilmValues => Object.fromEntries(Object.entries(objects).map(([k, o]) => [k, o.value as Record<string, number>])),
     subscribe: (fn: (v: FilmValues) => void) => {
       const offs = Object.values(objects).map((o) => o.onValuesChange(() => fn(Object.fromEntries(Object.entries(objects).map(([k, ob]) => [k, ob.value as Record<string, number>])))));

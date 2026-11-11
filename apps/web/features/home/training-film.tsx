@@ -5,13 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import { createFilm, type FilmValues } from "./film-sequence";
 
 /**
- * Scroll-scrubbed training run. Scroll seeks a Theatre.js sequence (scene text, camera, loss card);
- * the plot itself is data: every frame is a real gradient-descent step on 32 fixed points.
- * Readable when stopped, reversible on scroll-back (oil-motion runtime rules).
+ * A training run that plays like a short video. A Theatre.js sequence drives the scene text,
+ * camera and loss card; the plot itself is data: every frame is a real gradient-descent step on
+ * 32 fixed points. It autoplays, holds on the last frame, then loops. Two controls only:
+ * play/pause and a progress bar you can click to jump.
  */
 const STEPS = 40;
 const SCENES = [
-  { kicker: "", title: "Watch a model learn.", body: "Scroll to play it. Every frame is a real step of gradient descent on 32 points." },
+  { kicker: "", title: "Watch a model learn.", body: "This is a real training run: 40 steps of gradient descent fitting a line to 32 points." },
   { kicker: "Step 0", title: "It starts out wrong.", body: "Random weights. The line misses almost every point. The orange gaps are the error it will try to shrink." },
   { kicker: "Steps 1 to 20", title: "Then it walks downhill.", body: "Each step nudges the weights against the gradient. The loss falls fast at first, then slows down." },
   { kicker: "Step 40", title: "Until it settles.", body: "Converged. That was linear regression. In MLingo you can pause, rewind and break any frame of any model." },
@@ -48,7 +49,6 @@ const sx = (x: number) => 40 + (x + 1) * 170;
 const sy = (y: number) => 400 - (y + 2) * 80;
 
 export function TrainingFilm() {
-  const ref = useRef<HTMLElement>(null);
   const [p, setP] = useState(0);
   const [v, setV] = useState<FilmValues | null>(null);
   const [still, setStill] = useState(false);
@@ -62,43 +62,68 @@ export function TrainingFilm() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  const [playing, setPlaying] = useState(true);
+  const playingRef = useRef(true);
+
   useEffect(() => {
     const film = createFilm();
     filmRef.current = film;
-    const off = film.subscribe(setV);
-    void film.ready.then(() => setV(film.read()));
-    return off;
-  }, []);
-
-  useEffect(() => {
-    filmRef.current?.seek(p);
-  }, [p]);
-
-  useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      const el = ref.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      setP(Math.min(1, Math.max(0, -r.top / (r.height - window.innerHeight))));
+    const offValues = film.subscribe(setV);
+    const offProgress = film.onProgress(setP);
+    let timer = 0;
+    let alive = true;
+    // Play to the end, hold the final frame for a moment, then start again.
+    const loop = async () => {
+      const finished = await film.play();
+      if (!alive || !finished || !playingRef.current) return;
+      timer = window.setTimeout(() => {
+        if (!alive || !playingRef.current) return;
+        film.seek(0);
+        void loop();
+      }, 2500);
     };
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    void film.ready.then(() => {
+      if (!alive) return;
+      setV(film.read());
+      if (playingRef.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) void loop();
+    });
+    (film as { loop?: () => Promise<void> }).loop = loop;
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
+      alive = false;
+      window.clearTimeout(timer);
+      film.pause();
+      offValues();
+      offProgress();
     };
   }, []);
+
+  function toggle() {
+    const film = filmRef.current as (ReturnType<typeof createFilm> & { loop?: () => Promise<void> }) | null;
+    if (!film) return;
+    if (playing) {
+      playingRef.current = false;
+      setPlaying(false);
+      film.pause();
+    } else {
+      playingRef.current = true;
+      setPlaying(true);
+      if (p >= 0.999) film.seek(0);
+      void film.loop?.();
+    }
+  }
+
+  function jump(e: React.MouseEvent<HTMLButtonElement>) {
+    const film = filmRef.current;
+    if (!film) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    film.pause();
+    film.seek((e.clientX - r.left) / r.width);
+    if (playingRef.current) void (film as { loop?: () => Promise<void> }).loop?.();
+  }
 
   if (still) return <StillFrame />;
 
-  const step = Math.min(STEPS, Math.round(Math.max(0, (p - 0.2) / 0.72) * STEPS));
+  const step = Math.min(STEPS, Math.round(Math.max(0, (p - 0.2) / 0.68) * STEPS));
   const { w, b, loss } = frames[step];
   const scene = p < 0.11 ? 0 : p < 0.29 ? 1 : p < 0.84 ? 2 : 3;
   const val = (obj: string, prop: string, fallback: number) => v?.[obj]?.[prop] ?? fallback;
@@ -106,8 +131,8 @@ export function TrainingFilm() {
   const lossLen = 260;
 
   return (
-    <section ref={ref} className="relative h-[480vh] bg-slate-950 text-[#eeece6]" aria-label="Scroll-driven training run">
-      <div className="sticky top-0 grid h-screen content-center items-center gap-6 overflow-hidden px-6 sm:px-10 lg:grid-cols-[1fr_1.2fr] lg:gap-10 lg:px-[6vw]">
+    <section className="relative bg-slate-950 text-[#eeece6]" aria-label="Training run animation">
+      <div className="relative grid min-h-[calc(100vh-64px)] content-center items-center gap-6 overflow-hidden px-6 sm:px-10 lg:grid-cols-[1fr_1.2fr] lg:gap-10 lg:px-[6vw]">
         <div className="relative h-[36vh] lg:h-[60vh]">
           {SCENES.map((s, i) => (
             <div
@@ -157,11 +182,24 @@ export function TrainingFilm() {
           </g>
         </svg>
 
-        <div className="absolute inset-x-6 bottom-8 flex items-center gap-4 text-[13px] font-semibold text-slate-500 sm:inset-x-10 lg:inset-x-[6vw]">
+        <div className="absolute inset-x-6 bottom-8 flex items-center gap-4 text-[13px] font-semibold text-slate-400 sm:inset-x-10 lg:inset-x-[6vw]">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={playing ? "Pause animation" : "Play animation"}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-600 text-[#eeece6] transition-colors duration-150 hover:border-teal-300 hover:text-teal-300"
+          >
+            {playing ? (
+              <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden="true"><rect x="2" y="1" width="3" height="10" fill="currentColor" /><rect x="7" y="1" width="3" height="10" fill="currentColor" /></svg>
+            ) : (
+              <svg viewBox="0 0 12 12" className="ml-0.5 h-3 w-3" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>
+            )}
+          </button>
           <span className="w-16 tabular-nums">step {String(step).padStart(2, "0")}</span>
-          <div className="relative h-0.5 flex-1 bg-slate-800">
-            <i className="absolute inset-0 origin-left bg-ember" style={{ transform: `scaleX(${step / STEPS})` }} />
-          </div>
+          <button type="button" onClick={jump} aria-label="Jump to a point in the animation" className="group relative h-6 flex-1">
+            <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-slate-800" />
+            <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 origin-left rounded-full bg-ember" style={{ transform: `translateY(-50%) scaleX(${p})` }} />
+          </button>
           <span>step {STEPS}</span>
         </div>
       </div>

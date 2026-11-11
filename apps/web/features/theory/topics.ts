@@ -49,7 +49,7 @@ export function blockTexts(b: Block): string[] {
 export type Section = { heading: string; blocks: Block[] };
 export type TheoryTopic = {
   slug: string;
-  group: "Prerequisites" | "Foundations" | "Regression" | "Classification" | "Clustering" | "Neural networks" | "Workflow";
+  group: "Prerequisites" | "Foundations" | "Regression" | "Classification" | "Unsupervised learning" | "Neural networks" | "Workflow";
   title: string;
   summary: string;
   /** Matching lesson or lab, if there is one. */
@@ -64,17 +64,23 @@ import { PREREQ_THEORY } from "./prereq-topics";
 import { FOUNDATIONS_THEORY } from "./core/foundations";
 import { REGRESSION_THEORY, CLASSIFICATION_THEORY } from "./core/regression-classification";
 import { CLUSTERING_THEORY, NN_THEORY, WORKFLOW_THEORY } from "./core/clustering-nn-workflow";
+import { MORE_CLASSIFICATION_THEORY } from "./core/more-classification";
+import { PCA_THEORY, MORE_NN_THEORY, MORE_WORKFLOW_THEORY } from "./core/more-unsupervised-nn-workflow";
 
 const CORE_THEORY: TheoryTopic[] = [
   ...FOUNDATIONS_THEORY,
   ...REGRESSION_THEORY,
   ...CLASSIFICATION_THEORY,
+  ...MORE_CLASSIFICATION_THEORY,
   ...CLUSTERING_THEORY,
+  ...PCA_THEORY,
   ...NN_THEORY,
+  ...MORE_NN_THEORY,
   ...WORKFLOW_THEORY,
+  ...MORE_WORKFLOW_THEORY,
 ];
 
 export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY];
 
-export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Clustering", "Neural networks", "Workflow"] as const;
+export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Unsupervised learning", "Neural networks", "Workflow"] as const;
 export const getTheory = (slug: string) => THEORY.find((t) => t.slug === slug);

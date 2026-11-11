@@ -20,7 +20,7 @@ export function chapterForLabel(label: string): ChapterId {
   const l = label.toLowerCase();
   if (l.includes("regress")) return "regression";
   if (l.includes("classif")) return "supervised";
-  if (l.includes("cluster")) return "unsupervised";
+  if (l.includes("cluster") || l.includes("unsupervis")) return "unsupervised";
   if (l.includes("neural") || l.includes("deep")) return "deep-learning";
   if (l.includes("workflow") || l.includes("data") || l.includes("evaluat") || l.includes("practice")) return "workflow";
   if (l.includes("capstone") || l.includes("project")) return "capstone";

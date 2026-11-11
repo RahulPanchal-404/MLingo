@@ -5,7 +5,7 @@ const r = String.raw;
 export const CLUSTERING_THEORY: TheoryTopic[] = [
   {
     slug: "k-means",
-    group: "Clustering",
+    group: "Unsupervised learning",
     title: "K-Means",
     summary: "Place K centres, assign every point to its nearest centre, move centres to the mean, repeat.",
     learnHref: "/learn/k-means",
@@ -119,7 +119,7 @@ for k in range(2, 8):
   },
   {
     slug: "hierarchical-clustering",
-    group: "Clustering",
+    group: "Unsupervised learning",
     title: "Hierarchical Clustering",
     summary: "Merge the closest groups step by step and record the whole history as a dendrogram.",
     learnHref: "/learn/hierarchical-clustering",
@@ -213,7 +213,7 @@ agg = AgglomerativeClustering(n_clusters=3, linkage="average").fit(X)`,
   },
   {
     slug: "dbscan",
-    group: "Clustering",
+    group: "Unsupervised learning",
     title: "DBSCAN",
     summary: "Clusters are dense regions; points in sparse areas are labelled as noise.",
     learnHref: "/learn/dbscan",

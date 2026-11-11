@@ -4,26 +4,26 @@
 
 :root {
   /* Surfaces */
-  --background: #edf0ee;
-  --background-subtle: #e4e9e8;
+  --background: #f4f5f2;
+  --background-subtle: #e9eae6;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
-  --surface-inset: #e9edec;
+  --surface-inset: #ecede9;
 
   /* Typography */
-  --text-primary: #15213a;
-  --text-secondary: #4b5870;
-  --text-muted: #627083;
-  --foreground: #15213a;
+  --text-primary: #0e1016;
+  --text-secondary: #4a4f5c;
+  --text-muted: #6d7280;
+  --foreground: #0e1016;
 
   /* Borders */
-  --border: #c3ccd1;
-  --border-strong: #8996a3;
+  --border: #d5d7da;
+  --border-strong: #b4b8c1;
 
   /* Accent (MLingo Teal) */
-  --accent: #2f49d8;
-  --accent-hover: #263bb4;
-  --accent-soft: rgba(47, 73, 216, 0.1);
+  --accent: #0a6799;
+  --accent-hover: #0e557c;
+  --accent-soft: rgba(10, 130, 189, 0.1);
 
   /* Status Colors */
   --success: #16a34a;
@@ -32,15 +32,15 @@
   --info: #0284c7;
 
   /* Charts & Visualizations */
-  --chart-primary: #2f49d8;
-  --chart-secondary: #e9a400;
+  --chart-primary: #0a82bd;
+  --chart-secondary: #ff6a3d;
   --chart-axis: #94a3b8;
   --chart-grid: #e2e8f0;
   --chart-point: #0284c7;
 
   /* Timeline */
   --timeline-track: #e2e8f0;
-  --timeline-playhead: #2f49d8;
+  --timeline-playhead: #0a82bd;
   --timeline-marker: #d97706;
 
   /* Elevation Shadows */
@@ -54,26 +54,26 @@
 
 .dark {
   /* Surfaces */
-  --background: #0e182e;
-  --background-subtle: #121e37;
-  --surface: #16233f;
-  --surface-elevated: #1d2c4c;
-  --surface-inset: #0b1428;
+  --background: #07080c;
+  --background-subtle: #0b0c11;
+  --surface: #0e1016;
+  --surface-elevated: #14171f;
+  --surface-inset: #0a0b10;
 
   /* Typography */
-  --text-primary: #e7ecf4;
+  --text-primary: #eeece6;
   --text-secondary: #94a3b8;
-  --text-muted: #627083;
-  --foreground: #e7ecf4;
+  --text-muted: #6d7280;
+  --foreground: #eeece6;
 
   /* Borders */
-  --border: #243049;
-  --border-strong: #36435c;
+  --border: #1f222b;
+  --border-strong: #2a2e38;
 
   /* Accent (Teal / Cyan) */
-  --accent: #8e9eff;
-  --accent-hover: #b0bcff;
-  --accent-soft: rgba(142, 158, 255, 0.16);
+  --accent: #6fd3ff;
+  --accent-hover: #a9e4ff;
+  --accent-soft: rgba(111, 211, 255, 0.14);
 
   /* Status Colors */
   --success: #22c55e;
@@ -82,15 +82,15 @@
   --info: #38bdf8;
 
   /* Charts & Visualizations */
-  --chart-primary: #8e9eff;
-  --chart-secondary: #e9a400;
+  --chart-primary: #6fd3ff;
+  --chart-secondary: #ff6a3d;
   --chart-axis: #334155;
   --chart-grid: #1e293b;
   --chart-point: #38bdf8;
 
   /* Timeline */
   --timeline-track: #1e293b;
-  --timeline-playhead: #8e9eff;
+  --timeline-playhead: #6fd3ff;
   --timeline-marker: #fbbf24;
 
   /* Elevation Shadows */
@@ -141,41 +141,43 @@
    Remapping Tailwind's slate + teal scales reskins every page at once.
    ========================================================================== */
 @theme {
-  --color-slate-50: #f4f6f5;
-  --color-slate-100: #e9edec;
-  --color-slate-200: #d6dddf;
-  --color-slate-300: #b7c2c8;
-  --color-slate-400: #8996a3;
-  --color-slate-500: #627083;
-  --color-slate-600: #4b5870;
-  --color-slate-700: #36435c;
-  --color-slate-800: #243049;
-  --color-slate-900: #182339;
-  --color-slate-950: #0e182e;
+  /* "Training film" identity: graphite neutrals, cyan = the model, ember = loss/error. */
+  --color-slate-50: #f4f5f6;
+  --color-slate-100: #e9eaed;
+  --color-slate-200: #d7d9de;
+  --color-slate-300: #b4b8c1;
+  --color-slate-400: #8a8f9c;
+  --color-slate-500: #6d7280;
+  --color-slate-600: #4a4f5c;
+  --color-slate-700: #2a2e38;
+  --color-slate-800: #1a1d25;
+  --color-slate-900: #0e1016;
+  --color-slate-950: #07080c;
 
-  --color-teal-50: #eef1fe;
-  --color-teal-100: #dde3fd;
-  --color-teal-200: #bcc7fb;
-  --color-teal-300: #94a4f7;
-  --color-teal-400: #6c80f0;
-  --color-teal-500: #4a62e6;
-  --color-teal-600: #2f49d8;
-  --color-teal-700: #263bb4;
-  --color-teal-800: #22338f;
-  --color-teal-900: #1f2e72;
-  --color-teal-950: #141c45;
+  --color-teal-50: #ecf9ff;
+  --color-teal-100: #d3f1ff;
+  --color-teal-200: #a9e4ff;
+  --color-teal-300: #6fd3ff;
+  --color-teal-400: #3cbcf5;
+  --color-teal-500: #18a0de;
+  --color-teal-600: #0a82bd;
+  --color-teal-700: #0a6799;
+  --color-teal-800: #0e557c;
+  --color-teal-900: #114767;
+  --color-teal-950: #0b2d44;
 
-  --color-marigold: #e9a400;
-  --color-contour: #c3ccd1;
+  --color-marigold: #ff6a3d;
+  --color-ember: #ff6a3d;
+  --color-contour: #2a2e38;
 
-  /* Motion tokens (web-motion-design skill: Corporate personality) */
-  --ease-std: cubic-bezier(0.2, 0, 0, 1);
+  /* Motion tokens (web-motion-design skill: Premium personality for the film, quick UI feedback) */
+  --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --ease-settle: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --dur-quick: 200ms;
-  --dur-std: 300ms;
-  --dur-slow: 450ms;
+  --dur-std: 350ms;
+  --dur-slow: 500ms;
 }
 
 body {
@@ -3132,19 +3134,66 @@ button:disabled {
 
 
 /* ==========================================================================
-   Typography: Bricolage Grotesque for headings, Atkinson Hyperlegible body.
+   Typography: Instrument Serif for page titles, Inter Tight for everything else.
    ========================================================================== */
-h1, h2, h3, .font-display {
-  font-family: var(--font-display-face), var(--font-body), system-ui, sans-serif;
-  font-optical-sizing: auto;
+body { font-family: var(--font-body), system-ui, sans-serif; font-feature-settings: "ss01", "cv11"; }
+h1,
+h2:is([class*="text-[clamp"], [class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"], [class*="text-6xl"]),
+.font-display {
+  font-family: var(--font-display-face), Georgia, serif !important;
+  font-weight: 400 !important;
+  font-synthesis: none;
+  letter-spacing: -0.015em !important;
+  line-height: 1 !important;
 }
-h1 { letter-spacing: -0.025em; }
-h2, h3 { letter-spacing: -0.015em; }
+h3 { letter-spacing: -0.01em; }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   Components (visual thesis): chunky, rounded, 2px ink borders, solid offset
+   shadow you press into. Applied to the existing card / button markup so every
+   page shares one system. Static panels get a quieter border and no shadow.
+   ========================================================================== */
+:root { --ink: #0e1016; --panel-line: rgba(14, 16, 22, 0.16); --press: 4px; }
+.dark { --ink: #eeece6; --panel-line: #2a2e38; }
+
+/* Static panels */
+:is(div, section, article, aside, header, form, details).border:is(.rounded-2xl, .rounded-3xl, .rounded-xl) {
+  border-width: 2px;
+  border-color: var(--panel-line);
+  box-shadow: none;
+}
+:is(div, section, article, aside).border:is(.rounded-2xl, .rounded-3xl) { border-radius: 22px; }
+
+/* Interactive cards and buttons: ink border + offset shadow, lift on hover, press on active. */
+:is(a, button).border:is(.rounded-2xl, .rounded-3xl, .rounded-xl),
+:is(a, button):is([class*="bg-teal-6"], [class*="bg-teal-7"], [class*="dark:bg-teal-3"], [class*="bg-slate-950"]):is(.rounded-xl, .rounded-2xl, .rounded-full, .rounded-lg) {
+  border: 2px solid var(--ink);
+  box-shadow: 0 var(--press) 0 var(--ink);
+  transition: transform 120ms var(--ease-std), box-shadow 120ms var(--ease-std), background-color 200ms var(--ease-std), color 200ms var(--ease-std);
+}
+:is(a, button).border:is(.rounded-2xl, .rounded-3xl, .rounded-xl):hover,
+:is(a, button):is([class*="bg-teal-6"], [class*="bg-teal-7"], [class*="dark:bg-teal-3"], [class*="bg-slate-950"]):is(.rounded-xl, .rounded-2xl, .rounded-full, .rounded-lg):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 calc(var(--press) + 2px) 0 var(--ink);
+}
+:is(a, button).border:is(.rounded-2xl, .rounded-3xl, .rounded-xl):active,
+:is(a, button):is([class*="bg-teal-6"], [class*="bg-teal-7"], [class*="dark:bg-teal-3"], [class*="bg-slate-950"]):is(.rounded-xl, .rounded-2xl, .rounded-full, .rounded-lg):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+:is(a, button):disabled, :is(a, button)[aria-disabled="true"] { transform: none !important; box-shadow: none !important; }
+
+/* Soft grey shadows are not part of this system. */
+.shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl { --tw-shadow: 0 0 #0000 !important; }
+
+/* Cleared progress is green, everywhere. */
+:root { --progress: #1f9d55; }
+.dark { --progress: #4ade80; }
 
 /* ==========================================================================
    Motion system
@@ -3203,3 +3252,19 @@ h2, h3 { letter-spacing: -0.015em; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Learn path rail draws as its chapter scrolls through the viewport (scroll-linked = linear). */
+@supports (animation-timeline: view()) {
+  @keyframes rail-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .learn-chapter { view-timeline-name: --chapter; }
+  .learn-rail {
+    transform-origin: top;
+    animation: rail-draw linear both;
+    animation-timeline: --chapter;
+    animation-range: entry 40% exit 60%;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .learn-rail { animation: none !important; transform: none !important; } }
+
+/* Page titles: large serif everywhere unless a page sets its own clamp size. */
+main h1:not([class*="text-[clamp"]) { font-size: clamp(2.6rem, 5vw, 4.25rem); }

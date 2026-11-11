@@ -14,7 +14,6 @@ export default function TheoryIndexPage() {
     <AppShell>
       <div className="space-y-8">
         <header className="space-y-2">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700 dark:text-teal-300">Theory &amp; Math</p>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">The maths behind every topic</h1>
           <p className="max-w-3xl text-slate-600 dark:text-slate-400">
             Lessons build intuition and games let you feel it. This section is for when you want the formal version: definitions, equations,

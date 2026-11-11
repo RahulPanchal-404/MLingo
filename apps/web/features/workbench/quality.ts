@@ -8,7 +8,7 @@ export function analyzeDataQuality(
     throw new Error("Cannot analyze quality of empty rows");
   }
 
-  const allColumns = Object.keys(rows[0]);
+  const allColumns: string[] = Object.keys(rows[0] as object);
   let totalMissing = 0;
   const colsWithMissing: string[] = [];
   const constantCols: string[] = [];

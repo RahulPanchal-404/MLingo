@@ -12,11 +12,11 @@ import { ALL_LEVELS, BADGES, GAMES, getGame } from "./registry";
 import { useClearedLevels } from "./use-cleared-levels";
 
 const CARD_ACCENT: Record<GameDef["accent"], string> = {
-  teal: "from-teal-700 to-teal-950 border-teal-900/40",
-  rose: "from-rose-700 to-rose-950 border-rose-900/40",
-  violet: "from-violet-700 to-violet-950 border-violet-900/40",
-  amber: "from-amber-600 to-amber-950 border-amber-900/40",
-  sky: "from-sky-700 to-sky-950 border-sky-900/40",
+  teal: "bg-[#7be0c3]",
+  rose: "bg-[#ff9a8a]",
+  violet: "bg-[#b9a6ff]",
+  amber: "bg-[#ffd166]",
+  sky: "bg-[#8fd3ff]",
 };
 
 function dailyPick(cleared: Set<string>) {
@@ -36,25 +36,25 @@ function GameCard({ game }: { game: GameDef }) {
   return (
     <Link
       href={`/games/${game.id}?level=${firstOpen.id}`}
-      className={`group relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl border bg-gradient-to-br p-6 text-white shadow-xl transition hover:-translate-y-0.5 hover:shadow-2xl ${CARD_ACCENT[game.accent]}`}
+      className={`group relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl border p-6 text-slate-950 ${CARD_ACCENT[game.accent]}`}
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">Chapter {game.chapter} · {game.chapterTitle}</span>
-          <span className="font-mono text-xs text-white/70">{stars} / {game.levels.length * 3} ★</span>
+          <span className="rounded-full border-2 border-slate-950 bg-white/70 px-3 py-1 text-xs font-bold">Chapter {game.chapter} · {game.chapterTitle}</span>
+          <span className="text-xs font-semibold tabular-nums text-slate-900/70">{stars} / {game.levels.length * 3} ★</span>
         </div>
         <h2 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight"><span aria-hidden="true" className="text-3xl">{game.icon}</span>{game.title}</h2>
-        <p className="text-sm text-white/85">{game.tagline}</p>
+        <p className="text-[15px] text-slate-900/85">{game.tagline}</p>
         <ul className="space-y-1">
           {game.levels.map((l) => (
-            <li key={l.id} className="flex items-center justify-between text-sm text-white/90">
+            <li key={l.id} className="flex items-center justify-between border-t border-slate-950/15 pt-1 text-sm text-slate-900">
               <span>{l.number}. {l.name}</span>
               <Stars count={bestStars(l.id)} size={11} />
             </li>
           ))}
         </ul>
       </div>
-      <span className="flex items-center gap-1 self-end rounded-xl bg-white px-4 py-2 text-sm font-bold text-slate-900">
+      <span className="flex items-center gap-1 self-end rounded-xl border-2 border-slate-950 bg-white px-4 py-2 text-sm font-bold text-slate-900">
         {stars ? "Continue" : "Play"} <ArrowRightIcon size={16} className="transition-transform group-hover:translate-x-1" />
       </span>
     </Link>
@@ -99,11 +99,9 @@ export function GamesHub() {
   return (
     <div className="space-y-8">
       {/* Player header */}
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-white to-orange-50/60 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-6 sm:p-8 shadow-sm">
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-orange-400/10 blur-3xl" aria-hidden="true" />
+      <section className="relative overflow-hidden rounded-3xl border bg-white p-6 sm:p-8 dark:bg-slate-900">
         <div className="relative grid gap-6 lg:grid-cols-[1.2fr_1fr_1fr]">
           <div className="space-y-4">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700 dark:text-teal-300">Arcade</p>
             <div className="flex items-center gap-4">
               {signedIn && player ? (
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-700 dark:bg-teal-500 text-lg font-black text-white dark:text-slate-950">
@@ -111,7 +109,7 @@ export function GamesHub() {
                 </span>
               ) : null}
               <div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-5xl sm:text-6xl text-slate-950 dark:text-white">
                   {signedIn && player ? `Hey ${player.display_name.split(" ")[0]}` : "Learn ML by playing it"}
                 </h1>
                 <p className="text-slate-600 dark:text-slate-400">

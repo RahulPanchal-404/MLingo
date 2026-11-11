@@ -139,10 +139,6 @@ export default function ChallengesPage() {
       <div className="space-y-10 py-2">
         {/* Header Briefing */}
         <header className="space-y-4 max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-700 dark:text-teal-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400" />
-            Break Mode Tactical Missions
-          </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
             Investigation Missions
           </h1>

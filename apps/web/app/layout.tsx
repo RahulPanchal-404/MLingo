@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible, Bricolage_Grotesque, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Inter_Tight, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TutorProvider } from "@/features/tutor/tutor-provider";
 import { TutorLauncher } from "@/features/tutor/components/tutor-launcher";
@@ -9,15 +9,16 @@ import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 import { ThemeProvider, ThemeScript } from "@/features/theme/theme-provider";
 import { AuthProvider } from "@/features/players/auth-provider";
 
-const body = Atkinson_Hyperlegible({
+const body = Inter_Tight({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "700"],
 });
 
-const display = Bricolage_Grotesque({
+const display = Instrument_Serif({
   variable: "--font-display-face",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
 const geistMono = Geist_Mono({

@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@theatre/core": "^0.7.2",
     "@types/katex": "^0.16.8",
     "katex": "^0.19.1",
     "next": "16.4.6",

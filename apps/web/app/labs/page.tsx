@@ -220,45 +220,11 @@ export default function LabsPage() {
     <AppShell>
       <div className="space-y-10 py-2">
         {/* Hero Section */}
-        <header className="space-y-4 max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-700 dark:text-teal-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400 animate-pulse" />
-            Interactive ML Playground
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
-            What do you want to watch learn?
-          </h1>
-          <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
-            Machine learning shouldn&apos;t be a black-box formula or static code snippet. In MLingo laboratories, every algorithm executes live mathematical training so you can scrub through frames, inspect internal parameter updates, and see true convergence in motion.
+        <header className="grid items-end gap-8 border-b-2 border-[var(--ink)] pb-10 lg:grid-cols-[1.4fr_1fr]">
+          <h1 className="text-[clamp(3rem,7vw,5.5rem)] text-slate-950 dark:text-white">What do you want to watch learn?</h1>
+          <p className="max-w-[46ch] text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+            Each lab trains a real model in your browser. Scrub through the frames, change the settings, and watch the weights and the loss respond.
           </p>
-
-          {/* 8-Step Learning Loop Pill Bar */}
-          <div className="pt-2">
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-400">
-              <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[10px] mr-1">
-                Learning Loop:
-              </span>
-              {[
-                "LEARN",
-                "RUN",
-                "SCRUB",
-                "INSPECT",
-                "BREAK",
-                "COMPARE",
-                "UNDERSTAND",
-                "BUILD",
-              ].map((step, idx, arr) => (
-                <span key={step} className="inline-flex items-center gap-1">
-                  <span className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2 py-0.5 font-mono text-teal-700 dark:text-teal-300 shadow-2xs">
-                    {step}
-                  </span>
-                  {idx < arr.length - 1 && (
-                    <span className="text-slate-300 dark:text-slate-700">→</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          </div>
         </header>
 
         {/* 4 Laboratory Playground Cards (2-Column Desktop Grid) */}

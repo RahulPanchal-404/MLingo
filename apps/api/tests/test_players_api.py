@@ -1,3 +1,4 @@
+import os
 from datetime import date, datetime, timedelta, timezone
 
 import pytest
@@ -11,10 +12,27 @@ from app.services import players as service
 TODAY = datetime.now(timezone.utc).date()
 
 
-@pytest.fixture
-def client() -> TestClient:
+POSTGRES_TEST_URL = os.environ.get("MLINGO_TEST_POSTGRES_URL")
+
+
+def _make_store(kind: str):
+    if kind == "sqlite":
+        return PlayerStore(":memory:")
+    if not POSTGRES_TEST_URL:
+        pytest.skip("set MLINGO_TEST_POSTGRES_URL to run the Postgres store tests")
+    import psycopg
+
+    from app.players.pg_store import PostgresPlayerStore
+
+    with psycopg.connect(POSTGRES_TEST_URL, autocommit=True) as conn:
+        conn.execute("DROP SCHEMA IF EXISTS mlingo CASCADE")  # isolate each test
+    return PostgresPlayerStore(POSTGRES_TEST_URL)
+
+
+@pytest.fixture(params=["sqlite", "postgres"])
+def client(request: pytest.FixtureRequest) -> TestClient:
     app = create_app()
-    store = PlayerStore(":memory:")
+    store = _make_store(request.param)
     app.dependency_overrides[service.get_player_store] = lambda: store
     return TestClient(app)
 

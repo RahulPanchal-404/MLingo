@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from typing import Any, Literal
 
@@ -50,6 +51,13 @@ class GameResultIn(BaseModel):
     score: int = Field(ge=0)
     meta: dict[str, Any] = Field(default_factory=dict)
     local_date: date
+
+    @field_validator("meta")
+    @classmethod
+    def meta_is_small(cls, value: dict[str, Any]) -> dict[str, Any]:
+        if len(json.dumps(value, default=str)) > 2_000:
+            raise ValueError("meta is too large (max 2,000 characters as JSON).")
+        return value
 
 
 class BadgeOut(BaseModel):

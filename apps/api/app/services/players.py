@@ -7,6 +7,7 @@ import hmac
 import secrets
 from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from app.core.config import get_settings
 from app.players.progress import (
@@ -21,6 +22,9 @@ from app.players.progress import (
     xp_for_result,
 )
 from app.players.store import PlayerRecord, PlayerStore
+
+if TYPE_CHECKING:
+    from app.players.pg_store import PostgresPlayerStore
 from app.schemas.players import (
     BadgeOut,
     GameResultIn,
@@ -41,12 +45,22 @@ class PlayerError(Exception):
 
 
 @lru_cache
-def _store_for(path: str) -> PlayerStore:
+def _sqlite_store(path: str) -> PlayerStore:
     return PlayerStore(path)
 
 
-def get_player_store() -> PlayerStore:
-    return _store_for(get_settings().players_db_path)
+@lru_cache
+def _postgres_store(url: str) -> "PostgresPlayerStore":
+    from app.players.pg_store import PostgresPlayerStore  # optional dependency for local dev
+
+    return PostgresPlayerStore(url)
+
+
+def get_player_store() -> "PlayerStore | PostgresPlayerStore":
+    settings = get_settings()
+    if settings.players_database_url:
+        return _postgres_store(settings.players_database_url)
+    return _sqlite_store(settings.players_db_path)
 
 
 def hash_password(password: str) -> str:

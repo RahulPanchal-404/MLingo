@@ -58,6 +58,8 @@ export const lineMse = (pts: Pt[], left: number, right: number) => {
 export const DEGREES = Array.from({ length: 12 }, (_, i) => i + 1);
 export const LAMBDAS = Array.from({ length: 41 }, (_, i) => 10 ** (-7 + i * 0.2));
 
+export const bestDegree = (t: CurveTask) => DEGREES.reduce((b, d) => (polyMse(polyModel(t.train, d), t.test) < polyMse(polyModel(t.train, b), t.test) ? d : b), 1);
+export const bestLambda = (t: CurveTask) => LAMBDAS.reduce((b, l) => (polyMse(polyModel(t.train, RIDGE_DEGREE, l), t.test) < polyMse(polyModel(t.train, RIDGE_DEGREE, b), t.test) ? l : b), LAMBDAS[0]);
 export const bestTestOverDegrees = (t: CurveTask) => Math.min(...DEGREES.map((d) => polyMse(polyModel(t.train, d), t.test)));
 export const bestTestOverLambdas = (t: CurveTask) => Math.min(...LAMBDAS.map((l) => polyMse(polyModel(t.train, RIDGE_DEGREE, l), t.test)));
 
@@ -88,4 +90,5 @@ export const lassoModel = (t: LassoTask, lambda: number) => lassoFit(t.Xtr, t.yt
 export const lassoTest = (t: LassoTask, m: { w: number[]; b: number }) => mse(t.Xte.map((r) => predictLinear(r, m)), t.yte);
 /** Lasso differences are smaller, so the score is stricter. */
 export const lassoScore = (yours: number, best: number) => Math.round(1000 * Math.min(1, best / Math.max(yours, 1e-9)) ** 3);
+export const bestLassoLambda = (t: LassoTask) => LASSO_LAMBDAS.reduce((b, l) => (lassoTest(t, lassoModel(t, l)) < lassoTest(t, lassoModel(t, b)) ? l : b), LASSO_LAMBDAS[0]);
 export const bestLassoTest = (t: LassoTask) => Math.min(...LASSO_LAMBDAS.map((l) => lassoTest(t, lassoModel(t, l))));

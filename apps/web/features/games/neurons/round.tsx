@@ -69,7 +69,7 @@ export function NeuronsRound({ level, onDone }: RoundProps) {
       onDoneLater(() => onDone(finish(level.id, score, t, acc, changes, nextHp)));
     } else if (nextHp <= 0 || t >= TIME_LIMIT) {
       setResult({ won: false, score: 0 });
-      onDoneLater(() => onDone(finish(level.id, 0, t, acc, changes, nextHp)));
+      onDoneLater(() => onDone(finish(level.id, 0, t, acc, changes, nextHp, shieldWhy(level.id, cfg, { ...snap, acc }))));
     }
   });
 
@@ -121,7 +121,7 @@ export function NeuronsRound({ level, onDone }: RoundProps) {
         </div>
       </div>
       {result ? (
-        <Banner title={result.won ? "💥 Invaders trapped!" : hp <= 0 ? "☠️ Base destroyed" : "⌛ Out of time"} sub={result.won ? `Shield complete in ${time.toFixed(1)}s.` : "The shield never learned the pattern."} />
+        <Banner title={result.won ? "💥 Invaders trapped!" : hp <= 0 ? "☠️ Base destroyed" : "⌛ Out of time"} sub={result.won ? `Shield complete in ${time.toFixed(1)}s.` : shieldWhy(level.id, cfg, snap)} />
       ) : null}
       <ControlDeck>
         {setup.controls.includes("activation")
@@ -200,7 +200,29 @@ function NetDiagram({ cfg }: { cfg: NetConfig }) {
   );
 }
 
-function finish(levelId: string, score: number, seconds: number, acc: number, changes: number, hp: number) {
+/** Why the shield didn't form, from the settings the player ended with. */
+function shieldWhy(levelId: string, cfg: NetConfig, snap: Snap): string {
+  const loss = Number.isFinite(snap.loss) ? fmt(snap.loss, 3) : "∞";
+  if (levelId === "xor")
+    return cfg.activation === "linear"
+      ? "Your neurons were still linear, so however many there are, the shield is one straight wall, and invaders sit in opposite corners. Switch to a non-linear activation (tanh, sigmoid or ReLU)."
+      : "The shield ran out of time while still learning. Try another non-linear activation; tanh usually forms fastest.";
+  if (levelId === "capacity")
+    return cfg.hidden < 3
+      ? `With ${cfg.hidden} hidden neuron${cfg.hidden === 1 ? "" : "s"} the shield has at most ${cfg.hidden} straight edge${cfg.hidden === 1 ? "" : "s"}, and enclosing a ring needs at least 3. Add neurons.`
+      : "The shield ran out of time. A few more neurons give it a rounder edge and it forms faster.";
+  if (levelId === "saturate") {
+    if (!cfg.standardize) return `The inputs are in the thousands, so the sigmoid neurons sat in their flat ends with almost no gradient: the loss stayed stuck around ${loss}. Calibrate the signal (standardize) first.`;
+    if (cfg.lr < 0.05) return `Inputs are calibrated now, but the learning rate (${fmt(cfg.lr, 3)}) is too small to train in time. Raise it.`;
+    return `Inputs are calibrated, but the learning rate (${fmt(cfg.lr, 3)}) made training unstable (loss ${loss}). Try a value between 0.3 and 3.`;
+  }
+  if (cfg.lr > 3)
+    return `The learning rate (${fmt(cfg.lr, 3)}) is far too high: big updates pushed ${snap.dead} ReLU neuron${snap.dead === 1 ? "" : "s"} permanently below zero (dead), so they stopped learning. Lower it, then release the slider to rebuild.`;
+  if (cfg.lr < 0.05) return `The learning rate (${fmt(cfg.lr, 3)}) is so low the shield crawled and ran out of time. Raise it.`;
+  return `Close. The learning rate (${fmt(cfg.lr, 3)}) is in a workable range, but ${snap.dead} neuron${snap.dead === 1 ? " is" : "s are"} dead. Try a value around 0.3 to 1.`;
+}
+
+function finish(levelId: string, score: number, seconds: number, acc: number, changes: number, hp: number, why?: string) {
   const text: Record<string, string> = {
     xor: "Invaders sit in opposite corners, so no single straight wall can trap them. With a linear activation the whole network collapses into one straight line, however many neurons it has. A non-linear activation (tanh, sigmoid or ReLU) is what lets it bend the shield.",
     capacity: "Each hidden neuron adds roughly one straight edge to the shield. Enclosing a circle needs at least three edges, so one or two neurons underfit no matter how long they train.",
@@ -210,7 +232,7 @@ function finish(levelId: string, score: number, seconds: number, acc: number, ch
   return {
     score,
     headline: score > 0 ? `Shield up in ${seconds.toFixed(1)}s.` : "The shield never formed.",
-    detail: text[levelId],
+    detail: why ? `What went wrong. ${why} ${text[levelId]}` : text[levelId],
     stats: [
       { label: "Accuracy reached", value: pct(acc) },
       { label: "Time", value: `${seconds.toFixed(1)}s` },

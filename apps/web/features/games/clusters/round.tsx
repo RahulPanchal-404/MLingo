@@ -176,7 +176,7 @@ function HireRound({ onDone }: Pick<RoundProps, "onDone">) {
         </div>
       </div>
       {popup ? (
-        <Banner title={popup.score === 1000 ? "🏆 Perfect hire!" : popup.score > 0 ? "🙂 Close" : "😬 Way off"} sub={`You hired ${k}. This farm really has ${task.trueK} flocks. +${popup.score}`}>
+        <Banner title={popup.score === 1000 ? "🏆 Perfect hire!" : popup.score > 0 ? "🙂 Close" : "😬 Way off"} sub={`You hired ${k}. This farm really has ${task.trueK} flocks. +${popup.score}${k > task.trueK ? ". Too many dogs: after the elbow each extra dog saves only a little walking but costs a full wage. Hire where the walking bars stop dropping sharply." : k < task.trueK ? ". Too few dogs: some dogs had to herd two flocks at once, so walking stayed high. Add dogs until the walking bar stops dropping sharply (the elbow)." : ""}`}>
           <GameButton onClick={next}>{i + 1 === ELBOW_TASKS.length ? "Finish" : "Next farm →"}</GameButton>
         </Banner>
       ) : null}
@@ -250,7 +250,7 @@ function DropRound({ onDone }: Pick<RoundProps, "onDone">) {
         caption={frames ? (ended ? "Herding finished" : `Whistle ${herd.at + 1}: sheep pick a dog, dogs walk to the middle`) : "Tap the field to drop 4 dogs"}
       />
       {ended ? (
-        <Banner title={good ? "🐑 Flocks herded!" : "🐕 Dogs got stuck"} sub={`Walking distance ${fmt(final!.inertia, 0)} vs best ${fmt(task.best, 0)}: +${score}${runs > 1 ? " (re-drop penalty applied)" : ""}`}>
+        <Banner title={good ? "🐑 Flocks herded!" : "🐕 Dogs got stuck"} sub={`Walking distance ${fmt(final!.inertia, 0)} vs best ${fmt(task.best, 0)}: +${score}${runs > 1 ? " (re-drop penalty applied)" : ""}${good ? "" : ". Two dogs started in the same flock, so they split it while another dog was left herding two flocks, and K-Means never fixes that. Drop one dog in each flock, or use Smart drop."}`}>
           <GameButton tone="ghost" onClick={retry}>Re-drop dogs (−150)</GameButton>
           <GameButton onClick={next}>{i + 1 === START_TASKS.length ? "Finish" : "Next field →"}</GameButton>
         </Banner>
@@ -327,7 +327,7 @@ function UnitsRound({ onDone }: Pick<RoundProps, "onDone">) {
         caption="→ income (₹k / year)   ↑ visits per month"
       />
       {ended ? (
-        <Banner title={pur > 0.9 ? "🐑 Real segments found!" : "🌀 Flocks mixed up"} sub={`${pct(pur)} of sheep in the right flock: +${score}`}>
+        <Banner title={pur > 0.9 ? "🐑 Real segments found!" : "🌀 Flocks mixed up"} sub={`${pct(pur)} of sheep in the right flock: +${score}${pur > 0.9 ? "" : !fixed ? ". The map wasn't fixed: income is in big numbers and visits in tiny ones, so the dogs only saw income and merged flocks that differ in visits. Fix the map scale (standardize)." : k !== new Set(points.map((p) => p.label)).size ? `. The scale is fixed, but this farm has ${new Set(points.map((p) => p.label)).size} flocks and you sent ${k} dogs.` : ""}`}>
           <GameButton tone="ghost" onClick={again}>Change settings (−150)</GameButton>
           <GameButton onClick={next}>{i + 1 === UNIT_TASKS.length ? "Finish" : "Next farm →"}</GameButton>
         </Banner>
@@ -384,7 +384,7 @@ function ToolRound({ onDone }: Pick<RoundProps, "onDone">) {
       <TopBar left={<span className="text-white/70">🌀 {task.name} · {i + 1}/{TOOL_TASKS.length}</span>} right={<Stat icon="🎯" value={pick ? pct(pick.pur) : "-"} tone={pick ? (good ? "good" : "bad") : undefined} />} />
       <Field points={task.points} dom={dom} assign={pick?.assign ?? null} dogs={pick?.dogs} links={pick?.links} caption={pick ? "" : "Look at the shapes. One try per field."} />
       {pick ? (
-        <Banner title={good ? "🐑 Every flock separated!" : "✂️ Flocks sliced in half"} sub={`${pct(pick.pur)} in the right flock: +${purityScore(pick.pur)}`}>
+        <Banner title={good ? "🐑 Every flock separated!" : pick.tool === "dogs" ? "✂️ Flocks sliced in half" : "🔗 Flocks mixed up"} sub={`${pct(pick.pur)} in the right flock: +${purityScore(pick.pur)}${good ? "" : pick.tool === "dogs" ? ". Sheepdogs (K-Means) guard round patches with straight borders, so they cut rings and moons in half. Follow-the-leader (DBSCAN) follows any dense shape." : ". Follow-the-leader linked flocks that touch, or left sheep out as strays. For round, well-separated flocks, sheepdogs (K-Means) work well."}`}>
           <GameButton onClick={next}>{i + 1 === TOOL_TASKS.length ? "Finish" : "Next field →"}</GameButton>
         </Banner>
       ) : null}

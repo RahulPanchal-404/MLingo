@@ -8,7 +8,7 @@ import { fmt, logPosition, logValue, pct } from "../framework/math";
 import type { RoundProps, RoundResult } from "../framework/types";
 import {
   BEAMS, DEGREE_TASKS, LASSO_LAMBDAS, LASSO_TASKS, LINE_TASKS, REAL_BEAMS, RIDGE_DEGREE, RIDGE_TASKS, TRUCK_TOLERANCE,
-  bestLassoTest, bestLine, lassoScore, bestTestOverDegrees, bestTestOverLambdas, lassoModel, lassoTest, lineMse, polyModel, polyMse, polyPredict, ratioScore,
+  bestDegree, bestLambda, bestLassoLambda, bestLassoTest, bestLine, lassoScore, bestTestOverDegrees, bestTestOverLambdas, lassoModel, lassoTest, lineMse, polyModel, polyMse, polyPredict, ratioScore,
   type CurveTask, type Pt,
 } from "./logic";
 
@@ -175,8 +175,8 @@ function CurveRound({ mode, onDone }: { mode: Mode; onDone: RoundProps["onDone"]
           title={result.score >= 850 ? "🏆 Rock-solid bridge!" : result.score >= 500 ? "🙂 Most trucks made it" : "💥 Trucks in the river"}
           sub={
             mode === "line"
-              ? `Your error ${fmt(result.err, 3)} vs least-squares ${fmt(result.best, 3)} (green dashed line): +${result.score}`
-              : `${pct(result.hit)} of test trucks crossed. Test error ${fmt(result.err, 3)} vs best possible ${fmt(result.best, 3)}: +${result.score}`
+              ? `Your error ${fmt(result.err, 3)} vs least-squares ${fmt(result.best, 3)} (green dashed line): +${result.score}.${result.score < 850 ? " Your bridge misses the pillars more than it needs to: move its ends until it sits on the green line, where the red error lines are shortest overall." : ""}`
+              : `${pct(result.hit)} of test trucks crossed. Test error ${fmt(result.err, 3)} vs best possible ${fmt(result.best, 3)}: +${result.score}.${result.score < 850 ? " " + curveWhy(mode, task, degree, lambda, trainErr, result.err) : ""}`
           }
         >
           <GameButton onClick={next}>{i + 1 === tasks.length ? "Finish" : "Next canyon →"}</GameButton>
@@ -274,7 +274,7 @@ function LassoRound({ onDone }: Pick<RoundProps, "onDone">) {
       {result ? (
         <Banner
           title={result.score >= 850 ? "🏆 Lean, strong bridge!" : result.junkKept > 2 ? "🗑️ Too much junk left" : "🙂 Decent"}
-          sub={`Kept ${result.kept} beams (${result.junkKept} junk). Test error ${fmt(result.err, 2)} vs best ${fmt(result.best, 2)}: +${result.score}. ✅ = real beam, 🗑️ = junk.`}
+          sub={`Kept ${result.kept} beams (${result.junkKept} junk). Test error ${fmt(result.err, 2)} vs best ${fmt(result.best, 2)}: +${result.score}. ✅ = real beam, 🗑️ = junk.${result.score < 850 ? " " + lassoWhy(model.w, lambda, bestLassoLambda(task)) : ""}`}
         >
           <GameButton onClick={next}>{i + 1 === LASSO_TASKS.length ? "Finish" : "Next bridge →"}</GameButton>
         </Banner>
@@ -289,6 +289,31 @@ function LassoRound({ onDone }: Pick<RoundProps, "onDone">) {
       </ControlDeck>
     </GameScreen>
   );
+}
+
+/** Why a bendy/stiff bridge did badly, compared with the best setting for this canyon. */
+function curveWhy(mode: Mode, task: CurveTask, degree: number, lambda: number, trainErr: number, testErr: number): string {
+  if (mode === "degree") {
+    const best = bestDegree(task);
+    if (degree === best) return "That's the best degree for this canyon.";
+    return degree > best
+      ? `Too bendy: degree ${degree} hugs the pillars (train error ${fmt(trainErr, 2)}) but wiggles between them, so test trucks fall off (test error ${fmt(testErr, 2)}). That's overfitting. Degree ${best} was best here.`
+      : `Too stiff: degree ${degree} can't follow the shape of the canyon, so it misses pillars and test trucks alike. That's underfitting. Degree ${best} was best here.`;
+  }
+  const best = bestLambda(task);
+  const ratio = lambda / best;
+  if (ratio > 1 / 3.2 && ratio < 3.2) return "That's about the best stiffness for this canyon.";
+  return lambda < best
+    ? `Not stiff enough: with λ = ${lambda.toExponential(0)} the degree-12 bridge still wiggles through every pillar (train error ${fmt(trainErr, 2)}) and the test trucks fall off between them. Raise λ; about ${best.toExponential(0)} was best here.`
+    : `Too stiff: λ = ${lambda.toExponential(0)} flattens the bridge so it can't follow the canyon. Lower λ; about ${best.toExponential(0)} was best here.`;
+}
+
+function lassoWhy(w: number[], lambda: number, best: number): string {
+  const realCut = REAL_BEAMS.filter((j) => Math.abs(w[j]) < 1e-6).map((j) => BEAMS[j]);
+  const junk = w.filter((x, j) => Math.abs(x) > 1e-6 && !REAL_BEAMS.includes(j)).length;
+  if (realCut.length) return `λ was too big: it cut real beams (${realCut.join(", ")}), so the bridge can't carry the load. Lower λ (about ${fmt(best, 2)} was best).`;
+  if (junk > 0 && lambda < best) return `λ was too small: ${junk} junk ${junk === 1 ? "beam" : "beams"} stayed in and fit noise. Raise λ until they're cut (about ${fmt(best, 2)} was best).`;
+  return "";
 }
 
 function summary(mode: string, all: number[]): RoundResult {

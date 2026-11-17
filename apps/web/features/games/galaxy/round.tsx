@@ -115,7 +115,7 @@ function DendroRound({ onDone }: Pick<RoundProps, "onDone">) {
         <Dendrogram n={field.stars.length} merges={merges} cut={cut} onCut={(h) => locked === null && setCut(h)} />
       </div>
       {locked !== null ? (
-        <Banner title={locked >= 850 ? "🌌 Galaxies mapped!" : "🔭 Not quite"} sub={`You cut into ${k} galaxies. The sky really has ${trueK}. +${locked}`}>
+        <Banner title={locked >= 850 ? "🌌 Galaxies mapped!" : "🔭 Not quite"} sub={`You cut into ${k} galaxies. The sky really has ${trueK}. +${locked}${locked >= 850 ? (k > trueK ? `. The extra ${k - trueK === 1 ? "group is" : "groups are"} just a few stray stars, so the map still matches.` : "") : k > trueK ? ". Your cut was too low: it split real galaxies apart. Move it up into the biggest vertical gap of the tree." : k < trueK ? ". Your cut was too high: it merged separate galaxies. Move it down into the biggest vertical gap of the tree." : ""}`}>
           <GameButton onClick={next}>{i + 1 === DENDRO_FIELDS.length ? "Finish" : "Next sky →"}</GameButton>
         </Banner>
       ) : null}
@@ -149,7 +149,7 @@ function LinkageRound({ onDone }: Pick<RoundProps, "onDone">) {
       <TopBar left={<span className="text-white/70">🔗 {field.name} · {i + 1}/{LINKAGE_FIELDS.length}</span>} right={<Stat icon="🌌" value={`${field.k} galaxies wanted`} />} />
       <Sky stars={field.stars} assign={pick?.assign ?? null} />
       {pick ? (
-        <Banner title={pick.score >= 850 ? "🌌 Right linkage!" : "💫 Galaxies tangled"} sub={`${pick.link === "single" ? "Single" : "Complete"} linkage: +${pick.score}. Best here: ${field.best}.`}>
+        <Banner title={pick.score >= 850 ? "🌌 Right linkage!" : "💫 Galaxies tangled"} sub={`${pick.link === "single" ? "Single" : "Complete"} linkage: +${pick.score}. Best here: ${field.best}. ${field.best === "single" ? "These galaxies are long or ring-shaped, so their far ends are far apart; single linkage follows the chain of closest stars." : "A thin bridge of stars joins two galaxies; single linkage walks across it and merges them, while complete linkage keeps galaxies compact."}`}>
           <GameButton onClick={next}>{i + 1 === LINKAGE_FIELDS.length ? "Finish" : "Next sky →"}</GameButton>
         </Banner>
       ) : null}
@@ -179,10 +179,13 @@ function EpsRound({ mode, onDone }: { mode: "eps" | "noise"; onDone: RoundProps[
     if (mode === "eps") {
       const f1 = pairF1(assign, field.stars.map((s) => s.label));
       const best = bestEpsF1(field.stars, mp);
-      setLocked({ score: f1Score(f1 >= best - 0.01 ? Math.max(f1, 0.95) : f1), note: `Agreement with the true galaxies ${pct(f1)} (best possible ${pct(best)}).` });
+      const trueK = new Set(field.stars.map((s) => s.label)).size;
+      const hint = f1 >= best - 0.01 ? "" : noise > field.stars.length * 0.15 || k > trueK ? " ε was too small: light didn't reach between neighbouring stars, so galaxies broke into pieces or into noise. Increase ε." : k < trueK ? " ε was too big: light reached across the gaps, so separate galaxies merged. Decrease ε." : "";
+      setLocked({ score: f1Score(f1 >= best - 0.01 ? Math.max(f1, 0.95) : f1), note: `Agreement with the true galaxies ${pct(f1)} (best possible ${pct(best)}).${hint}` });
     } else {
       const q = noiseQuality(field.stars, assign);
-      setLocked({ score: q.score, note: `Galaxies ${pct(q.clusterF1)} right, dust spotted ${pct(q.noiseF1)}.` });
+      const hint = q.score >= 850 ? "" : q.noiseF1 < 0.6 ? " Too much dust joined galaxies: raise minPts so a lone speck doesn't count as dense, or lower ε." : q.clusterF1 < 0.8 ? " The galaxies themselves broke up: minPts is too strict or ε too small for their density." : "";
+      setLocked({ score: q.score, note: `Galaxies ${pct(q.clusterF1)} right, dust spotted ${pct(q.noiseF1)}.${hint}` });
     }
   }
   function next() {

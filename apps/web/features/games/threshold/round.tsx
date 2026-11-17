@@ -64,7 +64,7 @@ export function ThresholdRound({ level, onDone }: RoundProps) {
       onDone({
         score,
         headline: score >= 850 ? "The kingdom is safe and the gold is intact." : score >= 500 ? "You held, but it cost you." : "The gate was set wrong.",
-        detail: explain(level.id, cfg.positive, accuracy, range.bestT),
+        detail: (score < 850 ? gateWhy(cfg, c("FN"), c("FP"), range.bestT) + " " : "") + explain(level.id, cfg.positive, accuracy, range.bestT),
         stats: [
           { label: "Damage taken", value: String(cost) },
           { label: "Best possible", value: `${range.best} (gate at ${pct(range.bestT)})` },
@@ -168,6 +168,18 @@ export function ThresholdRound({ level, onDone }: RoundProps) {
       </ControlDeck>
     </GameScreen>
   );
+}
+
+/** What the gate setting did wrong, from the mistakes that actually happened. */
+function gateWhy(cfg: (typeof CFGS)[string], fn: number, fp: number, bestT: number): string {
+  const missCost = fn * cfg.costFN;
+  const alarmCost = fp * cfg.costFP;
+  const best = pct(bestT);
+  if (missCost >= alarmCost && fn > 0)
+    return `What went wrong: your gate was too high. ${fn} ${cfg.positive}${fn === 1 ? "" : "s"} got in, costing ${missCost}, against ${alarmCost} for refusing innocents. Lower the gate (the best fixed level was ${best}).`;
+  if (fp > 0)
+    return `What went wrong: your gate was too low. You refused ${fp} innocent ${cfg.noun}, costing ${alarmCost}, more than the ${missCost} the ${cfg.positive}s cost. Raise the gate (the best fixed level was ${best}).`;
+  return "";
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

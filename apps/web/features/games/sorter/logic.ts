@@ -61,6 +61,7 @@ export function knnPredict(train: C[], k: number, q: { a: number; b: number }, t
 }
 export const accuracy = (pred: (c: C) => 0 | 1, data: C[]) => data.filter((c) => pred(c) === c.label).length / data.length;
 export const KS = [1, 3, 5, 7, 9, 11, 15, 21, 31, 45, 79];
+export const bestK = (t: Task) => KS.reduce((b, k) => (accuracy((c) => knnPredict(t.train, k, c), t.test) > accuracy((c) => knnPredict(t.train, b, c), t.test) ? k : b), KS[0]);
 export const bestKnnAcc = (t: Task) => Math.max(...KS.map((k) => accuracy((c) => knnPredict(t.train, k, c), t.test)));
 
 /** 1000 at the best achievable test accuracy, 0 at coin-flip level. */
@@ -124,6 +125,10 @@ export function fullTree(train: C[]): Node {
 }
 export const DEPTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 export const DEPTH_TASKS: Task[] = [task("Jungle", 901, 1.0, "moons"), task("Reef", 902, 1.15, "blobs"), task("Tundra", 903, 0.9, "xor")];
+export const bestDepth = (t: Task) => {
+  const tree = fullTree(t.train);
+  return DEPTHS.reduce((b, d) => (accuracy((c) => treePredict(tree, c, d), t.test) > accuracy((c) => treePredict(tree, c, b), t.test) ? d : b), DEPTHS[0]);
+};
 export const bestDepthAcc = (t: Task) => Math.max(...DEPTHS.map((d) => accuracy((c) => treePredict(fullTree(t.train), c, d), t.test)));
 
 /** Manual tree-building level: hand-picked questions per node, one is clearly best. */

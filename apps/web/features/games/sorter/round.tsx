@@ -6,7 +6,7 @@ import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar } from "../fr
 import { fmt, pct } from "../framework/math";
 import type { RoundProps, RoundResult } from "../framework/types";
 import {
-  DEPTHS, DEPTH_TASKS, KNN_TASKS, KS, SCALE_TASKS, TREE_TASKS, accScore, accuracy, bestDepthAcc, bestKnnAcc, fullTree, gini, go, knnPredict, majority, questionScore, questionsFor, splitGini, standardizer, treePredict,
+  DEPTHS, DEPTH_TASKS, KNN_TASKS, KS, SCALE_TASKS, TREE_TASKS, accScore, accuracy, bestDepth, bestDepthAcc, bestK, bestKnnAcc, fullTree, gini, go, knnPredict, majority, questionScore, questionsFor, splitGini, standardizer, treePredict,
   type C, type Node, type Split, type Task,
 } from "./logic";
 
@@ -114,7 +114,7 @@ function MapRound({ mode, onDone }: { mode: Mode; onDone: RoundProps["onDone"] }
       {tested ? (
         <Banner
           title={tested.score >= 850 ? "🏆 Sorted like a pro!" : tested.score >= 450 ? "🙂 Mostly right" : "😵 Creatures in the wrong pens"}
-          sub={`${pct(tested.acc)} of new creatures sorted correctly (best possible ${pct(tested.best)}). Training accuracy was ${pct(trainAcc)}. +${tested.score}`}
+          sub={`${pct(tested.acc)} of new creatures sorted correctly (best possible ${pct(tested.best)}). Training accuracy was ${pct(trainAcc)}. +${tested.score}. ${tested.score < 850 ? sorterWhy(mode, task, k, std, depth, trainAcc, tested.acc) : ""}`}
         >
           <GameButton onClick={next}>{i + 1 === tasks.length ? "Finish" : "Next field →"}</GameButton>
         </Banner>
@@ -240,6 +240,22 @@ function TreeRound({ onDone }: Pick<RoundProps, "onDone">) {
       <ControlDeck><Legend /></ControlDeck>
     </GameScreen>
   );
+}
+
+/** Why the sorting map did badly on new creatures. */
+function sorterWhy(mode: Mode, task: Task, k: number, std: boolean, depth: number, trainAcc: number, testAcc: number): string {
+  if (mode === "scale")
+    return std ? "" : "Weight is in hundreds of grams and wing length is under 6 cm, so distance was almost all weight, which doesn't tell the species apart. Putting features in the same units lets wing length count.";
+  if (mode === "knn") {
+    const best = bestK(task);
+    if (k < best) return `K = ${k} was too small: each new creature copied its single nearest neighbour, including the mislabelled ones (training ${pct(trainAcc)}, new ${pct(testAcc)}). That's overfitting. K = ${best} was best here.`;
+    if (k > best) return `K = ${k} was too big: asking that many neighbours blurs the border, so creatures near it get the majority species. That's underfitting. K = ${best} was best here.`;
+    return "";
+  }
+  const best = bestDepth(task);
+  if (depth > best) return `Depth ${depth} was too deep: the tree kept asking questions until it memorised the noisy training creatures (training ${pct(trainAcc)}, new ${pct(testAcc)}). Depth ${best} was best here.`;
+  if (depth < best) return `Depth ${depth} was too shallow: too few questions to separate the species. Depth ${best} was best here.`;
+  return "";
 }
 
 function summary(mode: string, all: number[]): RoundResult {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { GAMES } from "../registry";
 import { starsForScore } from "../framework/types";
-import { COURSES, TRAP_GOAL, bestManualJumps, initSim, ravine, simulate, stepManual, trap, valley, type Sim } from "../descent/logic";
+import { COURSES, TRAP_GOAL, bestManualJumps, explainFail, initSim, ravine, simulate, stepManual, stepSim, trap, valley, type Sim } from "../descent/logic";
 import { CFGS, costAt, fixedRange, makeItems, runScore } from "../threshold/logic";
 import { ELBOW_TASKS, TOOL_TASKS, START_TASKS, UNIT_TASKS, bestOf, dbscan, dogWage, elbowCurve, purity, purityScore, standardize, kmeansFrames, kmeansPlusPlus, startScore, totalCost, unitScore, xy } from "../clusters/logic";
 import { SETUPS, makeTrainer, winScore, EPOCHS_PER_SECOND, TIME_LIMIT } from "../neurons/logic";
@@ -203,5 +203,33 @@ describe("guides", () => {
       expect(g.guide.map.length).toBeGreaterThanOrEqual(4);
       expect(g.guide.win && g.guide.lose).toBeTruthy();
     }
+  });
+});
+
+
+describe("descent failure explanations", () => {
+  it("says a single jump flew off when the first jump overshoots the map", () => {
+    const land = valley(4);
+    const run = stepSim(land, { ...initSim(land), status: "running" }, { lr: 1.5, momentum: false });
+    expect(run.status).toBe("lava");
+    expect(run.jumps).toBe(1);
+    const why = explainFail(land, run, { manual: false, lr: 1.5 });
+    expect(why).toMatch(/first jump/);
+    expect(why).toMatch(/above 0\.5/);
+  });
+  it("describes growing overshoots when divergence takes several jumps", () => {
+    const land = valley(1);
+    const run = simulate(land, { lr: 2.2, momentum: false });
+    expect(run.status).toBe("lava");
+    expect(run.jumps).toBeGreaterThan(1);
+    expect(explainFail(land, run, { manual: false, lr: 2.2 })).toMatch(/overshot the flag by more than the last/);
+  });
+  it("blames uphill jumps, not the learning rate, in the manual level", () => {
+    const course = COURSES.eyeball(false)[0];
+    let sim: Sim = { ...initSim(course.land), status: "running" };
+    while (sim.status === "running") sim = stepManual(course.land, sim, course.land.grad(sim.pos)[0] > 0 ? 1 : -1, course.lr!);
+    const why = explainFail(course.land, sim, { manual: true, lr: course.lr! });
+    expect(why).toMatch(/uphill/);
+    expect(why).not.toMatch(/learning rate/);
   });
 });

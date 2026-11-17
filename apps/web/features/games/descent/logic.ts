@@ -143,6 +143,46 @@ export const COURSES: Record<string, (waxed: boolean) => Course[]> = {
   trap: () => [-2.6, -2.0, -3.0].map((s, i) => ({ name: ["The false valley", "Closer call", "Long way round"][i], land: trap(s) })),
 };
 
+const num = (x: number) => String(Number(x.toPrecision(2)));
+
+/** Largest stable jump power for a quadratic bowl (gradient descent diverges above 2 / steepest curvature). */
+export const maxStablePower = (land: Land) => (land.curv ? 2 / Math.max(...land.curv) : undefined);
+
+/**
+ * Plain-language reason for a failed run, based on what actually happened
+ * (one huge jump vs growing overshoots, uphill jumps in the manual level, and so on).
+ */
+export function explainFail(land: Land, run: Sim, opts: { manual: boolean; lr: number; waxed?: boolean }): string {
+  const { manual, lr } = opts;
+  if (manual) {
+    if (run.status === "lava")
+      return "You jumped uphill. Each jump's length is set by how steep the ground is, and going uphill puts you on steeper ground, so your jumps kept getting longer until you flew off. The slope reading points uphill: jump the other way.";
+    return "Out of jumps before the flag. Uphill jumps waste fuel and land you on steeper ground. Always jump against the slope reading.";
+  }
+  if (run.status === "stuck") return "You stopped in a dip. The slope there is flat, so plain gradient descent stops moving. Momentum boots carry you over it.";
+  const limit = maxStablePower(land);
+  const steep = land.curv ? Math.max(...land.curv) : undefined;
+  const good = steep ? 1 / steep : undefined;
+  if (run.status === "fuel") {
+    return `Out of fuel before the flag: each jump was too short to get there in ${land.fuel} jumps. Raise the jump power.` + (good ? ` On this mountain about ${num(good)} gets there fastest.` : "");
+  }
+  // Lava.
+  const hint =
+    land.dim === 2 && !opts.waxed && land.curv
+      ? ` The canyon walls are ${num(land.curv[1] / land.curv[0])}× steeper than the floor, so any power above ${num(limit!)} hits a wall. Waxing the skis (standardizing) makes both directions equally steep.`
+      : limit
+        ? ` On this mountain any power above ${num(limit)} overshoots more every jump. Try about ${num(good!)}.`
+        : " Lower the jump power.";
+  if (run.jumps === 1) {
+    const jumpLen = Math.hypot(...run.pos.map((p, i) => p - run.prev[i]));
+    const dist = Math.hypot(...run.prev.map((p, i) => p - land.center[i]));
+    const g = land.grad(run.prev);
+    const slope = Math.hypot(...g);
+    return `Your first jump was ${num(jumpLen)} long but the flag was only ${num(dist)} away, so you flew straight off the mountain. Jump length = power × steepness = ${num(lr)} × ${num(slope)}.` + hint;
+  }
+  return `Every jump overshot the flag by more than the last, until you flew off the mountain after ${run.jumps} jumps. That's divergence: the jump power (${num(lr)}) is too big for how steep this mountain is.` + hint;
+}
+
 export const LIVES = 3;
 /** Each life lost on a course costs this many points from that course's score. */
 export const LIFE_PENALTY = 150;

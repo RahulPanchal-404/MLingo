@@ -6,7 +6,7 @@ import { useTicker } from "../framework/hooks";
 import { Banner, ControlDeck, Floaters, GameButton, GameScreen, Hearts, Stat, TopBar, type Floater } from "../framework/kit";
 import { fmt, logPosition, logValue } from "../framework/math";
 import type { RoundProps } from "../framework/types";
-import { COURSES, LIFE_PENALTY, LIVES, bestManualJumps, initSim, stepManual, stepSim, type Land, type Sim } from "./logic";
+import { COURSES, LIFE_PENALTY, LIVES, bestManualJumps, explainFail, initSim, stepManual, stepSim, type Land, type Sim } from "./logic";
 
 const W = 560;
 const H = 320;
@@ -57,12 +57,7 @@ export function DescentRound({ level, onDone }: RoundProps) {
       setPopup({ kind: "won", title: "🚩 Flag reached!", sub: `${next.jumps} jumps, ${LIVES - lives} ${LIVES - lives === 1 ? "life" : "lives"} lost: +${score}` });
       return;
     }
-    const why =
-      next.status === "lava"
-        ? "You jumped so far you flew off the mountain. Each overshoot was bigger than the last: the learning rate is too big."
-        : next.status === "stuck"
-          ? "You stopped in a dip. The slope there is flat, so plain gradient descent stops moving."
-          : "Out of fuel before the flag. Your jumps were too small, or wasted going uphill.";
+    const why = explainFail(land, next, { manual, lr, waxed });
     setShake((s) => s + 1);
     const left = lives - 1;
     setLives(left);
@@ -142,7 +137,12 @@ export function DescentRound({ level, onDone }: RoundProps) {
             <Hearts lives={lives} max={LIVES} />
           </>
         }
-        right={<Stat icon="⛽" value={`${land.fuel - sim.jumps}`} tone={land.fuel - sim.jumps < 5 ? "bad" : undefined} />}
+        right={
+          <>
+            {id === "step-size" && land.curv ? <Stat icon="⛰️" value={`steepness ×${land.curv[0]}`} tone={land.curv[0] > 1 ? "bad" : undefined} /> : null}
+            <Stat icon="⛽" value={`${land.fuel - sim.jumps}`} tone={land.fuel - sim.jumps < 5 ? "bad" : undefined} />
+          </>
+        }
       />
       <div key={shake} className={shake ? "g-shake" : ""}>
         {land.dim === 1 ? <Slope land={land} sim={sim} t={t} fog={manual} floaters={floaters} /> : <Canyon land={land} sim={sim} t={t} floaters={floaters} waxed={waxed} />}
@@ -181,6 +181,13 @@ export function DescentRound({ level, onDone }: RoundProps) {
             </label>
             {id === "ravine" ? <GameButton tone="ghost" active={waxed} onClick={toggleWax} disabled={sim.status !== "ready"}>{waxed ? "✓ Skis waxed (standardized)" : "🧴 Wax skis (standardize)"}</GameButton> : null}
             {id === "trap" ? <GameButton tone="ghost" active={momentum} onClick={() => setMomentum(!momentum)}>{momentum ? "✓ Momentum boots ON" : "👢 Momentum boots"}</GameButton> : null}
+            {id === "step-size" && ci > 0 && sim.status === "ready" && land.curv ? (
+              <p className="w-full text-xs text-amber-200">
+                {land.curv[0] > 1
+                  ? `This mountain is ${land.curv[0]}× steeper than the first, so the same jump power jumps ${land.curv[0]}× as far. Lower it before you press Go.`
+                  : `This plain is ${1 / land.curv[0]}× gentler than the first, so the same jump power only goes ${land.curv[0]}× as far. Raise it before you press Go.`}
+              </p>
+            ) : null}
             <GameButton onClick={() => setSim({ ...sim, status: "running" })} disabled={sim.status !== "ready"}>Go ▶</GameButton>
           </>
         )}

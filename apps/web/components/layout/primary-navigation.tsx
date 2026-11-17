@@ -119,8 +119,14 @@ export function TopNavigation() {
 export function PrimaryNavigation({ className }: { className?: string; mobile?: boolean }) {
   const pathname = usePathname();
   const items = [{ href: "/", label: "Home" }, ...NAV_GROUPS.flatMap((g) => g.items), ...YOU];
+  const navRef = useRef<HTMLElement>(null);
+  // The mobile bar scrolls sideways; keep the current section's tab visible.
+  useEffect(() => {
+    const active = navRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    active?.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [pathname]);
   return (
-    <nav aria-label="Primary navigation" className={className}>
+    <nav ref={navRef} aria-label="Primary navigation" className={className}>
       <ul className="flex min-w-max gap-1 text-sm">
         {items.map(({ href, label }) => {
           const active = isActive(pathname, href);

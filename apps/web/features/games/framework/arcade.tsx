@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { GameResult } from "@/features/players/api";
 import { ArrowRightIcon, Stars } from "@/features/players/icons";
@@ -99,6 +99,20 @@ export function ArcadePlayer({ game }: { game: GameDef }) {
   const [index, setIndex] = useState(Math.max(0, requested));
   const [phase, setPhase] = useState<Phase>({ kind: "brief" });
   const [runs, setRuns] = useState(0);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  // On phones the stage starts below the title and level list, so bring it into view
+  // whenever a round starts or ends (only if its top is off-screen).
+  useEffect(() => {
+    if (phase.kind === "brief") return;
+    const el = stageRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top;
+    if (top > window.innerHeight * 0.35 || top < 0) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    }
+  }, [phase.kind, runs]);
   const level = game.levels[index];
   const Round = game.Round;
 
@@ -189,6 +203,7 @@ export function ArcadePlayer({ game }: { game: GameDef }) {
         </div>
       ) : null}
 
+      <div ref={stageRef} className="scroll-mt-20">
       {phase.kind === "play" ? (
         <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <button
@@ -245,6 +260,7 @@ export function ArcadePlayer({ game }: { game: GameDef }) {
           <ConceptCard gameId={game.id} levelId={level.id} concept={level.concept} />
         </div>
       ) : null}
+      </div>
     </div>
   );
 }

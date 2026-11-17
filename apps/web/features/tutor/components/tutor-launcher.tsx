@@ -139,8 +139,8 @@ export function TutorLauncher() {
 
   // Positioning classes based on corner
   const cornerClasses: Record<TutorCorner, string> = {
-    "bottom-right": "bottom-6 right-6 md:bottom-7 md:right-7",
-    "bottom-left": "bottom-6 left-6 md:bottom-7 md:left-7",
+    "bottom-right": "bottom-20 right-4 md:bottom-7 md:right-7",
+    "bottom-left": "bottom-20 left-4 md:bottom-7 md:left-7",
     "top-right": "top-20 right-6 md:top-20 md:right-7",
     "top-left": "top-20 left-6 md:top-20 md:left-7",
   };

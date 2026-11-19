@@ -6,7 +6,7 @@ import { ALL_LESSONS, getLessonBySlug } from "@/features/learning/lessons-data";
 import { MODEL_LESSONS } from "@/features/learning/model-lessons";
 import { THEORY, blockTexts } from "../topics";
 
-const inline = (s: string) => [...s.matchAll(/\$([^$]+)\$/g)].map((m) => m[1]);
+const inline = (s: string) => [...s.replace(/\\\$/g, "").matchAll(/\$([^$]+)\$/g)].map((m) => m[1]);
 const gameExists = (href: string) => {
   const m = href.match(/^\/games\/(\w+)\?level=([\w-]+)$/);
   if (!m) return true;

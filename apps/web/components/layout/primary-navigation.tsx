@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { chapters } from "@/features/learning/chapters";
 
-const LESSON_COUNT = chapters.reduce((n, c) => n + c.lessons.length, 0);
+const LESSON_COUNT = chapters.reduce((n, c) => n + c.lessons.filter((l) => !l.href.startsWith("/theory/")).length, 0);
 
 type NavItem = { href: string; label: string; text?: string };
 type NavGroup = { title: string; items: NavItem[] };

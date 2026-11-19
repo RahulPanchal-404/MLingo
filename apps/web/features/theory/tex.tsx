@@ -7,9 +7,12 @@ export function MathBlock({ tex }: { tex: string }) {
   return <div className="overflow-x-auto py-2 text-slate-900 dark:text-slate-100" dangerouslySetInnerHTML={{ __html: render(tex, true) }} />;
 }
 
-/** Text with $inline maths$, **bold** and `code`. */
+/** Marks a literal dollar sign written as \$ in prose, so it is not read as the start of maths. */
+const DOLLAR = "\u0000";
+
+/** Text with $inline maths$, **bold**, `code`, and \$ for a literal dollar sign. */
 export function TexText({ text }: { text: string }) {
-  const parts = text.split(/(\$[^$]+\$|\*\*[^*]+\*\*|`[^`]+`)/g);
+  const parts = text.replace(/\\\$/g, DOLLAR).split(/(\$[^$]+\$|\*\*[^*]+\*\*|`[^`]+`)/g).map((p) => p.replaceAll(DOLLAR, "$"));
   return (
     <>
       {parts.map((part, i) =>

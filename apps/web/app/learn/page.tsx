@@ -12,7 +12,9 @@ import { chapters } from "@/features/learning/chapters";
  */
 export default function LearnPage() {
   const list = chapters.filter((c) => c.lessons.length > 0);
-  const totalLessons = list.reduce((acc, c) => acc + c.lessons.length, 0);
+  const isTheory = (href: string) => href.startsWith("/theory/");
+  const totalLessons = list.reduce((acc, c) => acc + c.lessons.filter((l) => !isTheory(l.href)).length, 0);
+  const totalTheory = list.reduce((acc, c) => acc + c.lessons.filter((l) => isTheory(l.href)).length, 0);
   const first = list[0].lessons[0];
 
   return (
@@ -20,7 +22,7 @@ export default function LearnPage() {
       <div className="mx-auto max-w-5xl">
         <header className="grid items-end gap-8 border-b-2 border-[var(--ink)] pb-10 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <p className="mb-4 text-slate-500">{list.length} chapters, {totalLessons} lessons</p>
+            <p className="mb-4 text-slate-500">{list.length} chapters, {totalLessons} lessons, {totalTheory} theory deep dives</p>
             <h1 className="text-[clamp(2.5rem,5.5vw,4.5rem)] text-slate-950 dark:text-white">The learning path</h1>
             <p className="mt-5 max-w-[50ch] text-lg leading-relaxed text-slate-600 dark:text-slate-400">
               Start with what a model is and how it learns, then work through regression, classification, clustering and neural networks. Every lesson ends with something to try.

@@ -8,6 +8,8 @@ import { ChapterMotif } from "@/features/learning/chapter-motif";
 import { chapterStyle } from "@/features/learning/chapter-style";
 import { chapters } from "@/features/learning/chapters";
 
+const lessonCount = (c: { lessons: { href: string }[] }) => c.lessons.filter((l) => !l.href.startsWith("/theory/")).length;
+
 /**
  * Chapter index with an in-place preview (oil-motion pattern 08): the list stays compact and
  * the panel shows whichever chapter is hovered or focused. Works the same with keyboard focus
@@ -48,7 +50,7 @@ export function ChapterIndex() {
                 >
                   {c.title.split(":")[0]}
                 </span>
-                <span className="ml-auto text-sm text-slate-500">{c.lessons.length} {c.lessons.length === 1 ? "lesson" : "lessons"}</span>
+                <span className="ml-auto text-sm text-slate-500">{lessonCount(c)} {lessonCount(c) === 1 ? "lesson" : "lessons"}</span>
               </button>
             </li>
           );
@@ -65,13 +67,13 @@ export function ChapterIndex() {
           <h3 className="text-2xl font-bold text-slate-950 dark:text-white">{chapter.title}</h3>
           <p className="mt-2 text-slate-600 dark:text-slate-400">{chapter.subtitle}</p>
           <ul className="mt-6 space-y-2.5">
-            {chapter.lessons.slice(0, 5).map((l) => (
+            {chapter.lessons.filter((l) => !l.href.startsWith("/theory/")).slice(0, 5).map((l) => (
               <li key={l.href} className="flex gap-3 text-[15px]">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-600 dark:bg-teal-300" aria-hidden="true" />
                 <Link href={l.href} className="text-slate-800 underline-offset-4 hover:underline dark:text-slate-200">{l.title}</Link>
               </li>
             ))}
-            {chapter.lessons.length > 5 ? <li className="pl-[18px] text-sm text-slate-500">and {chapter.lessons.length - 5} more</li> : null}
+            {chapter.lessons.length > 5 ? <li className="pl-[18px] text-sm text-slate-500">and {chapter.lessons.length - Math.min(5, lessonCount(chapter))} more, including theory deep dives</li> : null}
           </ul>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href={`/learn#chapter-${chapter.id}`} className="rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white dark:bg-white dark:text-slate-950">

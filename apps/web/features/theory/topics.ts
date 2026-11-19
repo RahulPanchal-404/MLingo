@@ -32,7 +32,9 @@ export type Block =
   | { pitfalls: { mistake: string; fix: string }[] }
   | { quiz: { q: string; options: string[]; answer: number; why: string } }
   /** A practice problem whose worked solution is folded away. */
-  | { problem: { q: string; solution: Block[] } };
+  | { problem: { q: string; solution: Block[] } }
+  /** A static graph from public/theory/figures (SVG preferred). */
+  | { figure: { src: string; alt: string; caption: string } };
 
 /** Every piece of text in a block (for tests and search). Display maths is returned wrapped in $$. */
 export function blockTexts(b: Block): string[] {
@@ -47,6 +49,7 @@ export function blockTexts(b: Block): string[] {
   if ("table" in b) return [...b.table.head, ...b.table.rows.flat()];
   if ("pitfalls" in b) return b.pitfalls.flatMap((x) => [x.mistake, x.fix]);
   if ("problem" in b) return [b.problem.q, ...b.problem.solution.flatMap(blockTexts)];
+  if ("figure" in b) return [b.figure.caption];
   return [b.quiz.q, ...b.quiz.options, b.quiz.why];
 }
 export type Section = { heading: string; blocks: Block[] };
@@ -71,12 +74,19 @@ import { REGRESSION_THEORY, CLASSIFICATION_THEORY } from "./core/regression-clas
 import { CLUSTERING_THEORY, NN_THEORY, WORKFLOW_THEORY } from "./core/clustering-nn-workflow";
 import { MORE_CLASSIFICATION_THEORY } from "./core/more-classification";
 import { PCA_THEORY, MORE_NN_THEORY, MORE_WORKFLOW_THEORY } from "./core/more-unsupervised-nn-workflow";
+import { NEW_REGRESSION_THEORY } from "./core/new-regression";
+import { NEW_CLASSIFICATION_THEORY } from "./core/new-classification";
+import { NEW_BASICS_THEORY } from "./core/new-basics";
+import { applySupplements } from "./core/supplements";
 
 const CORE_THEORY: TheoryTopic[] = [
   ...FOUNDATIONS_THEORY,
+  ...NEW_BASICS_THEORY,
   ...REGRESSION_THEORY,
+  ...NEW_REGRESSION_THEORY,
   ...CLASSIFICATION_THEORY,
   ...MORE_CLASSIFICATION_THEORY,
+  ...NEW_CLASSIFICATION_THEORY,
   ...CLUSTERING_THEORY,
   ...PCA_THEORY,
   ...NN_THEORY,
@@ -85,7 +95,7 @@ const CORE_THEORY: TheoryTopic[] = [
   ...MORE_WORKFLOW_THEORY,
 ];
 
-export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => mergeDeep(t, DEEP[t.slug]));
+export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => applySupplements(mergeDeep(t, DEEP[t.slug])));
 
 export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Unsupervised learning", "Neural networks", "Workflow"] as const;
 export const getTheory = (slug: string) => THEORY.find((t) => t.slug === slug);

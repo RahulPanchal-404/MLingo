@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="460.8pt" height="237.6pt" viewBox="0 0 460.8 237.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 237.6 
+L 460.8 237.6 
+L 460.8 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 47.899851 207.72 
+L 448.92 207.72 
+L 448.92 26.997187 
+L 47.899851 26.997187 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 66.128039 207.72 
+L 139.040794 207.72 
+L 139.040794 158.098681 
+L 66.128039 158.098681 
+z
+" clip-path="url(#pc44d24079d)" style="fill: #0f766e"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 280.577317 207.72 
+L 353.490071 207.72 
+L 353.490071 155.824783 
+L 280.577317 155.824783 
+z
+" clip-path="url(#pc44d24079d)" style="fill: #0f766e"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 143.329779 207.72 
+L 216.242534 207.72 
+L 216.242534 96.072033 
+L 143.329779 96.072033 
+z
+" clip-path="url(#pc44d24079d)" style="fill: #d97706"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 357.779057 207.72 
+L 430.691811 207.72 
+L 430.691811 35.603036 
+L 357.779057 35.603036 
+z
+" clip-path="url(#pc44d24079d)" style="fill: #d97706"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m0f6ab8d8ba" d="M 0 0 
+L 0 3.5 
+" style="stroke: #334155; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m0f6ab8d8ba" x="141.185287" y="207.72" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="141.185287" y="223.077422" transform="rotate(-0 141.185287 223.077422)">MAE</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m0f6ab8d8ba" x="355.634564" y="207.72" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="355.634564" y="223.077422" transform="rotate(-0 355.634564 223.077422)">RMSE</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_3">
+      <defs>
+       <path id="m39321ec259" d="M 0 0 
+L -3.5 0 
+" style="stroke: #334155; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m39321ec259" x="47.899851" y="207.72" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #334155" x="40.899851" y="211.898711" transform="rotate(-0 40.899851 211.898711)">0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m39321ec259" x="47.899851" y="176.706676" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #334155" x="40.899851" y="180.885387" transform="rotate(-0 40.899851 180.885387)">10</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m39321ec259" x="47.899851" y="145.693352" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #334155" x="40.899851" y="149.872063" transform="rotate(-0 40.899851 149.872063)">20</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m39321ec259" x="47.899851" y="114.680027" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #334155" x="40.899851" y="118.858738" transform="rotate(-0 40.899851 118.858738)">30</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m39321ec259" x="47.899851" y="83.666703" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #334155" x="40.899851" y="87.845414" transform="rotate(-0 40.899851 87.845414)">40</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m39321ec259" x="47.899851" y="52.653379" style="fill: #334155; stroke: #334155; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #334155" x="40.899851" y="56.83209" transform="rotate(-0 40.899851 56.83209)">50</text>
+     </g>
+    </g>
+    <g id="text_9">
+     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="20.259773" y="117.358594" transform="rotate(-90 20.259773 117.358594)">error ($k)</text>
+    </g>
+   </g>
+   <g id="patch_7">
+    <path d="M 47.899851 207.72 
+L 47.899851 26.997187 
+" style="fill: none; stroke: #334155; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 47.899851 207.72 
+L 448.92 207.72 
+" style="fill: none; stroke: #334155; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="102.584417" y="151.896016" transform="rotate(-0 102.584417 151.896016)">16.0</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="179.786157" y="89.869368" transform="rotate(-0 179.786157 89.869368)">36.0</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="317.033694" y="149.622118" transform="rotate(-0 317.033694 149.622118)">16.7</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="394.235434" y="29.400371" transform="rotate(-0 394.235434 29.400371)">55.5</text>
+   </g>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="248.409925" y="20.997187" transform="rotate(-0 248.409925 20.997187)">One large miss moves RMSE far more than MAE</text>
+   </g>
+   <g id="legend_1">
+    <g id="patch_9">
+     <path d="M 57.799851 45.255469 
+L 79.799851 45.255469 
+L 79.799851 37.555469 
+L 57.799851 37.555469 
+z
+" style="fill: #0f766e"/>
+    </g>
+    <g id="text_15">
+     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="88.599851" y="45.255469" transform="rotate(-0 88.599851 45.255469)">original errors</text>
+    </g>
+    <g id="patch_10">
+     <path d="M 57.799851 61.756328 
+L 79.799851 61.756328 
+L 79.799851 54.056328 
+L 57.799851 54.056328 
+z
+" style="fill: #d97706"/>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="88.599851" y="61.756328" transform="rotate(-0 88.599851 61.756328)">one miss becomes 120</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pc44d24079d">
+   <rect x="47.899851" y="26.997187" width="401.020149" height="180.722813"/>
+  </clipPath>
+ </defs>
+</svg>

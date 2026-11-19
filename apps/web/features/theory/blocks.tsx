@@ -68,6 +68,16 @@ export function BlockView({ b }: { b: Block }) {
       </details>
     );
   if ("tryit" in b) return <TryIt id={b.tryit} caption={b.caption} />;
+  if ("figure" in b)
+    return (
+      <figure className="light-island overflow-hidden rounded-2xl border-2 border-[var(--panel-line)] bg-white">
+        {/* eslint-disable-next-line @next/next/no-img-element -- static SVG graphs, no optimisation needed */}
+        <img src={b.figure.src} alt={b.figure.alt} loading="lazy" className="mx-auto block h-auto max-w-full" />
+        <figcaption className="border-t border-slate-200 px-4 py-2.5 text-[14px] leading-relaxed text-slate-700">
+          <TexText text={b.figure.caption} />
+        </figcaption>
+      </figure>
+    );
   if ("table" in b)
     return (
       <div className="overflow-x-auto rounded-2xl border-2 border-[var(--panel-line)]">

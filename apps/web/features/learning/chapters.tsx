@@ -15,6 +15,22 @@ function lessonsFor(prefix: string, concepts: Record<string, string[]>): LessonI
   }));
 }
 
+/** Learn-page cards that open a full theory page (maths, derivations, code). Kept as plain data so the nav bundle stays small. */
+function theoryCards(group: string, prefix: string, items: [slug: string, title: string, summary: string, minutes: number, concepts: string[]][]): LessonItem[] {
+  return items.map(([slug, title, summary, minutes, concepts], i) => ({
+    href: `/theory/${slug}`,
+    num: `${prefix}${i + 1}`,
+    title,
+    summary,
+    idea: summary,
+    difficulty: "Intermediate",
+    time: `${minutes} min read`,
+    concepts,
+    tryIt: "Read the theory →",
+    group,
+  }));
+}
+
 export type LessonItem = {
   href: string;
   num: string;
@@ -184,6 +200,11 @@ export const chapters: Chapter[] = [
         tryIt: "Start lesson →",
         group: "Core ideas",
       },
+      ...theoryCards("Go deeper: basics theory", "B", [
+        ["linear-algebra-for-ml", "Linear Algebra for ML: Rank, Inverse, Eigenvectors & SVD", "Matrices as transformations, why inverses fail, eigenvectors behind PCA, and the SVD.", 9, ["rank", "inverse", "eigenvectors", "SVD"]],
+        ["statistics-inference", "Statistical Inference: Intervals, Tests & Bootstrap", "Standard errors, confidence intervals, p-values, choosing a test, and the bootstrap.", 9, ["standard error", "confidence interval", "p-value", "bootstrap"]],
+        ["gradient-descent-variants", "Gradient Descent Variants: Batch, SGD & Mini-batch", "Rows per step, why scaling matters, the learning-rate limit, and gradient checking.", 8, ["mini-batch", "epoch", "scaling", "η < 2/L"]],
+      ]),
     ],
   },
   {
@@ -199,8 +220,12 @@ export const chapters: Chapter[] = [
         <line x1="15" y1="56" x2="145" y2="12" stroke="#14b8a6" strokeWidth="2" />
       </svg>
     ),
-    lessons: lessonsFor("Regression", { "linear-regression": ["weights", "bias", "MSE", "least squares"], "polynomial-regression": ["degree", "underfitting", "overfitting", "test error"], regularization: ["ridge", "lasso", "lambda", "feature selection"] }),
-  },
+    lessons: [...lessonsFor("Regression", { "linear-regression": ["weights", "bias", "MSE", "least squares"], "polynomial-regression": ["degree", "underfitting", "overfitting", "test error"], regularization: ["ridge", "lasso", "lambda", "feature selection"] }).map((l) => ({ ...l, group: "Lessons" })), ...theoryCards("Go deeper: regression theory", "R", [
+      ["multiple-linear-regression", "Multiple Linear Regression & the Normal Equation", "Many inputs, the design matrix, the normal equation derived line by line, and multicollinearity.", 12, ["design matrix", "normal equation", "VIF"]],
+      ["regression-metrics", "Regression Metrics: MAE, MSE, RMSE, R²", "What each error metric is sensitive to, adjusted R², MAPE's trap, and why every score needs a baseline.", 9, ["MAE", "RMSE", "R²", "baseline"]],
+      ["regression-diagnostics", "Assumptions & Residual Diagnostics", "Read residual plots to spot curves, fans, outliers and correlated errors, and fix them.", 8, ["residuals", "heteroscedasticity", "leverage"]],
+      ["tree-knn-regression", "Regression Trees & KNN Regression", "Non-linear regression without an equation: leaf averages and neighbour averages.", 7, ["SSE split", "k neighbours", "extrapolation"]],
+    ])],  },
   {
     id: "supervised",
     chapterNumber: "03",
@@ -216,8 +241,17 @@ export const chapters: Chapter[] = [
         <line x1="60" y1="55" x2="100" y2="15" stroke="#14b8a6" strokeWidth="2" strokeDasharray="3 3" />
       </svg>
     ),
-    lessons: lessonsFor("Classification", { "logistic-regression": ["sigmoid", "probability", "log-loss", "threshold"], "k-nearest-neighbors": ["distance", "majority vote", "choosing K", "scaling"], "decision-trees": ["splits", "Gini impurity", "depth", "overfitting"] }),
-  },
+    lessons: [...lessonsFor("Classification", { "logistic-regression": ["sigmoid", "probability", "log-loss", "threshold"], "k-nearest-neighbors": ["distance", "majority vote", "choosing K", "scaling"], "decision-trees": ["splits", "Gini impurity", "depth", "overfitting"] }).map((l) => ({ ...l, group: "Lessons" })), ...theoryCards("Go deeper: more models & classification theory", "C", [
+      ["classification-metrics", "Classification Metrics", "Accuracy, precision, recall, F1, MCC: which errors your model makes and which matter.", 8, ["precision", "recall", "F1", "MCC"]],
+      ["roc-auc-calibration", "ROC, AUC, Precision–Recall & Calibration", "Judge every threshold at once, read AUC as a ranking probability, and check if probabilities can be trusted.", 9, ["ROC", "AUC", "PR curve", "calibration"]],
+      ["multiclass-softmax", "Multiclass Classification & Softmax", "From yes/no to many classes: softmax, cross-entropy and its p − y gradient.", 8, ["softmax", "one-vs-rest", "cross-entropy"]],
+      ["naive-bayes", "Naive Bayes", "Bayes' theorem plus the independence shortcut; fast and strong on text.", 7, ["Bayes", "smoothing", "text"]],
+      ["support-vector-machines", "Support Vector Machines", "The widest-margin boundary, hinge loss, and kernels that let it bend.", 7, ["margin", "hinge", "kernel"]],
+      ["random-forests", "Bagging & Random Forests", "Many trees on resampled data, voting so their errors average out.", 7, ["bootstrap", "OOB", "feature sampling"]],
+      ["gradient-boosting", "Gradient Boosting", "Add small trees one at a time, each fixing the previous mistakes.", 8, ["residuals", "learning rate", "early stopping"]],
+      ["adaboost-xgboost", "AdaBoost & XGBoost: The Math", "Reweighting, second-order leaf weights and split gain, worked by hand for two rounds.", 10, ["α weights", "gradient & Hessian", "gain"]],
+      ["ensemble-methods", "Ensembles: Voting, Bagging & Stacking", "When combining models beats any single one, and when it cannot.", 7, ["voting", "OOB", "stacking"]],
+    ])],  },
   {
     id: "unsupervised",
     chapterNumber: "04",

@@ -216,7 +216,7 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
           </aside>
 
           {/* Right Column: Contextual Active Milestone Content */}
-          <main className="lg:col-span-3 min-w-0" id="milestone-content-area">
+          <section className="lg:col-span-3 min-w-0" id="milestone-content-area">
             {state.currentMilestoneId === "problem" && (
               <MilestoneProblemView
                 project={project}
@@ -316,7 +316,7 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
                 onBack={handleStepBack}
               />
             )}
-          </main>
+          </section>
         </div>
       )}
     </div>

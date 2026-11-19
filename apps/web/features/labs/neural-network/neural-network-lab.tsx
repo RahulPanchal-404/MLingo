@@ -8,7 +8,7 @@ import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
-import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
+import { recordLabVisit } from "@/features/progress/activity";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { DecisionSurfacePlot } from "./decision-surface-plot";
@@ -100,8 +100,7 @@ export function NeuralNetworkLab({ breakMode }: NeuralNetworkLabProps = {}) {
   useEffect(() => {
     if (!run || recordedRunId.current === run.id) return;
     recordedRunId.current = run.id;
-    recordLearningActivity({ labsExplored: readLearningActivity().labsExplored + 1 });
-    recordRunConcepts([
+    recordLabVisit("neural-network", [
       "Neural Networks",
       "Backpropagation",
       "Hidden Activations",

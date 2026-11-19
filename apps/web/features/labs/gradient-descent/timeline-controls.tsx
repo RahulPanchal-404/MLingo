@@ -1,3 +1,4 @@
+import { snapshotLabel, snapshotsSummary } from "@/features/timeline/labels";
 import type { PlaybackSpeed } from "@/features/timeline/use-training-timeline";
 import type { TimelineMarker } from "@/features/timeline/types";
 
@@ -47,8 +48,8 @@ export function TimelineControls(props: TimelineControlsProps) {
         <div className="timeline-markers" aria-label="Timeline markers">{markers.map((marker) => <MarkerButton key={marker.id} marker={marker} finalStep={finalStep} onJump={onJump} onRemove={onRemoveMarker} />)}</div>
         <div className="timeline-playhead" aria-hidden="true" style={{ left: `${getPosition(currentStep, finalStep)}%` }} />
       </div>
-      <div className="timeline-labels">{rulerSteps.map((step) => <span key={step} style={{ left: `${getPosition(step, finalStep)}%` }}>Step {step + 1}</span>)}</div>
-      <div className="timeline-current">Selected frame <strong>{hasHistory ? currentStep + 1 : "-"}</strong> of {totalSteps || "-"}</div>
+      <div className="timeline-labels">{rulerSteps.map((step) => <span key={step} style={{ left: `${getPosition(step, finalStep)}%` }}>{step === 0 ? "Start" : `Update ${step}`}</span>)}</div>
+      <div className="timeline-current">{hasHistory ? <><strong>{snapshotLabel(currentStep)}</strong> · {snapshotsSummary(totalSteps)}</> : "No run yet"}</div>
       <div className="timeline-actions">
         <button aria-label="Step backward" disabled={!hasHistory || currentStep === 0} onClick={onBackward} type="button">Previous</button>
         <button aria-label={isPlaying ? "Pause playback" : "Play training"} className="primary-button" disabled={!hasHistory || reducedMotion || currentStep === finalStep} onClick={onPlayToggle} type="button">{isPlaying ? "Pause" : "Play"}</button>

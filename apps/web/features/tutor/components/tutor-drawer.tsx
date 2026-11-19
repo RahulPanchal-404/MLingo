@@ -135,7 +135,7 @@ export function TutorDrawer() {
             </span>
             {training && (
               <span className="rounded bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                Step {training.selected_step + 1}/{training.total_steps}
+                {training.selected_step === 0 ? "Start" : `Update ${training.selected_step}/${training.total_steps}`}
               </span>
             )}
             {project?.milestone_title && (

@@ -138,12 +138,12 @@ export const SALARY_PREDICTION_PROJECT: ProjectDefinition = {
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
     title: "Learning Rate Experiment",
-    question: "What happens when you adjust the gradient descent learning rate from 0.05 to 0.25?",
+    question: "What happens to training and test error when you raise the gradient descent learning rate from 0.05 to 0.25?",
     parameterName: "learning_rate",
     defaultVal: 0.05,
     testVal: 0.25,
     explanation:
-      "A higher learning rate can accelerate early loss reduction, but if set too high, it causes step overshooting and oscillation around the optimal weights.",
+      "Both runs train for the same 100 epochs from zero. A bigger learning rate takes bigger steps, so it can get closer to the best fit in the same time, or, if it is too big, overshoot and blow up. Compare the training loss, test error and R² to see which happened here.",
   },
   reflectionPrompts: [
     {
@@ -168,7 +168,7 @@ export const SALARY_PREDICTION_PROJECT: ProjectDefinition = {
       id: "generalization",
       prompt: "How did training MSE compare to test MSE? What does the R² score tell you about fit quality?",
       guidance: "Inspect the final test MSE and R² score on the evaluation milestone.",
-      placeholder: "The test MSE was slightly higher than training MSE, indicating a healthy generalization gap...",
+      placeholder: "Compare the two numbers on the Evaluate step, then say what R² tells you about the fit...",
     },
   ],
   lessonsLearned: [
@@ -185,7 +185,7 @@ export const SALARY_PREDICTION_PROJECT: ProjectDefinition = {
   ],
   implementationSteps: [
     { step: 1, title: "Data Loading", description: "Load compensation records into pandas DataFrame and audit missing values." },
-    { step: 2, title: "Data Preprocessing", description: "Impute missing projects using median and One-Hot encode education tier." },
+    { step: 2, title: "Data Preprocessing", description: "Impute the missing project count with the training mean and one-hot encode education tier." },
     { step: 3, title: "Partitioning", description: "Split records 80/20 train/test with fixed random seed." },
     { step: 4, title: "Standardization", description: "Fit StandardScaler strictly on training set to prevent data leakage." },
     { step: 5, title: "Model Fitting", description: "Train Ordinary Least Squares Linear Regression." },
@@ -204,27 +204,39 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 # 1. Load Data
 data = pd.DataFrame([
     {"experience": 1.0, "education": "BSc", "projects": 2, "salary": 45.0},
+    {"experience": 1.5, "education": "BSc", "projects": 3, "salary": 48.0},
     {"experience": 2.0, "education": "MSc", "projects": 4, "salary": 56.0},
     {"experience": 2.5, "education": "BSc", "projects": np.nan, "salary": 53.0}, # Missing
+    {"experience": 3.0, "education": "MSc", "projects": 5, "salary": 64.0},
     {"experience": 3.5, "education": "PhD", "projects": 6, "salary": 75.0},
+    {"experience": 4.0, "education": "BSc", "projects": 5, "salary": 68.0},
+    {"experience": 4.5, "education": "MSc", "projects": 7, "salary": 79.0},
     {"experience": 5.0, "education": "PhD", "projects": 8, "salary": 92.0},
+    {"experience": 5.5, "education": "BSc", "projects": 6, "salary": 81.0},
+    {"experience": 6.0, "education": "MSc", "projects": 9, "salary": 95.0},
+    {"experience": 6.5, "education": "PhD", "projects": 10, "salary": 108.0},
     {"experience": 7.0, "education": "BSc", "projects": 8, "salary": 98.0},
+    {"experience": 7.5, "education": "MSc", "projects": 11, "salary": 112.0},
     {"experience": 8.0, "education": "PhD", "projects": 12, "salary": 126.0},
+    {"experience": 8.5, "education": "MSc", "projects": 12, "salary": 122.0},
+    {"experience": 9.0, "education": "PhD", "projects": 14, "salary": 138.0},
+    {"experience": 9.5, "education": "PhD", "projects": 15, "salary": 145.0},
     {"experience": 10.0, "education": "MSc", "projects": 14, "salary": 140.0},
+    {"experience": 10.5, "education": "PhD", "projects": 16, "salary": 155.0},
 ])
 
 X = data.drop(columns=["salary"])
 y = data["salary"]
 
 # 2. Train-Test Split (Prevent Data Leakage)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # 3. Preprocessing Pipeline
 num_features = ["experience", "projects"]
 cat_features = ["education"]
 
 num_pipeline = Pipeline([
-    ("imputer", SimpleImputer(strategy="median")),
+    ("imputer", SimpleImputer(strategy="mean")),
     ("scaler", StandardScaler()),
 ])
 
@@ -247,11 +259,11 @@ print(f"Test MAE: {mean_absolute_error(y_test, y_pred):.3f}")
 print(f"Test R2 Score: {r2_score(y_test, y_pred):.3f}")
 `,
   codeExplanations: [
-    { section: "ColumnTransformer", explanation: "Applies median imputation and Z-score scaling to numeric features while one-hot encoding categorical tiers." },
-    { section: "Pipeline fitting", explanation: "Ensures imputation medians and scaling parameters are computed strictly on training data." },
+    { section: "ColumnTransformer", explanation: "Applies mean imputation and Z-score scaling to numeric features while one-hot encoding categorical tiers." },
+    { section: "Pipeline fitting", explanation: "Ensures imputation means and scaling parameters are computed strictly on training data." },
     { section: "r2_score", explanation: "Measures the fraction of compensation variance explained by experience and qualifications relative to the mean." },
   ],
-  expectedOutput: `Test MSE: 4.821\nTest MAE: 1.840\nTest R2 Score: 0.962\nModel successfully converged.`,
+  expectedOutput: `Test MSE: 50.111\nTest MAE: 5.852\nTest R2 Score: 0.974`,
   realWorldApplications: ["Corporate HR salary benchmarking", "Candidate compensation band appraisal", "Pay equity audits"],
   additionalExercises: [
     "Experiment with Ridge (L2) regression to penalize large weights when experience and projects correlate.",
@@ -368,7 +380,7 @@ print("\\nROC-AUC Score:", roc_auc_score(y, probs))
     { section: "predict_proba", explanation: "Outputs continuous calibrated probability P(passed=1 | features) squashed by sigmoid." },
     { section: "Thresholding", explanation: "Applies custom cutoffs to trade off precision versus sensitivity." },
   ],
-  expectedOutput: `Confusion Matrix (θ = 0.5):\n [[2 0]\n [0 4]]\n\nROC-AUC Score: 1.00`,
+  expectedOutput: `Confusion Matrix (θ = 0.5):\n [[2 0]\n [0 4]]\n\nROC-AUC Score: 1.0`,
   realWorldApplications: ["University student retention advising", "Course completion early warnings", "Standardized test score prediction"],
   additionalExercises: [
     "Compute and plot the Precision-Recall curve as threshold sweeps from 0.1 to 0.9.",
@@ -479,7 +491,7 @@ print("Assigned Labels:", labels)
     { section: "StandardScaler", explanation: "Equalizes variance so salary doesn't overpower the 1-100 spending score in Euclidean space." },
     { section: "kmeans.inertia_", explanation: "Sum of squared distances from observations to their closest centroid." },
   ],
-  expectedOutput: `Cluster Centroids (Scaled):\n [[-1.12  1.18]\n [ 0.05 -0.22]\n [ 1.07 -0.96]]\nTotal Inertia (WCSS): 0.842\nAssigned Labels: [0 0 0 0 1 1 1 1 2 2 2 2]`,
+  expectedOutput: `Cluster Centroids (Scaled):\n [[-0.01471756 -0.10046827]\n [ 1.22155727 -1.15538509]\n [-1.20683971  1.25585336]]\nTotal Inertia (WCSS): 0.5157715782043766\nAssigned Labels: [2 2 2 2 0 0 0 0 1 1 1 1]`,
   realWorldApplications: ["E-commerce promotional targeting", "Customer lifetime value tiered loyalty", "Churn mitigation cohorts"],
   additionalExercises: [
     "Plot the WCSS across K from 1 to 6 to visualize the Elbow Curve.",
@@ -522,13 +534,13 @@ export const HOUSE_PRICE_PREDICTION_PROJECT: ProjectDefinition = {
   ],
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
-    title: "Feature Inclusion Experiment",
-    question: "How does adding living area density (sqft/bed) impact the generalization R² score compared to raw square feet alone?",
+    title: "Learning Rate Experiment",
+    question: "How much closer does gradient descent get to the best fit in 100 epochs if you raise the learning rate from 0.05 to 0.25?",
     parameterName: "learning_rate",
     defaultVal: 0.05,
-    testVal: 0.15,
+    testVal: 0.25,
     explanation:
-      "Engineering density ratios captures buyer preferences for spaciousness per room, boosting variance explained (R²) from 0.88 to 0.94.",
+      "With a small learning rate, 100 epochs may not be enough to reach the best weights, so the model underfits. A larger (but still stable) rate covers more ground in the same number of steps.",
   },
   reflectionPrompts: [
     {
@@ -600,7 +612,7 @@ for col, coef in zip(X.columns, model.coef_):
     { section: "np.sqrt(MSE)", explanation: "Computes RMSE in thousands of dollars ($k) for intuitive business interpretation." },
     { section: "model.coef_", explanation: "Direct linear marginal price shift associated with each 1-unit increase in predictor." },
   ],
-  expectedOutput: `Test RMSE: 8.42k\nTest R2 Score: 0.985\nFeature: sqft            Weight: +0.142\nFeature: beds            Weight: +12.500\nFeature: baths           Weight: +18.200\nFeature: age             Weight: -1.750\nFeature: urban           Weight: +45.200`,
+  expectedOutput: `Test RMSE: 7.30k\nTest R2 Score: 0.981\nFeature: sqft            Weight: +0.146\nFeature: beds            Weight: +3.799\nFeature: baths           Weight: -4.231\nFeature: age             Weight: -3.519\nFeature: urban           Weight: +20.517\nFeature: density_ratio   Weight: +0.496`,
   realWorldApplications: ["Automated valuation models (Zillow/Redfin style)", "Mortgage appraisal automation", "Property tax assessment"],
   additionalExercises: [
     "Train a Lasso model and verify if any features shrink to exactly zero.",
@@ -642,13 +654,13 @@ export const CUSTOMER_RFM_PROJECT: ProjectDefinition = {
   ],
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
-    title: "Cluster Count K Experiment",
-    question: "How does the total inertia change when increasing cluster count from K = 2 to K = 3 versus K = 4?",
+    title: "Elbow Experiment",
+    question: "How do total inertia and cluster sizes change when you increase the number of clusters from K = 2 to K = 3?",
     parameterName: "clusters",
     defaultVal: 2,
     testVal: 3,
     explanation:
-      "Moving from K=2 to K=3 drops inertia by 63.4% (the elbow). Moving to K=4 yields diminishing returns with only a 12% marginal drop.",
+      "Inertia always drops when K increases, because every customer gets a closer centre. The question is whether the drop is big (a real new group) or small (just splitting an existing one).",
   },
   reflectionPrompts: [
     {
@@ -717,7 +729,7 @@ print("\\nSegment Assignments:\\n", rfm)
     { section: "MinMaxScaler", explanation: "Squashes Recency (days) and Spend ($) into [0, 1] so distance calculations are unbiased." },
     { section: "Elbow Loop", explanation: "Traces the drop in WCSS across cluster counts to identify natural grouping points." },
   ],
-  expectedOutput: `K=1 -> WCSS Inertia: 2.8450\nK=2 -> WCSS Inertia: 0.7240\nK=3 -> WCSS Inertia: 0.1250\nK=4 -> WCSS Inertia: 0.0820\n\nOptimal Elbow identified at K=3.`,
+  expectedOutput: `K=1 -> WCSS Inertia: 2.6141\nK=2 -> WCSS Inertia: 0.7131\nK=3 -> WCSS Inertia: 0.0540\nK=4 -> WCSS Inertia: 0.0245\n\nSegment Assignments:\n    recency  freq  monetary  cluster\n0       12    28    3450.0        2\n1       15    24    3100.0        2\n2       45    12    1450.0        0\n3       52    10    1200.0        0\n4      140     3     280.0        1\n5      180     2     190.0        1`,
   realWorldApplications: ["Personalized email re-engagement", "VIP customer loyalty perks", "Churn prevention outreach"],
   additionalExercises: [
     "Compute Silhouette scores for K=2 vs K=3 to confirm mathematical cluster separation.",
@@ -759,13 +771,13 @@ export const EMAIL_SPAM_PROJECT: ProjectDefinition = {
   ],
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
-    title: "N-Gram Range Experiment",
-    question: "What happens when you switch from unigrams (single words) to unigram + bigram pairs (e.g. 'cash prize')?",
+    title: "Learning Rate Experiment",
+    question: "How does raising the learning rate from 0.05 to 0.5 change how fast the spam classifier's log loss falls?",
     parameterName: "learning_rate",
     defaultVal: 0.05,
-    testVal: 0.15,
+    testVal: 0.5,
     explanation:
-      "Adding bigram pairs allows the model to capture urgent phrases like 'free prize' or 'wire transfer' that single words fail to contextualize.",
+      "Logistic regression has a smooth, bowl-shaped loss, so a larger learning rate usually just reaches a lower loss in the same number of epochs, until it becomes large enough to overshoot.",
   },
   reflectionPrompts: [
     {
@@ -843,7 +855,7 @@ for text, pred, prob in zip(test_emails, predictions, probabilities):
     { section: "MultinomialNB(alpha=1.0)", explanation: "Laplace smoothing ensures unseen test words receive non-zero probability." },
     { section: "predict_proba", explanation: "Computes exact posterior probability P(Spam | Words) using Bayes rule in log-space." },
   ],
-  expectedOutput: `Email: 'Claim your free gift card winner prize' -> SPAM (Spam Prob: 89.4%)\nEmail: 'Tomorrow's team meeting agenda review' -> HAM (LEGIT) (Spam Prob: 11.2%)`,
+  expectedOutput: `Email: 'Claim your free gift card winner prize' -> SPAM (Spam Prob: 63.0%)\nEmail: 'Tomorrow's team meeting agenda review' -> HAM (LEGIT) (Spam Prob: 36.2%)`,
   realWorldApplications: ["Email provider inbox filters (Gmail/Outlook)", "SMS text scam detection", "Content moderation on forums"],
   additionalExercises: [
     "Inspect the top 10 most informative words with the highest log-likelihood ratios.",
@@ -886,13 +898,13 @@ export const DIGIT_RECOGNITION_PROJECT: ProjectDefinition = {
   ],
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
-    title: "Hidden Layer Capacity Experiment",
-    question: "What happens when you increase the hidden layer from 8 neurons to 32 neurons?",
+    title: "Learning Rate Experiment",
+    question: "How does raising the learning rate from 0.05 to 0.5 change how fast the digit classifier's log loss falls?",
     parameterName: "learning_rate",
     defaultVal: 0.05,
-    testVal: 0.15,
+    testVal: 0.5,
     explanation:
-      "Increasing hidden neuron capacity allows the network to learn multiple sub-templates (loops, crossbars, vertical strokes), raising test accuracy.",
+      "A larger step size moves the weights further each epoch. On a smooth loss like log loss that speeds training up, as long as the steps don't overshoot.",
   },
   reflectionPrompts: [
     {
@@ -967,7 +979,7 @@ print(f"Softmax Confidence: {probabilities[predicted_digit] * 100:.1f}%")
     { section: "activation='relu'", explanation: "Rectified Linear Unit f(z) = max(0, z) allows the network to learn non-linear decision boundaries." },
     { section: "predict_proba", explanation: "Applies the Softmax function over output logits to produce a normalized 10-class probability distribution." },
   ],
-  expectedOutput: `Test Accuracy: 96.89%\nSample True Label: 6 | Predicted: 6\nSoftmax Confidence: 99.4%`,
+  expectedOutput: `Test Accuracy: 97.56%\nSample True Label: 6 | Predicted: 6\nSoftmax Confidence: 99.8%`,
   realWorldApplications: ["Postal envelope zip code recognition", "Bank check numerical amount reading", "License plate recognition systems"],
   additionalExercises: [
     "Inspect which digit pairs are most commonly confused using a 10x10 Confusion Matrix (e.g. 3 vs 8, 4 vs 9).",
@@ -1009,13 +1021,13 @@ export const MOVIE_RECOMMENDATION_PROJECT: ProjectDefinition = {
   ],
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
-    title: "Neighbor Count (K) Experiment",
-    question: "How does changing nearest neighbor count from K = 2 to K = 5 affect recommendation diversity?",
+    title: "Learning Rate Experiment",
+    question: "What happens to the rating model when you raise the learning rate from 0.05 to 0.25?",
     parameterName: "learning_rate",
     defaultVal: 0.05,
-    testVal: 0.15,
+    testVal: 0.25,
     explanation:
-      "A small K gives highly personalized recommendations based on near-twin tastes, whereas larger K blends more opinions, stabilizing scores at the cost of niche recommendations.",
+      "Compare training loss and test error. With only a couple of test ratings, also notice how unstable the test metrics are.",
   },
   reflectionPrompts: [
     {
@@ -1078,7 +1090,7 @@ print(f"Predicted Rating for 'Interstellar': {predicted_rating:.2f} / 5.0")
     { section: "cosine_similarity", explanation: "Measures cosine of angle between rating vectors: 1.0 indicates identical relative taste." },
     { section: "Weighted Average", explanation: "Scores from high-similarity peers contribute proportionally more to the predicted rating." },
   ],
-  expectedOutput: `Similarities to Alice, Bob, Carol, Dave: [0.998 0.994 0.658 0.728]\nPredicted Rating for 'Interstellar': 4.12 / 5.0`,
+  expectedOutput: `Similarities to Alice, Bob, Carol, Dave: [1.    0.976 0.908 0.978]\nPredicted Rating for 'Interstellar': 3.05 / 5.0`,
   realWorldApplications: ["Streaming platforms (Netflix, Spotify, YouTube)", "E-commerce product recommendations (Amazon)", "Social media friend recommendations"],
   additionalExercises: [
     "Implement Item-Based collaborative filtering and compare stability against User-Based.",
@@ -1121,13 +1133,13 @@ export const STOCK_PREDICTION_PROJECT: ProjectDefinition = {
   ],
   milestones: PROJECT_MILESTONES,
   experimentPrompt: {
-    title: "Moving Average Window Experiment",
-    question: "What is the trade-off when increasing the moving average window from 5 days to 20 days?",
+    title: "Learning Rate Stability Experiment",
+    question: "Does gradient descent stay stable on the stock data if you raise the learning rate from 0.05 to 0.25?",
     parameterName: "learning_rate",
     defaultVal: 0.05,
-    testVal: 0.15,
+    testVal: 0.25,
     explanation:
-      "A short window reacts swiftly to price changes but captures market noise; a longer window smooths noise but lags behind rapid market pivots.",
+      "Gradient descent only converges if the learning rate is below a limit set by how steep the loss is (2 divided by the largest curvature). Strongly correlated price features make the loss very steep in one direction, so the limit can be surprisingly low.",
   },
   reflectionPrompts: [
     {
@@ -1174,7 +1186,7 @@ df = pd.DataFrame({
 # 2. Engineer Lag Features (No Lookahead Bias)
 df["lag_1"] = df["close"].shift(1)
 df["lag_2"] = df["close"].shift(2)
-df["sma_3"] = df["close"].rolling(3).mean()
+df["sma_3"] = df["close"].shift(1).rolling(3).mean()  # average of the 3 previous closes only
 df = df.dropna()
 
 X = df[["lag_1", "lag_2", "sma_3"]]
@@ -1200,7 +1212,7 @@ print("\\nDISCLAIMER: For educational demonstration only. Past performance does 
     { section: "Temporal Split", explanation: "Guarantees test records strictly occur chronologically after the training data." },
     { section: "MAPE", explanation: "Mean Absolute Percentage Error evaluates forecast error as an intuitive percentage of stock price." },
   ],
-  expectedOutput: `Test MAPE: 0.68%\nActual Next Close: 165.70 | Forecasted: 164.92\n\nDISCLAIMER: For educational demonstration only. Past performance does not guarantee future results.`,
+  expectedOutput: `Test MAPE: 0.35%\nActual Next Close: 165.70 | Forecasted: 164.92\n\nDISCLAIMER: For educational demonstration only. Past performance does not guarantee future results.`,
   realWorldApplications: ["Quantitative risk management", "Algorithmic inventory valuation", "Supply chain commodity cost planning"],
   additionalExercises: [
     "Calculate the directional accuracy (% of days the model correctly predicts up vs down).",
@@ -1319,7 +1331,7 @@ print("\\nClassification Report:\\n", classification_report(y, preds_strict, tar
     { section: "class_weight='balanced'", explanation: "Penalizes mistakes on rare fraud cases inversely proportional to their class frequency." },
     { section: "probs >= 0.25", explanation: "Lowers threshold from 0.50 to 0.25 to guarantee zero False Negatives on critical unauthorized transactions." },
   ],
-  expectedOutput: `Confusion Matrix (θ = 0.25):\n [[9 0]\n [0 2]]\n\nClassification Report:\n               precision    recall  f1-score   support\n       Legit       1.00      1.00      1.00         9\n       Fraud       1.00      1.00      1.00         2`,
+  expectedOutput: `Confusion Matrix (θ = 0.25):\n [[9 0]\n [0 2]]\n\nClassification Report:\n               precision    recall  f1-score   support\n\n       Legit       1.00      1.00      1.00         9\n       Fraud       1.00      1.00      1.00         2\n\n    accuracy                           1.00        11\n   macro avg       1.00      1.00      1.00        11\nweighted avg       1.00      1.00      1.00        11`,
   realWorldApplications: ["Banking anti-fraud transaction gateways", "E-commerce account takeover defense", "Healthcare insurance claim anomaly auditing"],
   additionalExercises: [
     "Compare standard LogisticRegression vs class_weight='balanced' to observe the difference in Recall.",

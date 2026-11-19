@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ProjectDefinition, ProjectExperimentRecord, ProjectState } from "../types";
 import { saveExperiment } from "@/features/experiments/experiment-storage";
+import { runProject } from "../engine";
 
 export type MilestoneExperimentViewProps = {
   project: ProjectDefinition;
@@ -23,124 +24,12 @@ export function MilestoneExperimentView({
   const [paramVal, setParamVal] = useState<number>(prompt.testVal);
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
-  // Compute empirical/analytical comparative impact based on parameter value and project ID
-  const getExperimentComparison = (val: number) => {
-    switch (project.id) {
-      case "salary-prediction": {
-        const isHigh = val >= 0.2;
-        return {
-          metricLabel: "Test MSE",
-          baselineVal: "4.82",
-          testVal: isHigh ? "8.94" : "4.82",
-          observation: isHigh
-            ? "Higher learning rate (α=0.25) caused step overshooting around the loss minimum, resulting in higher final test error."
-            : "Standard learning rate (α=0.05) achieved smooth monotonic descent to the global optimum.",
-        };
-      }
-      case "student-outcome": {
-        const isLow = val <= 0.35;
-        return {
-          metricLabel: "Student Recall",
-          baselineVal: "85.7%",
-          testVal: isLow ? "100.0%" : "85.7%",
-          observation: isLow
-            ? "Lower threshold (θ=0.30) classified more borderline students as passing, achieving 100% recall with slightly lower precision."
-            : "Balanced threshold (θ=0.50) maintained equal balance between precision (87.5%) and recall (85.7%).",
-        };
-      }
-      case "customer-segmentation":
-      case "customer-segmentation-rfm": {
-        const k = Math.round(val);
-        return {
-          metricLabel: "Total Inertia",
-          baselineVal: "0.724",
-          testVal: k === 3 ? "0.125" : k >= 4 ? "0.082" : "0.724",
-          observation:
-            k === 3
-              ? "Increasing to K=3 drops inertia significantly by 63.4% and captures distinct natural cohorts (the elbow point)."
-              : k >= 4
-              ? "K=4 further decreases inertia marginally, but fragments cohorts with diminishing returns."
-              : "K=2 merges distinct high and medium spenders into one coarse group.",
-        };
-      }
-      case "house-price-prediction": {
-        const isDense = val >= 0.1;
-        return {
-          metricLabel: "Test R² Score",
-          baselineVal: "0.884",
-          testVal: isDense ? "0.985" : "0.884",
-          observation: isDense
-            ? "Including engineered feature ratios (sqft per bedroom) and location interaction lifts explained variance to 0.985."
-            : "Baseline model without engineered interaction features achieves R² = 0.884.",
-        };
-      }
-      case "email-spam-detection": {
-        const isNgram = val >= 0.1;
-        return {
-          metricLabel: "Spam F1-Score",
-          baselineVal: "0.912",
-          testVal: isNgram ? "0.978" : "0.912",
-          observation: isNgram
-            ? "Adding bigram token pairs (e.g. 'cash prize', 'click here') provides vital context, improving spam F1 to 0.978."
-            : "Standard unigram vocabulary achieves F1 = 0.912 with occasional misclassification of urgent work requests.",
-        };
-      }
-      case "digit-recognition": {
-        const isWide = val >= 0.1;
-        return {
-          metricLabel: "Digit Accuracy",
-          baselineVal: "91.2%",
-          testVal: isWide ? "96.9%" : "91.2%",
-          observation: isWide
-            ? "Expanding hidden layer capacity to 32 neurons allows the network to learn rich stroke and loop templates."
-            : "Narrow 8-neuron hidden layer struggles with ambiguous digit pairs like 3 and 8.",
-        };
-      }
-      case "movie-recommendation": {
-        const isLargeK = val >= 0.1;
-        return {
-          metricLabel: "MAE Error",
-          baselineVal: "0.62 stars",
-          testVal: isLargeK ? "0.41 stars" : "0.62 stars",
-          observation: isLargeK
-            ? "Blending top 5 nearest neighbors stabilizes rating predictions against individual eccentric raters."
-            : "Using only 2 nearest neighbors yields higher variance and sensitivity to outlier preferences.",
-        };
-      }
-      case "stock-price-prediction": {
-        const isShort = val <= 0.1;
-        return {
-          metricLabel: "MAPE Error",
-          baselineVal: "1.42%",
-          testVal: isShort ? "0.68%" : "1.42%",
-          observation: isShort
-            ? "7-day rolling window tracks short-term momentum closely, reducing 3-day projection MAPE to 0.68%."
-            : "20-day window smooths fluctuations but significantly lags behind sudden trend reversals.",
-        };
-      }
-      case "fraud-detection": {
-        const isLowThresh = val <= 0.35;
-        return {
-          metricLabel: "Fraud Recall",
-          baselineVal: "82.0%",
-          testVal: isLowThresh ? "98.5%" : "82.0%",
-          observation: isLowThresh
-            ? "Lowering decision threshold θ to 0.25 flags 98.5% of unauthorized fraudulent transactions (near-zero False Negatives)."
-            : "Standard θ=0.50 misses 18% of sophisticated low-amount fraud anomalies.",
-        };
-      }
-      default: {
-        return {
-          metricLabel: "Model Metric",
-          baselineVal: "0.850",
-          testVal: "0.920",
-          observation: "Controlled parameter adjustment improved validation performance.",
-        };
-      }
-    }
-  };
-
-  const comparison = getExperimentComparison(paramVal);
+  // Run the baseline and the chosen setting on the project's real data (same split, preprocessing and epochs).
+  const runFor = (val: number) =>
+    runProject(project, state, prompt.parameterName === "threshold" ? { threshold: val } : prompt.parameterName === "clusters" ? { clusters: Math.round(val) } : { learningRate: val });
+  const base = useMemo(() => runFor(prompt.defaultVal), [project, state.splitConfig, state.preprocessingConfig]); // eslint-disable-line react-hooks/exhaustive-deps
+  const cur = useMemo(() => runFor(paramVal), [project, state.splitConfig, state.preprocessingConfig, paramVal]); // eslint-disable-line react-hooks/exhaustive-deps
+  const comparison = describeExperiment(prompt.parameterName, prompt.defaultVal, paramVal, base, cur);
 
   const handleRunAndSave = () => {
     const expRecord: ProjectExperimentRecord = {
@@ -157,15 +46,15 @@ export function MilestoneExperimentView({
       run: {
         id: expRecord.id,
         algorithm: project.type,
-        dataset: { samples: 20, seed: state.splitConfig.seed, noise: 0.1 },
+        dataset: { samples: cur.trainRaw.length + cur.testRaw.length, seed: state.splitConfig.seed, noise: 0 },
         dataset_points: [],
         training: {
-          learning_rate: paramVal,
-          epochs: 40,
+          learning_rate: prompt.parameterName === "learning_rate" ? paramVal : cur.options.learningRate ?? 0,
+          epochs: cur.options.epochs ?? 100,
           initial_weight: 0,
           initial_bias: 0,
         },
-        total_steps: 40,
+        total_steps: cur.options.epochs ?? 100,
         history: [],
         markers: [],
         metadata: {
@@ -250,7 +139,7 @@ export function MilestoneExperimentView({
           {/* Metric Comparison Card */}
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              Observed Impact on {comparison.metricLabel}
+              Measured {comparison.metricLabel} (real runs on this dataset)
             </span>
             <div className="flex items-baseline gap-4 font-mono">
               <div>
@@ -268,7 +157,7 @@ export function MilestoneExperimentView({
 
         {/* Scientific Observation Note */}
         <div className="rounded-lg bg-teal-50/60 border border-teal-200 p-4 text-xs text-teal-950 space-y-1">
-          <span className="font-bold block">Theoretical Reason:</span>
+          <span className="font-bold block">What the two runs show:</span>
           <p className="leading-relaxed">{comparison.observation}</p>
         </div>
 
@@ -309,4 +198,53 @@ export function MilestoneExperimentView({
       </div>
     </div>
   );
+}
+
+
+type Run = ReturnType<typeof runProject>;
+const f = (x: number, d = 3) => (Number.isFinite(x) ? Number(x.toPrecision(d)).toLocaleString() : "∞");
+const pc = (x: number) => `${(x * 100).toFixed(1)}%`;
+
+/** Compare two real runs and say what changed, in plain words. */
+function describeExperiment(param: string, baseVal: number, val: number, base: Run, cur: Run) {
+  const same = val === baseVal;
+  if (param === "threshold") {
+    const b = base.result.classification!;
+    const c = cur.result.classification!;
+    const obs = same
+      ? `At θ = ${val} the model catches ${pc(b.recall)} of positives with ${b.confusionMatrix.fp} false alarm(s) on the ${cur.testRaw.length} test rows. Switch to the experimental value to compare.`
+      : `Moving θ from ${baseVal} to ${val} changed recall from ${pc(b.recall)} to ${pc(c.recall)} and false alarms from ${b.confusionMatrix.fp} to ${c.confusionMatrix.fp} (precision ${pc(b.precision)} → ${pc(c.precision)}). ${c.recall > b.recall ? "A lower threshold flags more cases, so fewer positives slip through but more innocents get flagged." : c.recall === b.recall ? "On this small test set no extra positives were caught; the threshold change would matter more on borderline cases." : "A higher threshold flags fewer cases."}`;
+    return { metricLabel: "test recall", baselineVal: pc(b.recall), testVal: pc(c.recall), observation: obs };
+  }
+  if (param === "clusters") {
+    const b = base.result.clustering!;
+    const c = cur.result.clustering!;
+    const drop = b.inertia > 0 ? (b.inertia - c.inertia) / b.inertia : 0;
+    const obs = same
+      ? `With K = ${val}, inertia is ${b.inertia} and the clusters have ${b.clusterSizes.join(", ")} customers. Switch to the experimental value to compare.`
+      : `Going from K = ${baseVal} to K = ${val} cut inertia from ${b.inertia} to ${c.inertia} (${Math.round(drop * 100)}% lower); cluster sizes went from ${b.clusterSizes.join(", ")} to ${c.clusterSizes.join(", ")}. ${drop > 0.4 ? "A drop that large suggests a real extra group was being merged before." : "A small drop suggests the extra cluster mostly splits an existing group, so the smaller K may be enough."}`;
+    return { metricLabel: "inertia", baselineVal: String(b.inertia), testVal: String(c.inertia), observation: obs };
+  }
+  // Learning rate.
+  const lossB = base.result.frames?.at(-1)?.loss ?? NaN;
+  const lossC = cur.result.frames?.at(-1)?.loss ?? NaN;
+  const epochs = cur.options.epochs ?? 100;
+  if (cur.result.regression && base.result.regression) {
+    const b = base.result.regression;
+    const c = cur.result.regression;
+    const obs = same
+      ? `With α = ${val}, ${epochs} epochs of gradient descent reach a training loss of ${f(lossB)} and test MSE ${f(b.testMse)} (R² ${f(b.testR2)}). Switch to the experimental value to compare.`
+      : cur.result.diverged
+        ? `With α = ${val} training diverged: every step overshot the minimum by more than the last, and the loss grew to ${f(lossC)} instead of shrinking. The learning rate is above the stability limit for this data, so use something smaller.`
+        : `With α = ${val} the training loss after ${epochs} epochs was ${f(lossC)} versus ${f(lossB)} at α = ${baseVal}${lossC < lossB ? ": the bigger steps got closer to the best fit in the same time" : ": the bigger steps did not help"}. Test MSE went from ${f(b.testMse)} to ${f(c.testMse)} and R² from ${f(b.testR2)} to ${f(c.testR2)}${cur.testRaw.length < 5 ? `. With only ${cur.testRaw.length} test rows, small changes in test error are mostly noise` : ""}.`;
+    return { metricLabel: "test MSE", baselineVal: f(b.testMse), testVal: cur.result.diverged ? "diverged" : f(c.testMse), observation: obs };
+  }
+  const b = base.result.classification!;
+  const c = cur.result.classification!;
+  const obs = same
+    ? `With α = ${val}, ${epochs} epochs reach a training log loss of ${f(lossB)} and ${pc(b.accuracy)} test accuracy. Switch to the experimental value to compare.`
+    : cur.result.diverged
+      ? `With α = ${val} training diverged: the steps overshot and the loss grew. Use a smaller learning rate.`
+      : `With α = ${val} the training log loss after ${epochs} epochs was ${f(lossC)} versus ${f(lossB)} at α = ${baseVal}, so ${lossC < lossB ? "the model became more confident faster" : "it did not train faster"}. Test accuracy went from ${pc(b.accuracy)} to ${pc(c.accuracy)}${c.accuracy === b.accuracy ? " (both runs already classify every test row the same way, so a lower loss shows up as more confident probabilities rather than more correct answers)" : ""}.`;
+  return { metricLabel: "training log loss", baselineVal: f(lossB), testVal: cur.result.diverged ? "diverged" : f(lossC), observation: obs };
 }

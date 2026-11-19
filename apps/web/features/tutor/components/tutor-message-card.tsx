@@ -1,6 +1,21 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import type { TutorChatMessage } from "../types";
+
+/** Renders **bold** and `code` in tutor text. Dollar signs stay literal (tutor text can contain prices). */
+function TutorText({ text }: { text: string }): ReactNode {
+  return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, i) =>
+    part.length > 4 && part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+    ) : part.length > 2 && part.startsWith("`") && part.endsWith("`") ? (
+      <code key={i} className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.92em] dark:bg-slate-800">{part.slice(1, -1)}</code>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
 
 export type TutorMessageCardProps = {
   message: TutorChatMessage;
@@ -57,7 +72,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
 
         {/* Primary Answer */}
         <div className="whitespace-pre-line font-normal text-slate-800 dark:text-slate-200">
-          {message.text}
+          <TutorText text={message.text} />
         </div>
 
         {/* Why Reason */}
@@ -66,7 +81,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
             <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px] block uppercase tracking-wider">
               Mathematical &amp; Optimization Reason:
             </span>
-            <p className="text-slate-600 dark:text-slate-400 leading-normal">{message.why}</p>
+            <p className="text-slate-600 dark:text-slate-400 leading-normal"><TutorText text={message.why} /></p>
           </div>
         )}
 
@@ -95,14 +110,14 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
             <span className="font-bold block text-[10px] uppercase tracking-wider text-teal-800 dark:text-teal-300">
               Formula Connection:
             </span>
-            {message.math_connection}
+            <TutorText text={message.math_connection} />
           </div>
         )}
 
         {/* What to Inspect Next */}
         {message.what_to_inspect_next && (
           <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
-            👉 <strong>Next:</strong> {message.what_to_inspect_next}
+            👉 <strong>Next:</strong> <TutorText text={message.what_to_inspect_next} />
           </p>
         )}
 

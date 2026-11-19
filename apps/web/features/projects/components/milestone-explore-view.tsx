@@ -31,7 +31,7 @@ export function MilestoneExploreView({
               Educational Goal — Exploratory Data Analysis (EDA)
             </h4>
             <p className="mt-1 text-sm text-teal-800">
-              Inspect the dataset surface: total sample size $N$, feature dimensionality $D$,
+              Inspect the dataset surface: total sample size <em>N</em>, feature dimensionality <em>D</em>,
               data types (numeric continuous vs categorical discrete), and target value properties.
             </p>
           </div>

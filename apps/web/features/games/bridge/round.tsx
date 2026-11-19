@@ -80,8 +80,8 @@ function Canyon({
       ) : null}
       {onDrag ? (
         <>
-          <circle cx={sx(-1)} cy={clampY(sy(f(-1)))} r={12} fill="#f59e0b" stroke="white" strokeWidth={3} />
-          <circle cx={sx(1)} cy={clampY(sy(f(1)))} r={12} fill="#f59e0b" stroke="white" strokeWidth={3} />
+          <circle aria-hidden="true" cx={sx(-1)} cy={clampY(sy(f(-1)))} r={12} fill="#f59e0b" stroke="white" strokeWidth={3} />
+          <circle aria-hidden="true" cx={sx(1)} cy={clampY(sy(f(1)))} r={12} fill="#f59e0b" stroke="white" strokeWidth={3} />
         </>
       ) : null}
     </svg>
@@ -183,7 +183,20 @@ function CurveRound({ mode, onDone }: { mode: Mode; onDone: RoundProps["onDone"]
         </Banner>
       ) : null}
       <ControlDeck>
-        {mode === "line" ? <span className="text-xs text-white/70">Drag the orange ends of the bridge. The red lines are the errors.</span> : null}
+        {mode === "line" ? (
+          <div className="flex w-full flex-col gap-1.5">
+            <span className="text-xs text-white/70">Drag the orange ends of the bridge, or use the sliders. The red lines are the errors.</span>
+            <div className="flex flex-wrap gap-4">
+              {([["Left end height", left, setLeft], ["Right end height", right, setRight]] as const).map(([label, v, set]) => (
+                <label key={label} className="flex min-w-[200px] flex-1 items-center gap-2 text-xs text-white/80">
+                  <span className="whitespace-nowrap font-bold text-white">{label}</span>
+                  <input type="range" min={-3} max={3} step={0.05} value={v} onChange={(e) => set(Number(e.target.value))} disabled={sending} className="flex-1 accent-amber-400" />
+                  <span className="w-10 font-mono text-white">{v.toFixed(2)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ) : null}
         {mode === "degree" ? (
           <div className="flex w-full flex-col gap-1.5">
             <span className="text-xs text-white/80">

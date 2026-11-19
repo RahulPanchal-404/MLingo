@@ -421,7 +421,7 @@ export function ExperimentExplorer({ onInspectRun, inspectedRunId }: ExperimentE
                 <tr>
                   <th>{paramDef.label}</th>
                   <th>Final {metricLabel}</th>
-                  <th>Total Frames</th>
+                  <th>Updates</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>

@@ -162,15 +162,15 @@ export function evaluateGeneralizationGap(
       description = `Test ${metricName} (${testVal}) matches or exceeds training ${metricName} (${trainVal}).`;
     }
   } else {
-    const increase = Number((testVal - trainVal).toFixed(4));
-    if (increase > 0.2) {
-      description = `Test ${metricName} (${testVal}) is higher than training ${metricName} (${trainVal}) by ${increase}, which may indicate a generalization gap.`;
-    } else if (increase > 0.05) {
-      description = `Test ${metricName} exceeds training ${metricName} by ${increase}.`;
-    } else if (Math.abs(increase) <= 0.05) {
-      description = `Training and test ${metricName} are closely aligned (difference of ${Math.abs(increase)}).`;
+    // Error metrics (MSE) depend on the target's units, so compare the gap relative to training error.
+    const rel = (testVal - trainVal) / Math.max(Math.abs(trainVal), 1e-9);
+    const pctGap = Math.round(Math.abs(rel) * 100);
+    if (rel > 0.25) {
+      description = `Test ${metricName} (${testVal}) is ${pctGap}% higher than training ${metricName} (${trainVal}): the model does noticeably worse on unseen rows, a sign of a generalization gap.`;
+    } else if (rel < -0.25) {
+      description = `Test ${metricName} (${testVal}) is ${pctGap}% lower than training ${metricName} (${trainVal}). That usually means the small test set happened to contain easier rows, not that the model is better on new data. Check R² before trusting the fit.`;
     } else {
-      description = `Test ${metricName} (${testVal}) is lower than training ${metricName} (${trainVal}).`;
+      description = `Training and test ${metricName} are within ${pctGap}% of each other (${trainVal} vs ${testVal}), so the model behaves similarly on seen and unseen rows. Whether that error is acceptable is a separate question: check R² and MAE.`;
     }
   }
 
@@ -183,139 +183,162 @@ export function evaluateGeneralizationGap(
   };
 }
 
+/** Hyperparameters for one training run. */
+export type TrainOptions = { learningRate?: number; epochs?: number; clusters?: number };
+
+/** One recorded snapshot of training. Frame 0 is the initial state; frame e is after e full-batch updates. */
+export type TrainFrame = {
+  epoch: number;
+  weights: number[];
+  bias: number;
+  loss: number;
+  gradients: number[];
+  /** Clustering only. */
+  centroids?: number[][];
+};
+
+export const DEFAULT_TRAIN: Required<TrainOptions> = { learningRate: 0.05, epochs: 100, clusters: 3 };
+
+const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+const dot = (w: number[], x: number[]) => w.reduce((s, wi, j) => s + wi * x[j], 0);
+
 /**
- * Deterministic model trainer for workbench datasets.
- * Fits parameters on trainRows, returns predictions for trainRows and testRows.
+ * Full-batch gradient descent for linear regression (MSE) or logistic regression (log loss).
+ * Starts from w = 0, b = 0, so the recorded frames show the real optimisation path.
+ */
+export function fitGradientDescent(
+  X: number[][],
+  y: number[],
+  kind: "regression" | "classification",
+  opts: TrainOptions = {}
+): { weights: number[]; bias: number; frames: TrainFrame[]; diverged: boolean } {
+  const lr = opts.learningRate ?? (kind === "regression" ? DEFAULT_TRAIN.learningRate : 0.1);
+  const epochs = opts.epochs ?? DEFAULT_TRAIN.epochs;
+  const n = X.length;
+  const d = X[0]?.length ?? 0;
+  let w = new Array<number>(d).fill(0);
+  let b = 0;
+  const frames: TrainFrame[] = [];
+  let diverged = false;
+  const sig = (z: number) => 1 / (1 + Math.exp(-Math.max(-30, Math.min(30, z))));
+  for (let e = 0; e <= epochs; e++) {
+    const out = X.map((x) => (kind === "regression" ? dot(w, x) + b : sig(dot(w, x) + b)));
+    const err = out.map((o, i) => o - y[i]);
+    const loss =
+      kind === "regression"
+        ? mean(err.map((v) => v * v))
+        : mean(out.map((p, i) => -(y[i] * Math.log(Math.max(p, 1e-12)) + (1 - y[i]) * Math.log(Math.max(1 - p, 1e-12)))));
+    const scale = kind === "regression" ? 2 / n : 1 / n;
+    const gw = Array.from({ length: d }, (_, j) => scale * err.reduce((s, v, i) => s + v * X[i][j], 0));
+    const gb = scale * err.reduce((s, v) => s + v, 0);
+    frames.push({ epoch: e, weights: [...w], bias: b, loss, gradients: [...gw, gb] });
+    if (!Number.isFinite(loss) || loss > 1e12) {
+      diverged = true;
+      break;
+    }
+    if (e === epochs) break;
+    w = w.map((wj, j) => wj - lr * gw[j]);
+    b -= lr * gb;
+  }
+  return { weights: w, bias: b, frames, diverged };
+}
+
+/** K-Means (Lloyd's algorithm) with deterministic farthest-point initialisation. */
+export function fitKMeans(points: number[][], k: number, maxIter = 50): { centroids: number[][]; assign: number[]; inertia: number; frames: TrainFrame[] } {
+  const kk = Math.max(1, Math.min(k, points.length));
+  const dist2 = (a: number[], c: number[]) => a.reduce((s, v, j) => s + (v - c[j]) ** 2, 0);
+  const centre = points[0].map((_, j) => mean(points.map((p) => p[j])));
+  let first = 0;
+  points.forEach((p, i) => { if (dist2(p, centre) < dist2(points[first], centre)) first = i; });
+  let centroids: number[][] = [[...points[first]]];
+  while (centroids.length < kk) {
+    let far = 0;
+    let best = -1;
+    points.forEach((p, i) => {
+      const dmin = Math.min(...centroids.map((c) => dist2(p, c)));
+      if (dmin > best) { best = dmin; far = i; }
+    });
+    centroids.push([...points[far]]);
+  }
+  let assign = new Array<number>(points.length).fill(0);
+  const frames: TrainFrame[] = [];
+  for (let it = 0; it <= maxIter; it++) {
+    const next = points.map((p) => centroids.reduce((bi, c, ci) => (dist2(p, c) < dist2(p, centroids[bi]) ? ci : bi), 0));
+    const inertia = points.reduce((s, p, i) => s + dist2(p, centroids[next[i]]), 0);
+    frames.push({ epoch: it, weights: [], bias: 0, loss: inertia, gradients: [], centroids: centroids.map((c) => [...c]) });
+    const changed = it === 0 || next.some((a, i) => a !== assign[i]);
+    assign = next;
+    if (!changed) break;
+    centroids = centroids.map((c, ci) => {
+      const members = points.filter((_, i) => assign[i] === ci);
+      return members.length ? c.map((_, j) => mean(members.map((m) => m[j]))) : c;
+    });
+  }
+  const inertia = points.reduce((s, p, i) => s + dist2(p, centroids[assign[i]]), 0);
+  return { centroids, assign, inertia, frames };
+}
+
+/**
+ * Deterministic model trainer for workbench datasets and projects.
+ * Regression and classification are trained by gradient descent from zero; clustering by K-Means.
+ * The same inputs always give the same run, so training, evaluation and interpretation agree.
  */
 export function trainAndEvaluateModel(
   trainRows: Array<Record<string, number>>,
   testRows: Array<Record<string, number>>,
   taskType: "regression" | "classification" | "clustering",
   targetColumn?: string,
-  threshold: number = 0.5
+  threshold: number = 0.5,
+  opts: TrainOptions = {}
 ): {
   regression?: RegressionEvaluation;
   classification?: ClassificationEvaluation;
+  trainClassification?: ClassificationEvaluation;
   clustering?: ClusteringEvaluation;
   generalization?: GeneralizationGapAnalysis;
   probabilities?: number[];
   testTargets?: number[];
+  frames?: TrainFrame[];
+  featureNames?: string[];
+  weights?: number[];
+  bias?: number;
+  diverged?: boolean;
 } {
-  if (taskType === "regression" && targetColumn) {
-    // Ordinary Least Squares on training partition
-    const featureCols = Object.keys(trainRows[0]).filter((c) => c !== targetColumn);
-    const weights: Record<string, number> = {};
-    let bias = 0;
+  if ((taskType === "regression" || taskType === "classification") && targetColumn && trainRows.length) {
+    const featureNames = Object.keys(trainRows[0]).filter((c) => c !== targetColumn);
+    const toX = (rows: Array<Record<string, number>>) => rows.map((r) => featureNames.map((c) => r[c] ?? 0));
+    const Xtr = toX(trainRows);
+    const Xte = toX(testRows);
+    const ytr = trainRows.map((r) => r[targetColumn]);
+    const yte = testRows.map((r) => r[targetColumn]);
+    const fit = fitGradientDescent(Xtr, ytr, taskType, opts);
+    const raw = (x: number[]) => dot(fit.weights, x) + fit.bias;
+    const extra = { frames: fit.frames, featureNames, weights: fit.weights, bias: fit.bias, diverged: fit.diverged };
 
-    // Univariate or multivariate regression approximation
-    for (const col of featureCols) {
-      const xTrain = trainRows.map((r) => r[col]);
-      const yTrain = trainRows.map((r) => r[targetColumn]);
-      const meanX = xTrain.reduce((a, b) => a + b, 0) / (xTrain.length || 1);
-      const meanY = yTrain.reduce((a, b) => a + b, 0) / (yTrain.length || 1);
-
-      let num = 0;
-      let den = 0;
-      for (let i = 0; i < xTrain.length; i++) {
-        num += (xTrain[i] - meanX) * (yTrain[i] - meanY);
-        den += Math.pow(xTrain[i] - meanX, 2);
-      }
-      weights[col] = den > 0 ? num / den : 0;
-      bias = meanY - weights[col] * meanX;
+    if (taskType === "regression") {
+      const regression = computeRegressionMetrics(Xtr.map(raw), ytr, Xte.map(raw), yte);
+      const generalization = evaluateGeneralizationGap("MSE", regression.trainMse, regression.testMse, false);
+      return { regression, generalization, testTargets: yte, ...extra };
     }
-
-    const predict = (r: Record<string, number>) => {
-      let val = bias;
-      for (const col of featureCols) {
-        val += (weights[col] ?? 0) * (r[col] ?? 0);
-      }
-      return val;
-    };
-
-    const trainPreds = trainRows.map(predict);
-    const trainTargets = trainRows.map((r) => r[targetColumn]);
-    const testPreds = testRows.map(predict);
-    const testTargets = testRows.map((r) => r[targetColumn]);
-
-    const regression = computeRegressionMetrics(trainPreds, trainTargets, testPreds, testTargets);
-    const generalization = evaluateGeneralizationGap("MSE", regression.trainMse, regression.testMse, false);
-
-    return { regression, generalization, testTargets };
+    const prob = (x: number[]) => 1 / (1 + Math.exp(-Math.max(-30, Math.min(30, raw(x)))));
+    const trainProbs = Xtr.map(prob);
+    const testProbs = Xte.map(prob);
+    const trainMetrics = computeClassificationMetrics(trainProbs, ytr, threshold);
+    const testMetrics = computeClassificationMetrics(testProbs, yte, threshold);
+    const generalization = evaluateGeneralizationGap("Accuracy", trainMetrics.accuracy, testMetrics.accuracy, true);
+    return { classification: testMetrics, trainClassification: trainMetrics, generalization, probabilities: testProbs, testTargets: yte, ...extra };
   }
 
-  if (taskType === "classification" && targetColumn) {
-    const featureCols = Object.keys(trainRows[0]).filter((c) => c !== targetColumn);
-    // Logistic sigmoid model: p = 1 / (1 + exp(-(w * x + b)))
-    const weights: Record<string, number> = {};
-    for (const col of featureCols) {
-      const x1 = trainRows.filter((r) => r[targetColumn] === 1).map((r) => r[col]);
-      const x0 = trainRows.filter((r) => r[targetColumn] === 0).map((r) => r[col]);
-      const mean1 = x1.length > 0 ? x1.reduce((a, b) => a + b, 0) / x1.length : 0;
-      const mean0 = x0.length > 0 ? x0.reduce((a, b) => a + b, 0) / x0.length : 0;
-      weights[col] = (mean1 - mean0) * 1.5;
-    }
-
-    const predictProba = (r: Record<string, number>) => {
-      let z = 0;
-      for (const col of featureCols) {
-        z += (weights[col] ?? 0) * (r[col] ?? 0);
-      }
-      return 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, z))));
-    };
-
-    const trainProbs = trainRows.map(predictProba);
-    const trainTargets = trainRows.map((r) => r[targetColumn]);
-    const testProbs = testRows.map(predictProba);
-    const testTargets = testRows.map((r) => r[targetColumn]);
-
-    const trainMetrics = computeClassificationMetrics(trainProbs, trainTargets, threshold);
-    const testMetrics = computeClassificationMetrics(testProbs, testTargets, threshold);
-
-    const generalization = evaluateGeneralizationGap(
-      "Accuracy",
-      trainMetrics.accuracy,
-      testMetrics.accuracy,
-      true
-    );
-
-    return {
-      classification: testMetrics,
-      generalization,
-      probabilities: testProbs,
-      testTargets,
-    };
-  }
-
-  // Clustering: K-Means (K=3)
-  const cols = Object.keys(trainRows[0]);
-  const centroids: number[][] = [];
-  const k = Math.min(3, trainRows.length);
-  for (let i = 0; i < k; i++) {
-    centroids.push(cols.map((c) => trainRows[i][c] ?? 0));
-  }
-
-  let inertia = 0;
-  const clusterSizes = [0, 0, 0];
-  for (const r of trainRows) {
-    const pt = cols.map((c) => r[c] ?? 0);
-    let bestDist = Infinity;
-    let bestCluster = 0;
-    centroids.forEach((cent, cIdx) => {
-      const d = cent.reduce((acc, v, idx) => acc + Math.pow(v - pt[idx], 2), 0);
-      if (d < bestDist) {
-        bestDist = d;
-        bestCluster = cIdx;
-      }
-    });
-    inertia += bestDist;
-    clusterSizes[bestCluster]++;
-  }
-
+  // Clustering: K-Means on the training rows.
+  const cols = trainRows.length ? Object.keys(trainRows[0]) : [];
+  const pts = trainRows.map((r) => cols.map((c) => r[c] ?? 0));
+  if (!pts.length) return { clustering: { inertia: 0, clusterSizes: [], centroids: [] } };
+  const km = fitKMeans(pts, opts.clusters ?? DEFAULT_TRAIN.clusters);
+  const clusterSizes = km.centroids.map((_, ci) => km.assign.filter((a) => a === ci).length);
   const clustering: ClusteringEvaluation = {
-    inertia: Number(inertia.toFixed(2)),
+    inertia: Number(km.inertia.toFixed(2)),
     clusterSizes,
-    centroids,
+    centroids: km.centroids,
   };
-
-  return { clustering };
+  return { clustering, frames: km.frames, featureNames: cols };
 }

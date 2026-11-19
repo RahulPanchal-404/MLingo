@@ -9,6 +9,8 @@ export type LearningActivity = {
       workbenchExplored?: number;
       projectsCompleted?: number;
       projectsInProgress?: number;
+      /** Ids of labs the learner has run at least once (the source of truth for labsExplored). */
+      labsVisited?: string[];
 };
 
 const STORAGE_KEY = "mlingo-learning-activity";
@@ -23,6 +25,7 @@ const defaultActivity: LearningActivity = {
       workbenchExplored: 0,
       projectsCompleted: 0,
       projectsInProgress: 0,
+      labsVisited: [],
 };
 
 export function readLearningActivity(): LearningActivity {
@@ -42,6 +45,7 @@ export function readLearningActivity(): LearningActivity {
                   workbenchExplored: typeof value.workbenchExplored === "number" ? value.workbenchExplored : 0,
                   projectsCompleted: typeof value.projectsCompleted === "number" ? value.projectsCompleted : 0,
                   projectsInProgress: typeof value.projectsInProgress === "number" ? value.projectsInProgress : 0,
+                  labsVisited: Array.isArray(value.labsVisited) ? value.labsVisited.filter((item): item is string => typeof item === "string") : [],
             };
       } catch { return defaultActivity; }
 }
@@ -60,6 +64,7 @@ export function recordLearningActivity(update: Partial<LearningActivity>): void 
             workbenchExplored: update.workbenchExplored ?? current.workbenchExplored ?? 0,
             projectsCompleted: update.projectsCompleted ?? current.projectsCompleted ?? 0,
             projectsInProgress: update.projectsInProgress ?? current.projectsInProgress ?? 0,
+            labsVisited: [...new Set(update.labsVisited ?? current.labsVisited ?? [])],
       };
       try {
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -72,4 +77,14 @@ export function recordLearningActivity(update: Partial<LearningActivity>): void 
 export function recordRunConcepts(concepts: string[]): void {
       const current = readLearningActivity();
       recordLearningActivity({ concepts: [...current.concepts, ...concepts] });
+}
+/** Marks a lab as explored (counted once per lab) and records the concepts it practises. */
+export function recordLabVisit(labId: string, concepts: string[]): void {
+      const current = readLearningActivity();
+      const labsVisited = [...new Set([...(current.labsVisited ?? []), labId])];
+      recordLearningActivity({
+            labsVisited,
+            labsExplored: labsVisited.length,
+            concepts: [...current.concepts, ...concepts],
+      });
 }

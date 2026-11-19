@@ -1,5 +1,7 @@
 "use client";
 
+import { getWorkbenchDataset } from "@/features/workbench/datasets";
+import { ALL_PROJECTS } from "@/features/projects/definitions";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
@@ -99,7 +101,7 @@ export function PortfolioDashboard() {
             <div className="text-2xl font-extrabold font-mono text-emerald-700 dark:text-emerald-400">
               {summary.completedProjects}
             </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500">of 3 available</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">of {ALL_PROJECTS.length} available</span>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-950/50 p-3.5 space-y-1">
@@ -239,7 +241,7 @@ export function PortfolioDashboard() {
                     </div>
                     <div className="rounded-lg bg-slate-50 dark:bg-slate-950/60 p-2 border border-slate-200 dark:border-slate-800">
                       <span className="text-[9px] text-slate-400 dark:text-slate-500 font-sans block uppercase">Dataset</span>
-                      <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">{project.datasetId}</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">{getWorkbenchDataset(project.datasetId).name}</span>
                     </div>
                     <div className="rounded-lg bg-slate-50 dark:bg-slate-950/60 p-2 border border-slate-200 dark:border-slate-800">
                       <span className="text-[9px] text-slate-400 dark:text-slate-500 font-sans block uppercase">Experiments</span>

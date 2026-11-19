@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { readLearningActivity, type LearningActivity } from "@/features/progress/activity";
+import { getPortfolioSummary, type PortfolioSummaryStats } from "@/features/portfolio/portfolio-helpers";
+import { ALL_PROJECTS } from "@/features/projects/definitions";
 
 const defaultActivity: LearningActivity = {
   labsExplored: 0,
@@ -45,24 +47,29 @@ const CURRICULUM_CONCEPTS: ConceptNode[] = [
 
 export function ProgressPage() {
   const [activity, setActivity] = useState<LearningActivity>(defaultActivity);
+  const [summary, setSummary] = useState<PortfolioSummaryStats | null>(null);
 
   useEffect(() => {
-    const update = () => setActivity(readLearningActivity());
-    update();
-    window.addEventListener("mlingo-activity-change", update);
-    window.addEventListener("storage", update);
-    return () => {
-      window.removeEventListener("mlingo-activity-change", update);
-      window.removeEventListener("storage", update);
+    // Same sources as the portfolio, so both pages always agree.
+    const update = () => {
+      setActivity(readLearningActivity());
+      setSummary(getPortfolioSummary());
     };
+    update();
+    const events = ["mlingo-activity-change", "mlingo-experiments-change", "mlingo-project-state-change", "storage"];
+    events.forEach((e) => window.addEventListener(e, update));
+    return () => events.forEach((e) => window.removeEventListener(e, update));
   }, []);
+  const labsExplored = activity.labsVisited?.length ?? 0;
+  const projectsCompleted = summary?.completedProjects ?? 0;
+  const experimentsSaved = summary?.totalExperiments ?? 0;
 
   // Compute learner rank/tier
   const totalScore =
-    (activity.labsExplored || 0) * 15 +
+    labsExplored * 15 +
     (activity.challengesCompleted?.length || 0) * 25 +
-    (activity.projectsCompleted || 0) * 50 +
-    (activity.experimentsRun || 0) * 5;
+    projectsCompleted * 50 +
+    experimentsSaved * 5;
 
   let learnerLevel = "ML Apprentice";
   let learnerTier = "Level 1";
@@ -85,7 +92,7 @@ export function ProgressPage() {
     action: "Launch Lab 01 →",
   };
 
-  if (activity.labsExplored === 0) {
+  if (labsExplored === 0) {
     recommendation = {
       title: "Start in Laboratory 01",
       description: "Record your first live gradient descent optimization run and scrub through frame-by-frame parameter adjustments.",
@@ -99,7 +106,7 @@ export function ProgressPage() {
       href: "/challenges/gradient-descent-instability",
       action: "Start Operation: Bounceback →",
     };
-  } else if ((activity.projectsCompleted || 0) === 0) {
+  } else if (projectsCompleted === 0) {
     recommendation = {
       title: "Build in Project Studio",
       description: "Apply your frame-by-frame intuition to an end-to-end guided engineering project with verifiable milestones.",
@@ -157,14 +164,14 @@ export function ProgressPage() {
             </span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold font-mono text-slate-900 dark:text-slate-100">
-                {activity.labsExplored}
+                {labsExplored}
               </span>
               <span className="text-xs text-slate-500 font-mono">/ 4</span>
             </div>
             <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
               <div
                 className="h-full bg-teal-600 dark:bg-teal-400 transition-all duration-300"
-                style={{ width: `${Math.min(100, ((activity.labsExplored || 0) / 4) * 100)}%` }}
+                style={{ width: `${Math.min(100, (labsExplored / 4) * 100)}%` }}
               />
             </div>
           </div>
@@ -195,14 +202,14 @@ export function ProgressPage() {
             </span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">
-                {activity.projectsCompleted ?? 0}
+                {projectsCompleted}
               </span>
-              <span className="text-xs text-slate-500 font-mono">/ 3</span>
+              <span className="text-xs text-slate-500 font-mono">/ {ALL_PROJECTS.length}</span>
             </div>
             <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
               <div
                 className="h-full bg-indigo-500 transition-all duration-300"
-                style={{ width: `${Math.min(100, (((activity.projectsCompleted ?? 0)) / 3) * 100)}%` }}
+                style={{ width: `${Math.min(100, (projectsCompleted / ALL_PROJECTS.length) * 100)}%` }}
               />
             </div>
           </div>
@@ -210,18 +217,18 @@ export function ProgressPage() {
           {/* Experiments & Sweeps */}
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3.5 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-              Experiments Run
+              Experiments Recorded
             </span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold font-mono text-amber-600 dark:text-amber-400">
-                {activity.experimentsRun || 0}
+                {experimentsSaved}
               </span>
-              <span className="text-xs text-slate-500 font-mono">runs</span>
+              <span className="text-xs text-slate-500 font-mono">saved</span>
             </div>
             <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
               <div
                 className="h-full bg-amber-500 transition-all duration-300"
-                style={{ width: `${Math.min(100, ((activity.experimentsRun || 0) / 10) * 100)}%` }}
+                style={{ width: `${Math.min(100, (experimentsSaved / 10) * 100)}%` }}
               />
             </div>
           </div>

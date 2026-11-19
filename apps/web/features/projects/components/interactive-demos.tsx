@@ -37,7 +37,7 @@ export function SalaryPredictionDemo() {
               <span>Years of Experience:</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">{experience.toFixed(1)} yrs</span>
             </div>
-            <input
+            <input aria-label="Years of Experience"
               type="range"
               min="0"
               max="15"
@@ -75,7 +75,7 @@ export function SalaryPredictionDemo() {
               <span>Completed Portfolio Projects:</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">{projects} projects</span>
             </div>
-            <input
+            <input aria-label="Completed Portfolio Projects"
               type="range"
               min="0"
               max="20"
@@ -159,7 +159,7 @@ export function StudentOutcomeDemo() {
               <span>Weekly Study Hours:</span>
               <span className="text-purple-700 dark:text-purple-400 font-bold">{studyHours.toFixed(1)} hrs</span>
             </div>
-            <input
+            <input aria-label="Weekly Study Hours"
               type="range"
               min="1"
               max="10"
@@ -175,7 +175,7 @@ export function StudentOutcomeDemo() {
               <span>Attendance Rate:</span>
               <span className="text-purple-700 dark:text-purple-400 font-bold">{attendance}%</span>
             </div>
-            <input
+            <input aria-label="Attendance Rate"
               type="range"
               min="50"
               max="100"
@@ -208,7 +208,7 @@ export function StudentOutcomeDemo() {
               <span>Decision Threshold (θ):</span>
               <span className="text-amber-700 dark:text-amber-400 font-bold">θ = {threshold.toFixed(2)}</span>
             </div>
-            <input
+            <input aria-label="Decision Threshold (θ)"
               type="range"
               min="0.10"
               max="0.90"
@@ -308,7 +308,7 @@ export function CustomerRetailDemo() {
               <span>Annual Income ($k):</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">${income}k</span>
             </div>
-            <input
+            <input aria-label="Annual Income ($k)"
               type="range"
               min="20"
               max="130"
@@ -324,7 +324,7 @@ export function CustomerRetailDemo() {
               <span>Spending Loyalty Score (1 - 100):</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">{spending} / 100</span>
             </div>
-            <input
+            <input aria-label="Spending Loyalty Score (1 - 100)"
               type="range"
               min="5"
               max="95"
@@ -421,7 +421,7 @@ export function HousePricePredictionDemo() {
               <span>Living Area (Square Footage):</span>
               <span className="text-blue-700 dark:text-blue-400 font-bold">{sqft} sq ft</span>
             </div>
-            <input
+            <input aria-label="Living Area (Square Footage)"
               type="range"
               min="900"
               max="3500"
@@ -438,7 +438,7 @@ export function HousePricePredictionDemo() {
                 <span>Bedrooms:</span>
                 <span className="font-bold text-slate-900 dark:text-white">{beds} beds</span>
               </div>
-              <input
+              <input aria-label="Bedrooms"
                 type="range"
                 min="1"
                 max="6"
@@ -453,7 +453,7 @@ export function HousePricePredictionDemo() {
                 <span>Bathrooms:</span>
                 <span className="font-bold text-slate-900 dark:text-white">{baths} baths</span>
               </div>
-              <input
+              <input aria-label="Bathrooms"
                 type="range"
                 min="1"
                 max="5"
@@ -471,7 +471,7 @@ export function HousePricePredictionDemo() {
                 <span>House Age:</span>
                 <span className="font-bold text-slate-900 dark:text-white">{age} years</span>
               </div>
-              <input
+              <input aria-label="House Age"
                 type="range"
                 min="0"
                 max="40"
@@ -587,7 +587,7 @@ export function CustomerSegmentationDemo() {
               <span>Recency (Days Since Last Order):</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">{recency} days ago</span>
             </div>
-            <input
+            <input aria-label="Recency (Days Since Last Order)"
               type="range"
               min="1"
               max="200"
@@ -603,7 +603,7 @@ export function CustomerSegmentationDemo() {
               <span>Frequency (Total Annual Orders):</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">{frequency} orders</span>
             </div>
-            <input
+            <input aria-label="Frequency (Total Annual Orders)"
               type="range"
               min="1"
               max="40"
@@ -619,7 +619,7 @@ export function CustomerSegmentationDemo() {
               <span>Monetary Value (Lifetime Spend $):</span>
               <span className="text-teal-800 dark:text-teal-400 font-bold">${monetary}</span>
             </div>
-            <input
+            <input aria-label="Monetary Value (Lifetime Spend $)"
               type="range"
               min="100"
               max="5000"
@@ -983,7 +983,7 @@ export function MovieRecommendationDemo() {
               <span>Inception (Sci-Fi):</span>
               <span className="font-bold text-amber-600">{"★".repeat(inceptionRating)}{"☆".repeat(5 - inceptionRating)}</span>
             </div>
-            <input
+            <input aria-label="Inception (Sci-Fi)"
               type="range"
               min="1"
               max="5"
@@ -999,7 +999,7 @@ export function MovieRecommendationDemo() {
               <span>The Matrix (Sci-Fi/Action):</span>
               <span className="font-bold text-amber-600">{"★".repeat(matrixRating)}{"☆".repeat(5 - matrixRating)}</span>
             </div>
-            <input
+            <input aria-label="The Matrix (Sci-Fi/Action)"
               type="range"
               min="1"
               max="5"
@@ -1015,7 +1015,7 @@ export function MovieRecommendationDemo() {
               <span>Titanic (Romance/Drama):</span>
               <span className="font-bold text-amber-600">{"★".repeat(titanicRating)}{"☆".repeat(5 - titanicRating)}</span>
             </div>
-            <input
+            <input aria-label="Titanic (Romance/Drama)"
               type="range"
               min="1"
               max="5"
@@ -1120,7 +1120,7 @@ export function StockPricePredictionDemo() {
                 <span>Moving Average Window:</span>
                 <span className="font-bold text-emerald-600">{maWindow} days</span>
               </div>
-              <input
+              <input aria-label="Moving Average Window"
                 type="range"
                 min="3"
                 max="14"
@@ -1135,7 +1135,7 @@ export function StockPricePredictionDemo() {
                 <span>Trend Slope (β):</span>
                 <span className="font-bold text-amber-600">+{trendSlope.toFixed(1)}/day</span>
               </div>
-              <input
+              <input aria-label="Trend Slope (β)"
                 type="range"
                 min="-2.0"
                 max="3.0"
@@ -1212,7 +1212,7 @@ export function CreditCardFraudDemo() {
               <span>Transaction Amount ($):</span>
               <span className="text-rose-700 dark:text-rose-400 font-bold">${amount}</span>
             </div>
-            <input
+            <input aria-label="Transaction Amount ($)"
               type="range"
               min="10"
               max="2500"
@@ -1228,7 +1228,7 @@ export function CreditCardFraudDemo() {
               <span>Distance from Billing Residence:</span>
               <span className="text-rose-700 dark:text-rose-400 font-bold">{distance} miles</span>
             </div>
-            <input
+            <input aria-label="Distance from Billing Residence"
               type="range"
               min="0"
               max="800"
@@ -1261,7 +1261,7 @@ export function CreditCardFraudDemo() {
               <span>Security Decision Threshold (θ):</span>
               <span className="text-rose-700 dark:text-rose-400 font-bold">θ = {threshold.toFixed(2)}</span>
             </div>
-            <input
+            <input aria-label="Security Decision Threshold (θ)"
               type="range"
               min="0.10"
               max="0.80"

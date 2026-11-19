@@ -4,6 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { chapters } from "@/features/learning/chapters";
+
+const LESSON_COUNT = chapters.reduce((n, c) => n + c.lessons.length, 0);
+
 type NavItem = { href: string; label: string; text?: string };
 type NavGroup = { title: string; items: NavItem[] };
 
@@ -11,7 +15,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "Learn",
     items: [
-      { href: "/learn", label: "Lessons", text: "29 short lessons, foundations to clustering" },
+      { href: "/learn", label: "Lessons", text: `${LESSON_COUNT} short lessons, foundations to clustering` },
       { href: "/theory", label: "Theory & Math", text: "The equations behind each lesson" },
       { href: "/labs", label: "Labs", text: "Train a model and scrub every step" },
       { href: "/games", label: "Games", text: "One concept per level" },

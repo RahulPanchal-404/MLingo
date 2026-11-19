@@ -25,7 +25,7 @@ import type { TimelineMarker } from "@/features/timeline/types";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
-import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
+import { recordLabVisit } from "@/features/progress/activity";
 import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
 import { ExperimentControlPanel } from "./experiment-control-panel";
 
@@ -115,9 +115,7 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
             if (!run) return;
             if (recordedRunId.current === run.id) return;
             recordedRunId.current = run.id;
-            const activity = readLearningActivity();
-            recordLearningActivity({ labsExplored: activity.labsExplored + 1 });
-            recordRunConcepts(["Gradient Descent", "Loss", "Learning Rate"]);
+            recordLabVisit("gradient-descent", ["Gradient Descent", "Loss", "Learning Rate"]);
       }, [run]);
 
       const submit = (event: FormEvent<HTMLFormElement>) => {

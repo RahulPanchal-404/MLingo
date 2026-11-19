@@ -1,5 +1,6 @@
 "use client";
 
+import { snapshotLabel, snapshotsSummary } from "@/features/timeline/labels";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
@@ -125,7 +126,7 @@ export function DemoWorkspace() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="keep-light space-y-6">
       {/* Top Navigation & Stepper Header */}
       <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -176,7 +177,7 @@ export function DemoWorkspace() {
       </header>
 
       {/* Main Guided Step Content */}
-      <main className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
         {/* STEP 1: Start with a Dataset */}
         {currentStepIndex === 1 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
@@ -189,14 +190,14 @@ export function DemoWorkspace() {
                   All machine learning begins with raw data.
                 </h2>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Before a neural network or regression line learns anything, all it possesses is a collection of features $x$ and targets $y$.
+                  Before a neural network or regression line learns anything, all it possesses is a collection of features x and targets y.
                 </p>
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs text-slate-700">
                   <div className="font-bold text-slate-800">What you are observing:</div>
                   <ul className="list-disc pl-4 space-y-1 text-slate-600">
                     <li>32 deterministic data points plotted in 2D space.</li>
-                    <li>The true relationship is roughly $y = 2x + 1$, plus measurement noise.</li>
-                    <li>Notice: no line exists yet. Initial weights $w = 0$ and bias $b = 0$.</li>
+                    <li>The true relationship is roughly y = 2x + 1, plus measurement noise.</li>
+                    <li>Notice: no line exists yet. Initial weights w = 0 and bias b = 0.</li>
                   </ul>
                 </div>
               </div>
@@ -231,7 +232,7 @@ export function DemoWorkspace() {
                 Watch Mean Squared Error drop as weights update.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                We ran 30 gradient descent epochs with learning rate $\alpha = 0.05$. At every epoch, the engine calculated the instantaneous loss gradient and subtracted it from the weights.
+                We ran 30 gradient descent epochs with learning rate α = 0.05. At every epoch, the engine calculated the instantaneous loss gradient and subtracted it from the weights.
               </p>
             </div>
 
@@ -290,7 +291,7 @@ export function DemoWorkspace() {
                   <div className="rounded-xl border border-slate-200 bg-white p-4">
                     <div className="flex items-center justify-between text-xs font-bold text-slate-800 mb-2">
                       <span>Regression Line Position</span>
-                      <span className="font-mono text-teal-700">Step {timelineA.currentStep + 1} of {timelineA.totalSteps}</span>
+                      <span className="font-mono text-teal-700">{snapshotLabel(timelineA.currentStep)} · {snapshotsSummary(timelineA.totalSteps)}</span>
                     </div>
                     <RegressionPlot
                       points={runA.dataset_points}
@@ -339,19 +340,19 @@ export function DemoWorkspace() {
                 Observe the exact mathematical numbers driving the model.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                In MLingo, weights and gradients are never hidden. Inspect the active values at Step {timelineA.currentStep + 1}:
+                In MLingo, weights and gradients are never hidden. Inspect the values at {snapshotLabel(timelineA.currentStep).toLowerCase()}:
               </p>
             </div>
 
             {stateA && (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 font-mono text-xs">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
-                  <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Weight ($w$)</div>
+                  <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Weight (w)</div>
                   <div className="text-lg font-bold text-slate-900">{stateA.weights[0]?.toFixed(4)}</div>
                   <div className="text-[10px] text-slate-400 font-sans">True slope target: 2.0</div>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
-                  <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Bias ($b$)</div>
+                  <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Bias (b)</div>
                   <div className="text-lg font-bold text-slate-900">{stateA.bias?.toFixed(4)}</div>
                   <div className="text-[10px] text-slate-400 font-sans">True intercept: 1.0</div>
                 </div>
@@ -402,7 +403,7 @@ export function DemoWorkspace() {
                 </span>
                 <div>
                   <div className="text-sm font-bold text-slate-900">
-                    Ask the Tutor about Step {timelineA.currentStep + 1}
+                    Ask the Tutor about {timelineA.currentStep === 0 ? "the start" : `update ${timelineA.currentStep}`}
                   </div>
                   <div className="text-xs text-slate-500">
                     Bound context: Linear Regression · Loss = {stateA?.loss?.toFixed(4)} · LR = 0.05
@@ -448,7 +449,7 @@ export function DemoWorkspace() {
                 Hypothesize, tweak a hyperparameter, and measure the effect.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                In Run A, we used learning rate $\alpha = 0.05$. What happens if we increase the learning rate to $\alpha = {expLearningRate}$? Will the model converge in fewer steps or overshoot?
+                In Run A, we used learning rate α = 0.05. What happens if we increase the learning rate to α = {expLearningRate}? Will the model converge in fewer steps or overshoot?
               </p>
             </div>
 
@@ -477,7 +478,7 @@ export function DemoWorkspace() {
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4">
                 <label className="block space-y-2 text-xs font-bold text-slate-700">
                   <span>Experiment Variable: Learning Rate (α)</span>
-                  <input
+                  <input aria-label="Experiment Variable: Learning Rate (α)"
                     type="range"
                     min="0.01"
                     max="0.8"
@@ -677,7 +678,7 @@ export function DemoWorkspace() {
             )}
           </div>
         </footer>
-      </main>
+      </section>
     </div>
   );
 }

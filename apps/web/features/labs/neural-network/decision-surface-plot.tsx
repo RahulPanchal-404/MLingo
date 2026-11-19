@@ -1,5 +1,7 @@
 "use client";
 
+import { snapshotLabel } from "@/features/timeline/labels";
+
 import { useMemo } from "react";
 import type { DatasetPoint, TrainingState } from "@/types/training-run";
 import { evaluateDecisionGrid } from "./math";
@@ -69,7 +71,7 @@ export function DecisionSurfacePlot({ points, state, resolution = 28 }: Decision
     <figure className="lab-chart" aria-label="Neural Network Decision Surface">
       <figcaption>
         <span>Decision surface (P(y=1))</span>
-        <span className="step-badge">Step {state.step}</span>
+        <span className="step-badge">{snapshotLabel(state.step)}</span>
       </figcaption>
 
       <svg

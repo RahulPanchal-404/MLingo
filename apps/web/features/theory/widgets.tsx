@@ -26,7 +26,7 @@ function Slider({ label, value, min, max, step, onChange, fmt = (v) => v.toStrin
   return (
     <label className="grid grid-cols-[7.5rem_1fr_4rem] items-center gap-3 text-sm">
       <span className="text-slate-700 dark:text-slate-300">{label}</span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="accent-teal-600" />
+      <input aria-label={label} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="accent-teal-600" />
       <span className="text-right font-semibold tabular-nums text-slate-950 dark:text-white">{fmt(value)}</span>
     </label>
   );

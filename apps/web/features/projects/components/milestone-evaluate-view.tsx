@@ -1,11 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import type { ProjectDefinition, ProjectState } from "../types";
-import { getWorkbenchDataset } from "@/features/workbench/datasets";
-import { splitTrainTest } from "@/features/workbench/split";
-import { fitPreprocessing, transformWithPipeline } from "@/features/workbench/preprocessing";
-import { trainAndEvaluateModel } from "@/features/workbench/evaluation";
+import { useProjectRun } from "../engine";
 import { ConfusionMatrixView } from "@/features/workbench/components/confusion-matrix-view";
 import { ThresholdControl } from "@/features/workbench/components/threshold-control";
 import { RocCurveChart } from "@/features/workbench/components/roc-curve-chart";
@@ -26,42 +22,8 @@ export function MilestoneEvaluateView({
   onComplete,
   onBack,
 }: MilestoneEvaluateViewProps) {
-  const dataset = useMemo(() => getWorkbenchDataset(project.datasetId), [project.datasetId]);
-
-  // 1. Train / Test Split
-  const { train: trainRaw, test: testRaw } = useMemo(
-    () => splitTrainTest(dataset.rows, state.splitConfig),
-    [dataset.rows, state.splitConfig]
-  );
-
-  // 2. Preprocessing (fit exclusively on train)
-  const pipeline = useMemo(
-    () => fitPreprocessing(trainRaw, state.preprocessingConfig, dataset.targetColumn),
-    [trainRaw, state.preprocessingConfig, dataset.targetColumn]
-  );
-
-  const trainTransformed = useMemo(
-    () => transformWithPipeline(trainRaw, pipeline, dataset.targetColumn),
-    [trainRaw, pipeline, dataset.targetColumn]
-  );
-
-  const testTransformed = useMemo(
-    () => transformWithPipeline(testRaw, pipeline, dataset.targetColumn),
-    [testRaw, pipeline, dataset.targetColumn]
-  );
-
-  // 3. Train & Evaluate
-  const evalResult = useMemo(
-    () =>
-      trainAndEvaluateModel(
-        trainTransformed,
-        testTransformed,
-        dataset.taskType,
-        dataset.targetColumn,
-        state.classificationThreshold
-      ),
-    [trainTransformed, testTransformed, dataset.taskType, dataset.targetColumn, state.classificationThreshold]
-  );
+  // Same dataset, split, preprocessing and hyperparameters as the training milestone.
+  const { result: evalResult, units, testRaw, trainRaw } = useProjectRun(project, state);
 
   return (
     <div className="space-y-6">
@@ -86,7 +48,7 @@ export function MilestoneEvaluateView({
         <div className="space-y-6">
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3">
-              Salary Prediction Evaluation Metrics
+              {project.title}: evaluation on {testRaw.length} test rows (trained on {trainRaw.length})
             </h3>
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
@@ -102,12 +64,12 @@ export function MilestoneEvaluateView({
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
                 <p className="text-[10px] uppercase font-sans text-slate-500">Test MAE</p>
                 <p className="mt-1 text-2xl font-bold text-slate-900">{evalResult.regression.testMae}</p>
-                <p className="text-[10px] text-slate-400 font-sans mt-1">Average $ error ($k)</p>
+                <p className="text-[10px] text-slate-400 font-sans mt-1">Average error{units ? ` (${units})` : ""}</p>
               </div>
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
                 <p className="text-[10px] uppercase font-sans text-slate-500">R² Score</p>
                 <p className="mt-1 text-2xl font-bold text-indigo-700">{evalResult.regression.testR2}</p>
-                <p className="text-[10px] text-slate-400 font-sans mt-1">Explained variance %</p>
+                <p className="text-[10px] text-slate-400 font-sans mt-1">{evalResult.regression.testR2 < 0 ? "Worse than predicting the mean" : "Share of variance explained (1 = perfect)"}</p>
               </div>
             </div>
           </div>

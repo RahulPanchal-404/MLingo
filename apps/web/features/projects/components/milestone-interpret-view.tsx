@@ -2,10 +2,7 @@
 
 import { useMemo } from "react";
 import type { ProjectDefinition, ProjectState } from "../types";
-import { getWorkbenchDataset } from "@/features/workbench/datasets";
-import { splitTrainTest } from "@/features/workbench/split";
-import { fitPreprocessing, transformWithPipeline } from "@/features/workbench/preprocessing";
-import { trainAndEvaluateModel } from "@/features/workbench/evaluation";
+import { useProjectRun } from "../engine";
 import { generateEvaluationExplanation } from "@/features/intelligence/intelligence-engine";
 import { WhyExplanationPanel } from "@/features/intelligence/why-explanation-panel";
 import type { LearningIntelligenceExplanation } from "@/features/intelligence/types";
@@ -23,39 +20,7 @@ export function MilestoneInterpretView({
   onComplete,
   onBack,
 }: MilestoneInterpretViewProps) {
-  const dataset = useMemo(() => getWorkbenchDataset(project.datasetId), [project.datasetId]);
-
-  const { train: trainRaw, test: testRaw } = useMemo(
-    () => splitTrainTest(dataset.rows, state.splitConfig),
-    [dataset.rows, state.splitConfig]
-  );
-
-  const pipeline = useMemo(
-    () => fitPreprocessing(trainRaw, state.preprocessingConfig, dataset.targetColumn),
-    [trainRaw, state.preprocessingConfig, dataset.targetColumn]
-  );
-
-  const trainTransformed = useMemo(
-    () => transformWithPipeline(trainRaw, pipeline, dataset.targetColumn),
-    [trainRaw, pipeline, dataset.targetColumn]
-  );
-
-  const testTransformed = useMemo(
-    () => transformWithPipeline(testRaw, pipeline, dataset.targetColumn),
-    [testRaw, pipeline, dataset.targetColumn]
-  );
-
-  const evalResult = useMemo(
-    () =>
-      trainAndEvaluateModel(
-        trainTransformed,
-        testTransformed,
-        dataset.taskType,
-        dataset.targetColumn,
-        state.classificationThreshold
-      ),
-    [trainTransformed, testTransformed, dataset.taskType, dataset.targetColumn, state.classificationThreshold]
-  );
+  const { result: evalResult, units, options, testRaw } = useProjectRun(project, state);
 
   // Generate Learning Intelligence explanation
   const explanation: LearningIntelligenceExplanation = useMemo(() => {
@@ -64,14 +29,20 @@ export function MilestoneInterpretView({
         trainMetric: evalResult.regression.trainMse,
         testMetric: evalResult.regression.testMse,
         metricName: "MSE",
+        r2: evalResult.regression.testR2,
+        mae: evalResult.regression.testMae,
+        testSize: testRaw.length,
+        units,
+        diverged: evalResult.diverged,
       });
     }
 
     if (project.type === "classification" && evalResult.classification) {
       const cm = evalResult.classification.confusionMatrix;
       return generateEvaluationExplanation("classification", {
-        trainMetric: 0.9,
+        trainMetric: evalResult.trainClassification?.accuracy ?? evalResult.classification.accuracy,
         testMetric: evalResult.classification.accuracy,
+        testSize: testRaw.length,
         metricName: "Accuracy",
         threshold: state.classificationThreshold,
         tp: cm.tp,
@@ -81,33 +52,31 @@ export function MilestoneInterpretView({
       });
     }
 
-    // Clustering Learning Intelligence Explanation
-    const inertia = evalResult.clustering?.inertia ?? 142.6;
+    // Clustering: describe the run that actually happened.
+    const c = evalResult.clustering;
+    const k = c?.clusterSizes.length ?? options.clusters ?? 3;
+    const inertia = c?.inertia ?? 0;
+    const sizes = c?.clusterSizes ?? [];
+    const scaled = state.preprocessingConfig.numericScaling !== "none";
     return {
       id: `eval-clustering-${project.slug}`,
       diagnosticId: "eval-clustering",
       type: "possible_plateau",
       step: 0,
-      title: "Model Interpretation: K-Means Clustering Cohesion",
-      whatHappened: `K-Means partitioned the retail dataset into ${
-        evalResult.clustering?.clusterSizes.length ?? 3
-      } clusters with a total within-cluster sum of squares (Inertia) of ${inertia}.`,
+      title: "Model Interpretation: K-Means Clustering",
+      whatHappened: `K-Means split the ${sizes.reduce((a, b) => a + b, 0)} training customers into ${k} clusters of sizes ${sizes.join(", ")}, with a total within-cluster sum of squares (inertia) of ${inertia}.`,
       evidence: [
-        { label: "Number of Clusters (K)", value: String(evalResult.clustering?.clusterSizes.length ?? 3) },
-        { label: "Total Inertia (WCSS)", value: String(inertia) },
-        {
-          label: "Cluster Balance",
-          value: evalResult.clustering?.clusterSizes.join(" / ") ?? "4 / 4 / 4",
-        },
+        { label: "Number of clusters (K)", value: String(k) },
+        { label: "Inertia (within-cluster sum of squares)", value: String(inertia) },
+        { label: "Cluster sizes", value: sizes.join(" / ") },
+        { label: "Features scaled", value: scaled ? "Yes" : "No" },
       ],
-      why: "The Expectation-Maximization loop iteratively assigned points to nearest centroids and recalculated means until centroid displacement was beneath tolerance. Because features were standardized, distance was equally weighted across income and spending.",
-      parameterBehavior:
-        "Increasing K mechanically drops inertia, but 3 clusters represents the optimal elbow inflection point, isolating low, medium, and high spending cohorts without over-partitioning.",
-      suggestedAction:
-        "Profile each cluster centroid against business personas (e.g. VIP high-spenders vs budget shoppers) to design tailored outreach.",
+      why: `K-Means repeats two steps until nothing changes: assign every customer to the nearest centre, then move each centre to the mean of its customers. Neither step can increase inertia, so it settles at a local minimum.${scaled ? " Because the features were scaled, every feature counts equally in the distance." : " The features were not scaled, so the feature with the largest numbers dominates the distance."}`,
+      parameterBehavior: `Inertia always falls as K grows, so a low inertia alone does not prove K = ${k} is right. Compare inertia for several K values (the elbow method) in the Experiment milestone${sizes.some((n) => n <= 1) ? `, and note that one cluster here has only ${Math.min(...sizes)} member, which can mean K is too large` : ""}.`,
+      suggestedAction: "Describe each cluster by its centre (for example, high spenders versus occasional shoppers) and check whether those groups are useful for the business decision.",
       relatedConcepts: ["K-Means", "Inertia", "Elbow Method", "Feature Scaling", "Centroids"],
     };
-  }, [project.type, project.slug, evalResult, state.classificationThreshold]);
+  }, [project.type, project.slug, evalResult, state.classificationThreshold, state.preprocessingConfig.numericScaling, options.clusters, testRaw.length, units]);
 
   return (
     <div className="space-y-6">

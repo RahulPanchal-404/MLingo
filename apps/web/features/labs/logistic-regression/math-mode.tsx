@@ -1,3 +1,4 @@
+import { snapshotLabel } from "@/features/timeline/labels";
 import type { TrainingState } from "@/types/training-run";
 
 export function LogisticMathMode({
@@ -23,7 +24,7 @@ export function LogisticMathMode({
           <p className="eyebrow">Math mode / logistic regression</p>
           <h2>Selected frame mathematics</h2>
         </div>
-        <span>Step {state.step}</span>
+        <span>{snapshotLabel(state.step)}</span>
       </div>
 
       {/* Beginner Intuition Helpers */}

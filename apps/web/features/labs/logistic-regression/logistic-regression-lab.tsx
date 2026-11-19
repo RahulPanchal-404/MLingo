@@ -8,7 +8,7 @@ import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
 import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
-import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
+import { recordLabVisit } from "@/features/progress/activity";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { ClassificationPlot } from "@/features/labs/logistic-regression/classification-plot";
@@ -81,8 +81,7 @@ export function LogisticRegressionLab({ breakMode }: LogisticRegressionLabProps 
       useEffect(() => {
             if (!run || recordedRunId.current === run.id) return;
             recordedRunId.current = run.id;
-            recordLearningActivity({ labsExplored: readLearningActivity().labsExplored + 1 });
-            recordRunConcepts(["Logistic Regression", "Sigmoid", "Probability", "Binary Cross-Entropy", "Decision Boundary"]);
+            recordLabVisit("logistic-regression", ["Logistic Regression", "Sigmoid", "Probability", "Binary Cross-Entropy", "Decision Boundary"]);
       }, [run]);
 
       const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); void requestTraining(request); };

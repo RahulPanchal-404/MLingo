@@ -81,10 +81,21 @@ export function DataScienceReport({
         {/* Evaluation */}
         <div className="rounded-lg border border-teal-200 dark:border-teal-800/80 bg-teal-50/70 dark:bg-teal-950/40 p-3">
           <p className="text-[10px] uppercase font-semibold text-teal-700 dark:text-teal-400">Primary Metric ({metricName})</p>
-          <p className="mt-1 font-black text-teal-950 dark:text-teal-100 font-mono text-base">{testMetric}</p>
-          <p className="text-[11px] text-teal-800 dark:text-teal-300 font-mono">
-            Train: {trainMetric} {secondaryMetric ? `| ${secondaryMetric}` : ""}
-          </p>
+          {taskType === "clustering" ? (
+            <>
+              <p className="mt-1 font-black text-teal-950 dark:text-teal-100 font-mono text-base">{testMetric}</p>
+              <p className="text-[11px] text-teal-800 dark:text-teal-300">
+                Within-cluster sum of squares on the {trainSamples} training rows (no labels, so no accuracy). {secondaryMetric}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-1 font-black text-teal-950 dark:text-teal-100 font-mono text-base">Test: {testMetric}</p>
+              <p className="text-[11px] text-teal-800 dark:text-teal-300 font-mono">
+                Train: {trainMetric} {secondaryMetric ? `| ${secondaryMetric}` : ""}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

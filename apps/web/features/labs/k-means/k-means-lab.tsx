@@ -19,7 +19,7 @@ import { TrainingInsights } from "@/features/insights/training-insights";
 import { ModelXRay } from "@/features/x-ray/model-x-ray";
 import { SaveExperimentButton } from "@/features/experiments/save-experiment-button";
 import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
-import { readLearningActivity, recordLearningActivity, recordRunConcepts } from "@/features/progress/activity";
+import { recordLabVisit } from "@/features/progress/activity";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
 import { useTutor } from "@/features/tutor/tutor-provider";
@@ -94,9 +94,7 @@ export function KMeansLab({ breakMode }: KMeansLabProps = {}) {
       useEffect(() => {
             if (!run || recordedRunId.current === run.id) return;
             recordedRunId.current = run.id;
-            const activity = readLearningActivity();
-            recordLearningActivity({ labsExplored: activity.labsExplored + 1 });
-            recordRunConcepts(["K-Means", "Clustering", "Centroids", "Cluster Assignment", "Inertia", "Convergence"]);
+            recordLabVisit("k-means", ["K-Means", "Clustering", "Centroids", "Cluster Assignment", "Inertia", "Convergence"]);
       }, [run]);
 
       const submit = (event: FormEvent<HTMLFormElement>) => {

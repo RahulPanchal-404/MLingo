@@ -42,7 +42,7 @@ export function SplitControls({
             </label>
             <span className="font-mono font-bold text-teal-700 dark:text-teal-400">{Math.round(config.trainRatio * 100)}%</span>
           </div>
-          <input
+          <input aria-label="Train Ratio"
             id="split-ratio-slider"
             type="range"
             min="0.5"

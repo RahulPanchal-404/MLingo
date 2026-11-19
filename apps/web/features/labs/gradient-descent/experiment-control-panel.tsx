@@ -92,7 +92,7 @@ export function ExperimentControlPanel({
               className="w-20 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 text-right font-mono text-xs font-bold text-teal-800 dark:text-teal-300"
             />
           </div>
-          <input
+          <input aria-label="Learning Rate (α)"
             type="range"
             min={learningRateConfig.min}
             max={learningRateConfig.max}
@@ -123,7 +123,7 @@ export function ExperimentControlPanel({
               className="w-20 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 text-right font-mono text-xs font-bold text-slate-800 dark:text-slate-200"
             />
           </div>
-          <input
+          <input aria-label="Epochs (Iterations)"
             type="range"
             min="1"
             max="150"
@@ -154,7 +154,7 @@ export function ExperimentControlPanel({
               className="w-20 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 text-right font-mono text-xs font-bold text-slate-800 dark:text-slate-200"
             />
           </div>
-          <input
+          <input aria-label="Dataset Samples (N)"
             type="range"
             min="10"
             max="100"
@@ -185,7 +185,7 @@ export function ExperimentControlPanel({
               className="w-20 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 text-right font-mono text-xs font-bold text-slate-800 dark:text-slate-200"
             />
           </div>
-          <input
+          <input aria-label="Noise Variance (σ)"
             type="range"
             min="0"
             max="1.5"

@@ -1,5 +1,6 @@
 "use client";
 
+import { getWorkbenchDataset } from "@/features/workbench/datasets";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { ProjectDefinition, ProjectState } from "@/features/projects/types";
@@ -108,7 +109,7 @@ export function ProjectCaseStudy({ project }: { project: ProjectDefinition }) {
             </div>
             <div className="rounded-lg bg-slate-50 dark:bg-slate-950/60 p-2.5 border border-slate-200 dark:border-slate-800">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-sans block uppercase">Dataset</span>
-              <strong className="text-slate-800 dark:text-slate-200">{project.datasetId}</strong>
+              <strong className="text-slate-800 dark:text-slate-200">{getWorkbenchDataset(project.datasetId).name}</strong>
             </div>
             <div className="rounded-lg bg-slate-50 dark:bg-slate-950/60 p-2.5 border border-slate-200 dark:border-slate-800">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-sans block uppercase">Completed</span>

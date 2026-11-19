@@ -122,11 +122,15 @@ export function ProjectCodeView({ project }: { project: ProjectDefinition }) {
         </div>
       )}
 
+      <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-800/50 dark:bg-amber-950/30 dark:text-amber-200">
+        This is a standalone scikit-learn version of the workflow you can run anywhere. It uses its own split and the library&apos;s solvers, so its numbers won&apos;t exactly match the guided run in MLingo.
+      </p>
+
       {/* Expected Console Output */}
       {project.expectedOutput && (
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-950 p-6 shadow-xs space-y-3">
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
-            Expected Terminal / Execution Output
+            Output when you run this script (scikit-learn 1.9)
           </span>
           <pre className="overflow-x-auto text-xs font-mono text-slate-300 p-4 rounded-xl bg-slate-900 border border-slate-800">
             <code>{project.expectedOutput}</code>

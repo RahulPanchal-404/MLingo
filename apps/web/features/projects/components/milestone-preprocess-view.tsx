@@ -49,7 +49,7 @@ export function MilestonePreprocessView({
             </h4>
             <p className="mt-1 text-sm text-teal-800">
               Machine learning models cannot compute dot products on raw categorical strings or missing NaN entries.
-              Select appropriate scaling ($Z$-score vs MinMax), missing imputation, and one-hot encoding.
+              Select appropriate scaling (<em>Z</em>-score vs MinMax), missing imputation, and one-hot encoding.
             </p>
           </div>
         </div>

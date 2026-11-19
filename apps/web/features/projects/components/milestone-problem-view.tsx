@@ -20,7 +20,7 @@ export function MilestoneProblemView({ project, onComplete }: MilestoneProblemVi
             </h4>
             <p className="mt-1 text-sm text-teal-800">
               Before writing code or loading matrices, every machine learning project begins with framing:
-              defining the target $y$, determining feature candidates $X$, and choosing a measurable evaluation metric.
+              defining the target <em>y</em>, determining feature candidates <em>X</em>, and choosing a measurable evaluation metric.
             </p>
           </div>
         </div>

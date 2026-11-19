@@ -156,7 +156,7 @@ export function DataWorkbench() {
   }, [dataset, evalResult, setTutorContext]);
 
   useEffect(() => {
-    recordLearningActivity({ labsExplored: 1 });
+    recordLearningActivity({ workbenchExplored: 1 });
   }, [activeStep]);
 
   // Handle saving experiment to local storage
@@ -407,18 +407,26 @@ export function DataWorkbench() {
               trainMetric={
                 dataset.taskType === "regression"
                   ? evalResult.regression?.trainMse ?? 0
-                  : evalResult.classification?.accuracy ?? 0
+                  : dataset.taskType === "classification"
+                  ? evalResult.trainClassification?.accuracy ?? 0
+                  : evalResult.clustering?.inertia ?? 0
               }
               testMetric={
                 dataset.taskType === "regression"
                   ? evalResult.regression?.testMse ?? 0
-                  : evalResult.classification?.accuracy ?? 0
+                  : dataset.taskType === "classification"
+                  ? evalResult.classification?.accuracy ?? 0
+                  : evalResult.clustering?.inertia ?? 0
               }
-              metricName={dataset.taskType === "regression" ? "MSE" : "Accuracy"}
+              metricName={dataset.taskType === "regression" ? "MSE" : dataset.taskType === "classification" ? "Accuracy" : "Inertia"}
               secondaryMetric={
-                dataset.taskType === "regression"
-                  ? `MAE: ${evalResult.regression?.testMae} | R²: ${evalResult.regression?.testR2}`
-                  : `Precision: ${evalResult.classification?.precision} | Recall: ${evalResult.classification?.recall}`
+                dataset.taskType === "regression" && evalResult.regression
+                  ? `MAE: ${evalResult.regression.testMae} | R²: ${evalResult.regression.testR2}`
+                  : dataset.taskType === "classification" && evalResult.classification
+                  ? `Precision: ${evalResult.classification.precision} | Recall: ${evalResult.classification.recall}`
+                  : evalResult.clustering
+                  ? `${evalResult.clustering.clusterSizes.length} clusters, sizes ${evalResult.clustering.clusterSizes.join(" / ")}`
+                  : undefined
               }
             />
 

@@ -1,3 +1,4 @@
+import {  } from "@/features/timeline/labels";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import type { ExperimentRecord } from "@/features/experiments/types";
 import { formatNumber } from "@/features/x-ray/x-ray-helpers";
@@ -297,7 +298,7 @@ export function compareSavedExperiments(records: ExperimentRecord[]): SelectedRu
   records.forEach((record, index) => {
     const metric = extractSweepMetric(record.run);
     metricComparison.push(
-      `Run ${index + 1} ("${record.title}"): final ${metric.label} = ${formatNumber(metric.value)} across ${record.run.total_steps} frames.`
+      `Run ${index + 1} ("${record.title}"): final ${metric.label} = ${formatNumber(metric.value)} across ${record.run.total_steps} updates (${record.run.history.length} snapshots).`
     );
   });
 

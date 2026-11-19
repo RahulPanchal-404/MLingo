@@ -31,7 +31,7 @@ export function ThresholdControl({
       </div>
 
       <div className="mt-3">
-        <input
+        <input aria-label="Decision threshold"
           id="classification-threshold-slider"
           type="range"
           min="0.05"

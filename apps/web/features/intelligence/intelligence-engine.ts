@@ -310,6 +310,14 @@ export function generateEvaluationExplanation(
     fp?: number;
     fn?: number;
     tn?: number;
+    /** Regression extras: test R², test MAE, test-set size, target units and whether training diverged. */
+    r2?: number;
+    mae?: number;
+    testSize?: number;
+    units?: string;
+    diverged?: boolean;
+    precision?: number;
+    recall?: number;
   }
 ): LearningIntelligenceExplanation {
   const diff = Number((data.testMetric - data.trainMetric).toFixed(4));
@@ -318,6 +326,9 @@ export function generateEvaluationExplanation(
     { label: `Test ${data.metricName}`, value: formatNumber(data.testMetric) },
     { label: "Difference (Δ)", value: diff > 0 ? `+${diff}` : String(diff) },
   ];
+  if (data.r2 !== undefined) evidence.push({ label: "Test R²", value: formatNumber(data.r2) });
+  if (data.mae !== undefined) evidence.push({ label: `Test MAE${data.units ? ` (${data.units})` : ""}`, value: formatNumber(data.mae) });
+  if (data.testSize !== undefined) evidence.push({ label: "Test rows", value: String(data.testSize) });
 
   if (data.threshold !== undefined) {
     evidence.push({ label: "Decision Threshold (θ)", value: data.threshold.toFixed(2) });
@@ -337,29 +348,54 @@ export function generateEvaluationExplanation(
   let whatToTryNext = "";
 
   if (type === "regression") {
-    whatHappened = `Evaluation produced a test ${data.metricName} of ${data.testMetric} compared to training ${data.metricName} of ${data.trainMetric}.`;
+    const r2 = data.r2;
+    const rel = (data.testMetric - data.trainMetric) / Math.max(Math.abs(data.trainMetric), 1e-9);
+    const pctGap = Math.round(Math.abs(rel) * 100);
+    const small = (data.testSize ?? 99) < 5;
+    const maeText = data.mae !== undefined ? ` On average its predictions are off by ${formatNumber(data.mae, 2)}${data.units ? ` ${data.units}` : ""}.` : "";
+    whatHappened = `Test ${data.metricName} is ${formatNumber(data.testMetric)} versus training ${data.metricName} ${formatNumber(data.trainMetric)}${r2 !== undefined ? `, with a test R² of ${formatNumber(r2, 3)}` : ""}.${maeText}`;
     mathematicalReason =
-      "Training optimizes mean squared error directly on the training partition. On unseen test data, residual error reflects generalization beyond the fitted points.";
-    parameterBehavior =
-      diff > 0.1
-        ? "Test error exceeds training error, reflecting a generalization gap."
-        : "Training and test errors are closely aligned, showing consistent fit.";
-    whatToTryNext =
-      "Consider adjusting the train/test split ratio or inspecting feature scaling to verify if parameter updates generalize uniformly.";
+      "Training minimises mean squared error on the training rows only. Test error measures how well that fit carries over to rows the model never saw. R² compares the model with the simplest baseline, always predicting the mean of the test targets: 1 is perfect, 0 is no better than the mean, and below 0 is worse than the mean.";
+    if (data.diverged) {
+      parameterBehavior = "Training diverged: the learning rate was too large, so each step overshot and the loss grew instead of shrinking. These metrics describe a broken model.";
+      whatToTryNext = "Lower the learning rate and retrain before interpreting the results.";
+    } else if (r2 !== undefined && r2 < 0) {
+      parameterBehavior = `Poor fit: R² is negative, so on these test rows the model does worse than simply predicting their average.${small ? ` With only ${data.testSize} test rows, R² is also very unstable: a single unusual row can swing it a lot.` : ""}`;
+      whatToTryNext = small
+        ? "Use a larger test split or cross-validation to get a trustworthy estimate, then check the residuals for patterns the model is missing."
+        : "Check whether a straight-line model suits this data, look at the residuals, and consider more informative features.";
+    } else if (r2 !== undefined && r2 < 0.5) {
+      parameterBehavior = `Weak fit: the model explains only ${Math.round(r2 * 100)}% of the variation in the test targets.`;
+      whatToTryNext = "Try more informative features or a more flexible model, and check the residual plot.";
+    } else if (rel > 0.25) {
+      parameterBehavior = `The model fits well overall (R² ${formatNumber(r2 ?? 0, 3)}), but test error is ${pctGap}% higher than training error, a sign of some overfitting.`;
+      whatToTryNext = "Try regularisation (ridge) or fewer features, and confirm with cross-validation.";
+    } else if (rel < -0.25) {
+      parameterBehavior = `The model fits well (R² ${formatNumber(r2 ?? 0, 3)}). Test error is ${pctGap}% lower than training error, which usually means the ${small ? "very small " : ""}test set happened to contain easier rows, not that the model is better on new data.`;
+      whatToTryNext = "Treat the test error as a rough estimate; cross-validation over several splits gives a more reliable number.";
+    } else {
+      parameterBehavior = `Good fit: R² is ${formatNumber(r2 ?? 0, 3)} and test error is within ${pctGap}% of training error, so the model generalises consistently.`;
+      whatToTryNext = "Inspect the residuals for any remaining pattern, and compare against a regularised model.";
+    }
   } else {
     const fp = data.fp ?? 0;
     const fn = data.fn ?? 0;
-    whatHappened = `At decision threshold θ = ${data.threshold?.toFixed(2) ?? "0.50"}, the model achieved ${data.testMetric * 100}% test accuracy with ${fp} false positive(s) and ${fn} false negative(s).`;
+    const gap = data.trainMetric - data.testMetric;
+    whatHappened = `At decision threshold θ = ${data.threshold?.toFixed(2) ?? "0.50"}, the model got ${formatPercentage(data.testMetric)} of test rows right (training: ${formatPercentage(data.trainMetric)}), with ${fp} false positive(s) and ${fn} false negative(s)${data.testSize !== undefined ? ` out of ${data.testSize} test rows` : ""}.`;
     mathematicalReason =
-      "The decision threshold θ defines the hyperplane cut point for P(y=1 | x) ≥ θ. Lower thresholds capture more positives (increasing recall) while higher thresholds reduce false alarms (increasing precision).";
-    parameterBehavior =
+      "The model outputs P(y = 1 | x); the threshold θ turns that into a decision. Lowering θ catches more positives (higher recall) at the cost of more false alarms (lower precision); raising it does the opposite.";
+    const balance =
       fp > fn
-        ? "The current threshold generates more false alarms than missed positives."
+        ? "This threshold produces more false alarms than missed positives."
         : fp < fn
-        ? "The current threshold is conservative, producing more false negatives than false alarms."
-        : "False positives and false negatives are evenly balanced.";
+        ? "This threshold misses more positives than it falsely flags."
+        : fp === 0
+        ? "No test rows were misclassified."
+        : "False positives and false negatives are balanced.";
+    const small = (data.testSize ?? 99) < 5 ? ` With only ${data.testSize} test rows, each mistake moves accuracy by ${Math.round(100 / (data.testSize ?? 1))} points, so treat these numbers as rough.` : "";
+    parameterBehavior = `${balance}${gap > 0.15 ? ` Training accuracy is ${Math.round(gap * 100)} points higher than test accuracy, a sign of overfitting.` : ""}${small}`;
     whatToTryNext =
-      "Try shifting the threshold slider to observe how precision and recall trade off on the confusion matrix.";
+      "Move the threshold and watch how precision and recall trade off in the confusion matrix. Pick the threshold from the cost of each kind of mistake.";
   }
 
   return {

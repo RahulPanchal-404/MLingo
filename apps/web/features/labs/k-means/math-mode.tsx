@@ -1,3 +1,4 @@
+import { snapshotLabel } from "@/features/timeline/labels";
 import type { TrainingState } from "@/types/training-run";
 
 export function KMeansMathMode({ state }: { state: TrainingState | null }) {
@@ -21,7 +22,7 @@ export function KMeansMathMode({ state }: { state: TrainingState | null }) {
           <p className="eyebrow">Math mode / K-Means</p>
           <h2>Selected frame mathematics</h2>
         </div>
-        <span>Step {state.step}</span>
+        <span>{snapshotLabel(state.step)}</span>
       </div>
 
       {/* Beginner Intuition Helpers */}

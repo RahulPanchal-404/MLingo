@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import type { ProjectDefinition, ProjectState } from "../types";
-import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import type { TrainingRun } from "@/types/training-run";
 import { ProjectInteractiveDemo } from "./interactive-demos";
+import { runProject } from "../engine";
 
 export type MilestoneTrainViewProps = {
   project: ProjectDefinition;
@@ -25,89 +25,44 @@ export function MilestoneTrainView({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [featureNames, setFeatureNames] = useState<string[]>([]);
 
-  const generateLocalTrainingRun = (): TrainingRun => {
-    const totalSteps = 30;
-    const isClustering = project.type === "clustering";
-    const initialLoss = isClustering ? 1.45 : project.type === "classification" ? 0.693 : 18.5;
-    const history = [];
-
-    for (let step = 0; step < totalSteps; step++) {
-      const progress = step / (totalSteps - 1);
-      const loss = initialLoss * Math.exp(-progress * 2.8) + (isClustering ? 0.12 : 0.04);
-      const weightVal = 0.15 + progress * 0.85;
-      const biasVal = 0.05 + progress * 0.45;
-      const gradVal = (1 - progress) * (isClustering ? 0.35 : 0.85);
-
-      history.push({
-        step,
-        weights: [Number(weightVal.toFixed(4)), Number((weightVal * 0.8).toFixed(4))],
-        bias: Number(biasVal.toFixed(4)),
-        loss: Number(loss.toFixed(4)),
-        gradients: [Number(gradVal.toFixed(4))],
-        bias_gradient: Number((gradVal * 0.5).toFixed(4)),
-        predictions: [],
-        metrics: isClustering
-          ? { inertia: Number(loss.toFixed(4)) }
-          : { accuracy: Number((0.5 + progress * 0.46).toFixed(4)) },
-        centroids: isClustering ? ([[1.0 - progress * 0.5, 0.8], [-0.5, -0.8 + progress * 0.3], [0.8, -0.4]] as Array<[number, number]>) : undefined,
-      });
-    }
-
-    return {
-      id: `local-sim-${project.id}-${Date.now()}`,
-      algorithm: project.modelName,
-      dataset: { samples: 20, noise: 0.1, seed: state.splitConfig.seed },
-      dataset_points: [],
-      training: { learning_rate: 0.05, epochs: totalSteps, initial_weight: 0, initial_bias: 0 },
-      total_steps: totalSteps,
-      history,
-      markers: [0, Math.floor(totalSteps / 3), totalSteps - 1],
-      metadata: { project: project.title, mode: "deterministic_client_engine" },
-    };
-  };
-
+  // Train on the project's own data, with the learner's split and preprocessing. This is the same run
+  // the Evaluate and Interpret milestones report, so the numbers match end to end.
   const handleTrain = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
-      let run: TrainingRun;
-      if (project.id === "digit-recognition") {
-        run = await createTrainingRun({
-          algorithm: "neural_network",
-          dataset: { samples: 24, noise: 0.1, seed: state.splitConfig.seed },
-          training: { learning_rate: 0.1, epochs: 30, initial_weight: 0, initial_bias: 0 },
-        });
-      } else if (project.type === "regression") {
-        run = await createTrainingRun({
-          algorithm: "linear_regression",
-          dataset: { samples: 20, noise: 0.1, slope: 1.5, intercept: 2.0, seed: state.splitConfig.seed },
-          training: { learning_rate: 0.05, epochs: 40, initial_weight: 0, initial_bias: 0 },
-        });
-      } else if (project.type === "classification") {
-        run = await createTrainingRun({
-          algorithm: "logistic_regression",
-          dataset: { samples: 20, noise: 0.1, slope: 1.2, intercept: -0.5, seed: state.splitConfig.seed },
-          training: { learning_rate: 0.1, epochs: 40, initial_weight: 0, initial_bias: 0 },
-        });
-      } else {
-        run = await createTrainingRun({
-          algorithm: "kmeans",
-          dataset: { samples: 12, noise: 0.1, seed: state.splitConfig.seed },
-          training: { learning_rate: 0, epochs: 8, initial_weight: 0, initial_bias: 0, clusters: 3, iterations: 8 },
-        });
-      }
-
+      const { result, options, trainRaw, testRaw } = runProject(project, state);
+      const frames = result.frames ?? [];
+      const run: TrainingRun = {
+        id: `project-${project.id}-seed${state.splitConfig.seed}-${project.type === "clustering" ? `k${options.clusters}` : `lr${options.learningRate}`}`,
+        algorithm: project.modelName,
+        dataset: { samples: trainRaw.length + testRaw.length, noise: 0, seed: state.splitConfig.seed },
+        dataset_points: [],
+        training: { learning_rate: options.learningRate ?? 0, epochs: frames.length - 1, initial_weight: 0, initial_bias: 0 },
+        total_steps: frames.length,
+        history: frames.map((fr) => ({
+          step: fr.epoch,
+          weights: fr.weights,
+          bias: fr.bias,
+          loss: fr.loss,
+          gradients: fr.gradients,
+          bias_gradient: fr.gradients.at(-1) ?? 0,
+          predictions: [],
+          metrics: {},
+          centroids: fr.centroids?.map((c) => [c[0] ?? 0, c[1] ?? 0] as [number, number]),
+        })),
+        markers: [],
+        metadata: { project: project.title, mode: "local_project_engine" },
+      };
+      setFeatureNames(result.featureNames ?? []);
+      if (result.diverged) setError(`Training diverged at learning rate ${options.learningRate}: the loss grew instead of shrinking.`);
       setTrainingRun(run);
       setCurrentStep(run.history.length - 1);
       onSaveRunId(run.id);
-    } catch {
-      // Graceful fallback to client deterministic telemetry so offline learners can inspect frames
-      const localRun = generateLocalTrainingRun();
-      setTrainingRun(localRun);
-      setCurrentStep(localRun.history.length - 1);
-      onSaveRunId(localRun.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Training failed.");
     } finally {
       setIsLoading(false);
     }
@@ -127,8 +82,8 @@ export function MilestoneTrainView({
               Educational Goal — Live Gradient Optimization & Step Scrubbing
             </h4>
             <p className="mt-1 text-sm text-teal-800">
-              Trigger a real optimization run on the MLingo backend. Observe loss decrease frame by frame,
-              scrub through iterations, and inspect weight gradients and centroid movements at each step.
+              Train the model on this project&apos;s dataset with your split and preprocessing. Watch the loss
+              fall epoch by epoch and inspect every weight and gradient. Evaluation uses this exact run.
             </p>
           </div>
         </div>
@@ -142,7 +97,9 @@ export function MilestoneTrainView({
               Execute Model Training: {project.modelName}
             </h3>
             <p className="mt-1 text-xs text-slate-500">
-              ML engine computes exact loss gradients and records frame-by-frame parameter telemetry.
+              {project.type === "clustering"
+                ? "K-Means on your training rows; every iteration is recorded."
+                : "Full-batch gradient descent from zero weights; every epoch is recorded."}
             </p>
           </div>
 
@@ -176,7 +133,7 @@ export function MilestoneTrainView({
               </h4>
             </div>
             <div className="text-xs font-mono text-slate-500">
-              Step {currentStep + 1} of {trainingRun.history.length}
+              {trainingRun.history.length} snapshots: the starting state + {trainingRun.history.length - 1} {project.type === "clustering" ? "iterations" : "epochs"}
             </div>
           </div>
 
@@ -185,7 +142,7 @@ export function MilestoneTrainView({
             <div className="flex items-center justify-between text-xs text-slate-600">
               <span>Scrub Training Timeline:</span>
               <span className="font-mono font-bold text-teal-800">
-                Frame {currentStep} (Epoch {Math.floor(currentStep / 2)})
+                {currentStep === 0 ? "Start (before any update)" : `${project.type === "clustering" ? "Iteration" : "Epoch"} ${currentStep} of ${trainingRun.history.length - 1}`}
               </span>
             </div>
             <input
@@ -194,6 +151,7 @@ export function MilestoneTrainView({
               max={trainingRun.history.length - 1}
               value={currentStep}
               onChange={(e) => setCurrentStep(Number(e.target.value))}
+              aria-label="Training timeline"
               className="w-full accent-teal-700 h-2 bg-slate-100 rounded-lg cursor-pointer"
             />
           </div>
@@ -202,7 +160,7 @@ export function MilestoneTrainView({
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
               <span className="text-[10px] font-sans uppercase font-bold text-slate-500">
-                {project.type === "clustering" ? "Inertia" : "Current Loss"}
+                {project.type === "clustering" ? "Inertia" : project.type === "classification" ? "Log loss" : "MSE loss"}
               </span>
               <p className="mt-1 text-xl font-bold text-slate-900">
                 {Number(activeState.loss).toFixed(4)}
@@ -213,9 +171,9 @@ export function MilestoneTrainView({
               <span className="text-[10px] font-sans uppercase font-bold text-slate-500">
                 Weights / Centroids
               </span>
-              <p className="mt-1 text-xs font-bold text-slate-800 truncate">
+              <p className="mt-1 text-xs font-bold text-slate-800 break-words">
                 {activeState.weights && activeState.weights.length > 0
-                  ? activeState.weights.map((w) => w.toFixed(3)).join(", ")
+                  ? activeState.weights.map((w, j) => `${featureNames[j] ?? `w${j + 1}`} ${w.toFixed(3)}`).join(", ")
                   : activeState.centroids
                   ? `${activeState.centroids.length} centroids`
                   : "w = 0.00"}
@@ -236,7 +194,7 @@ export function MilestoneTrainView({
                 Gradients
               </span>
               <p className="mt-1 text-xs font-bold text-teal-950 truncate">
-                {activeState.gradients && activeState.gradients.length > 0
+                {activeState.gradients && activeState.gradients.length > 0 && project.type !== "clustering"
                   ? activeState.gradients.map((g) => g.toFixed(3)).join(", ")
                   : "0.00"}
               </p>
@@ -255,6 +213,9 @@ export function MilestoneTrainView({
             Interactive ML Sandbox
           </span>
         </div>
+        <p className="text-xs text-slate-500">
+          Illustrative sandbox with its own hand-picked numbers so you can play with the idea. It is not the model you trained above.
+        </p>
         <ProjectInteractiveDemo project={project} />
       </div>
 

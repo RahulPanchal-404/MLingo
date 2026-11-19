@@ -93,10 +93,15 @@ describe("Workbench Integrations & Learning Intelligence", () => {
       metricName: "MSE",
     });
 
-    expect(regExplanation.whatHappened).toContain("test MSE of 0.25");
+    expect(regExplanation.whatHappened).toContain("Test MSE is 0.25");
     expect(regExplanation.evidence.length).toBeGreaterThan(0);
     expect(regExplanation.why).toBeDefined();
-    expect(regExplanation.parameterBehavior).toContain("generalization gap");
+    expect(regExplanation.parameterBehavior).toContain("overfitting");
+
+    // QA-01: a negative R² must be called a poor fit, never "closely aligned".
+    const poor = generateEvaluationExplanation("regression", { trainMetric: 4736.8467, testMetric: 1493.5776, metricName: "MSE", r2: -10.5781, testSize: 4 });
+    expect(poor.parameterBehavior).toMatch(/Poor fit/);
+    expect(poor.parameterBehavior).not.toMatch(/closely aligned|consistent fit/);
 
     const clfExplanation = generateEvaluationExplanation("classification", {
       trainMetric: 0.95,

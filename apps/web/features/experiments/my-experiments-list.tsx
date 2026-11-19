@@ -1,5 +1,7 @@
 "use client";
 
+import { snapshotsSummary } from "@/features/timeline/labels";
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { TrainingRun } from "@/types/training-run";
@@ -272,8 +274,8 @@ export function MyExperimentsList({ onReplayRun, activeRunId }: MyExperimentsLis
                     </div>
                   )}
                   <div>
-                    <dt>Total frames</dt>
-                    <dd>{record.run.total_steps}</dd>
+                    <dt>Timeline</dt>
+                    <dd>{snapshotsSummary(record.run.history.length)}</dd>
                   </div>
                 </dl>
 

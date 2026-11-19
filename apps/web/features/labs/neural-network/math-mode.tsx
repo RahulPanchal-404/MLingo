@@ -1,3 +1,4 @@
+import { snapshotLabel } from "@/features/timeline/labels";
 import type { TrainingState } from "@/types/training-run";
 
 export function NeuralMathMode({
@@ -41,7 +42,7 @@ export function NeuralMathMode({
           <p className="eyebrow">Math mode / Neural Network & Backprop</p>
           <h2>Layerwise equations & chain rule</h2>
         </div>
-        <span>Step {state.step}</span>
+        <span>{snapshotLabel(state.step)}</span>
       </div>
 
       {/* Beginner Intuition Helpers */}
@@ -74,7 +75,7 @@ export function NeuralMathMode({
           <span>Output layer analytical gradients</span>
         </p>
         <p>
-          <code>dA₁ = dZ₂ W₂ᵀ,  dZ₁ = dA₁ &odot; A₁ &odot; (1 - A₁)</code>
+          <code>dA₁ = dZ₂ W₂ᵀ,  dZ₁ = dA₁ ⊙ A₁ ⊙ (1 − A₁)</code>
           <span>Hidden layer backpropagation (chain rule)</span>
         </p>
         <p>

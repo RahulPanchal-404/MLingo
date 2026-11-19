@@ -1,5 +1,6 @@
 "use client";
 
+import { getWorkbenchDataset } from "@/features/workbench/datasets";
 import Link from "next/link";
 import { useState } from "react";
 import type { ProjectDefinition, ProjectState } from "../types";
@@ -22,6 +23,10 @@ export function MilestoneReflectView({
 }: MilestoneReflectViewProps) {
   const [answers, setAnswers] = useState<Record<string, string>>(state.reflections);
   const isCompleted = state.completed;
+  const MIN_CHARS = 20;
+  const unanswered = project.reflectionPrompts.filter((q) => (answers[q.id] ?? "").trim().length < MIN_CHARS).length;
+  const hasExperiment = state.experiments.length > 0;
+  const canFinalize = unanswered === 0 && hasExperiment;
 
   const handleChange = (id: string, text: string) => {
     const next = { ...answers, [id]: text };
@@ -91,11 +96,19 @@ export function MilestoneReflectView({
         </div>
 
         {!isCompleted && (
-          <div className="pt-2 flex justify-end">
+          <div className="pt-2 flex flex-wrap items-center justify-end gap-3">
+            {!canFinalize && (
+              <p className="text-xs text-slate-600" role="status">
+                To complete the project:{" "}
+                {!hasExperiment && <span>record at least one experiment in the Experiment step{unanswered > 0 ? ", and " : "."}</span>}
+                {unanswered > 0 && <span>answer {unanswered === project.reflectionPrompts.length ? "each" : `the remaining ${unanswered}`} reflection question{unanswered === 1 ? "" : "s"} in at least {MIN_CHARS} characters.</span>}
+              </p>
+            )}
             <button
               type="button"
               onClick={handleCompleteProject}
-              className="rounded-lg bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-800 transition-colors"
+              disabled={!canFinalize}
+              className="rounded-lg bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-800 transition-colors disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
             >
               Finalize & Complete Project ✓
             </button>
@@ -129,7 +142,7 @@ export function MilestoneReflectView({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 text-xs">
             <div className="rounded-lg bg-slate-50 p-3.5 border border-slate-200">
               <span className="text-[10px] font-bold uppercase text-slate-400">Dataset & Split</span>
-              <p className="mt-1 font-bold text-slate-900">{project.datasetId}</p>
+              <p className="mt-1 font-bold text-slate-900">{getWorkbenchDataset(project.datasetId).name}</p>
               <p className="text-slate-500 mt-0.5">
                 {Math.round(state.splitConfig.trainRatio * 100)}% Train / {Math.round((1 - state.splitConfig.trainRatio) * 100)}% Test
               </p>

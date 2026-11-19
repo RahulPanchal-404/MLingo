@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { readLearningActivity, type LearningActivity } from "@/features/progress/activity";
 import { resetOnboarding } from "@/features/onboarding/onboarding-storage";
 import { getPortfolioSummary } from "@/features/portfolio/portfolio-helpers";
+import { ALL_PROJECTS } from "@/features/projects/definitions";
 import { ThemeSwitch } from "@/features/theme/theme-switch";
 import { useTheme } from "@/features/theme/theme-provider";
 
@@ -68,10 +69,10 @@ export function ProfileView() {
 
   // Derive learner rank
   const totalScore =
-    (activity.labsExplored || 0) * 15 +
+    (activity.labsVisited?.length ?? 0) * 15 +
     (activity.challengesCompleted?.length || 0) * 25 +
-    (activity.projectsCompleted || 0) * 50 +
-    (activity.experimentsRun || 0) * 5;
+    portfolioStats.completedProjects * 50 +
+    portfolioStats.totalExperiments * 5;
 
   let learnerLevel = "ML Apprentice";
   let learnerTier = "Level 1";
@@ -144,7 +145,7 @@ export function ProfileView() {
               Labs Explored
             </span>
             <div className="text-xl font-extrabold font-mono text-slate-900 dark:text-slate-100">
-              {activity.labsExplored} <span className="text-xs font-normal text-slate-400">/ 4</span>
+              {activity.labsVisited?.length ?? 0} <span className="text-xs font-normal text-slate-400">/ 4</span>
             </div>
           </div>
 
@@ -162,16 +163,16 @@ export function ProfileView() {
               Completed Projects
             </span>
             <div className="text-xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">
-              {portfolioStats.completedProjects} <span className="text-xs font-normal text-slate-400">/ 3</span>
+              {portfolioStats.completedProjects} <span className="text-xs font-normal text-slate-400">/ {ALL_PROJECTS.length}</span>
             </div>
           </div>
 
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-3.5 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-              Experiments Run
+              Experiments Recorded
             </span>
             <div className="text-xl font-extrabold font-mono text-amber-600 dark:text-amber-400">
-              {activity.experimentsRun || 0}
+              {portfolioStats.totalExperiments}
             </div>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { snapshotLabel } from "@/features/timeline/labels";
 import { apiBaseUrl } from "@/lib/api";
 import type { TutorRequest, TutorResponse } from "./types";
 
@@ -55,7 +56,7 @@ function generateClientFallbackResponse(request: TutorRequest): TutorResponse {
   }
 
   if (tr) {
-    const stepStr = `Step ${tr.selected_step + 1} of ${tr.total_steps}`;
+    const stepStr = `${snapshotLabel(tr.selected_step)} (of ${tr.total_steps} updates)`;
     const lossStr = tr.loss !== undefined && tr.loss !== null ? tr.loss.toFixed(4) : "N/A";
     return {
       answer: `Currently inspecting **${tr.algorithm.replace("_", " ")}** at **${stepStr}**. Current loss is \`${lossStr}\`.`,

@@ -10,4 +10,6 @@ plt.rcParams.update({"font.family":"DejaVu Sans","font.size":11,"axes.spines.top
   "axes.edgecolor":SLATE,"axes.labelcolor":SLATE,"xtick.color":SLATE,"ytick.color":SLATE,"axes.titleweight":"bold",
   "axes.titlesize":12,"svg.fonttype":"none","figure.dpi":110})
 def save(fig, name):
-    fig.tight_layout(); fig.savefig(f"{OUT}/{name}.svg", format="svg", metadata={"Date":None}); plt.close(fig)
+    fig.tight_layout(); fig.savefig(f"{OUT}/{name}.svg", format="svg", metadata={"Date":None})
+    if os.environ.get("PREVIEW"): fig.savefig(f"/tmp/fig_{name}.png", dpi=80)
+    plt.close(fig)

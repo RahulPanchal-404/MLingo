@@ -6,6 +6,7 @@ import {
   getLessonBySlug,
 } from "@/features/learning/lessons-data";
 import { LessonLayout } from "@/features/learning/components/lesson-layout";
+import { LessonWalkthrough } from "@/features/learning/components/lesson-walkthrough";
 
 type LessonPageProps = {
   params: Promise<{ lessonSlug: string }>;
@@ -39,7 +40,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <AppShell>
-      <LessonLayout lesson={lesson} />
+      <LessonLayout lesson={lesson}>
+        <LessonWalkthrough slug={lesson.slug} />
+      </LessonLayout>
     </AppShell>
   );
 }

@@ -9,7 +9,8 @@ import { ChapterMotif } from "../chapter-motif";
 import { WatchRow } from "./watch-row";
 import { chapterForLabel, chapterStyle } from "../chapter-style";
 
-export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
+/** `children` is the server-rendered step-by-step walkthrough, placed before the hands-on card. */
+export function LessonLayout({ lesson, children }: { lesson: LessonDefinition; children?: React.ReactNode }) {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
 
   const selectedOption = selectedOptionIndex !== null && lesson.thinkPrompt
@@ -225,6 +226,8 @@ export function LessonLayout({ lesson }: { lesson: LessonDefinition }) {
           )}
         </section>
       )}
+
+      {children}
 
       {/* 6. Now Try It Action Card */}
       <section className="rounded-2xl border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white p-6 sm:p-8 shadow-xs space-y-5 dark:border-teal-800 dark:from-teal-950/40 dark:to-slate-900">

@@ -207,3 +207,68 @@ def test_gemini_key_is_sent_in_header_not_url(monkeypatch) -> None:
     assert result.provider == "external_llm"
     assert "secret-key" not in str(captured["url"])
     assert captured["headers"] == {"x-goog-api-key": "secret-key"}
+
+
+# ---- Abuse protection (rate limits, docs, headers) ----
+from fastapi.testclient import TestClient as _TC
+
+from app.core.config import get_settings as _get_settings
+from app.main import create_app as _create_app
+
+
+def test_repeated_bad_logins_are_throttled() -> None:
+    client = _TC(_create_app())
+    codes = [
+        client.post("/api/v1/auth/login", json={"email": "nobody@example.com", "password": f"wrong{i}"}).status_code
+        for i in range(12)
+    ]
+    assert codes[:10] == [401] * 10
+    assert codes[10:] == [429, 429]
+
+
+def test_security_headers_present() -> None:
+    response = _TC(_create_app()).get("/api/v1/health")
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+
+
+def test_docs_hidden_in_production(monkeypatch) -> None:
+    monkeypatch.setenv("MLINGO_ENVIRONMENT", "production")
+    _get_settings.cache_clear()
+    try:
+        client = _TC(_create_app())
+        assert client.get("/docs").status_code == 404
+        assert client.get("/openapi.json").status_code == 404
+    finally:
+        monkeypatch.delenv("MLINGO_ENVIRONMENT")
+        _get_settings.cache_clear()
+
+
+def test_seed_must_fit_32_bits() -> None:
+    client = _TC(_create_app())
+    response = client.post("/api/v1/training-runs", json={"dataset": {"seed": 2**40}})
+    assert response.status_code == 422
+
+
+def test_result_spam_is_throttled() -> None:
+    from datetime import datetime, timezone
+
+    from app.players.store import PlayerStore
+    from app.services import players as service
+
+    app = _create_app()
+    store = PlayerStore(":memory:")
+    app.dependency_overrides[service.get_player_store] = lambda: store
+    client = _TC(app)
+    token = client.post("/api/v1/auth/signup", json={"email": "spam@example.com", "display_name": "Spam", "password": "correct-horse"}).json()["token"]
+    today = str(datetime.now(timezone.utc).date())
+    codes = [
+        client.post(
+            "/api/v1/players/me/results",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"game": "descent", "level_id": "eyeball", "stars": 1, "score": 10, "meta": {}, "local_date": today},
+        ).status_code
+        for _ in range(22)
+    ]
+    assert codes[:20] == [201] * 20
+    assert codes[20:] == [429, 429]

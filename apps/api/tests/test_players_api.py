@@ -156,12 +156,14 @@ def test_levels_and_xp() -> None:
 
 
 def test_explorer_and_master_badges(client: TestClient) -> None:
+    from app.core import ratelimit
     from app.players.progress import GAME_LEVELS
 
     token = _signup(client, "grace@example.com")
     earned: set[str] = set()
     for game, levels in GAME_LEVELS.items():
         for level in levels:
+            ratelimit.reset()  # this test checks badges, not the per-minute submission limit
             body = client.post(
                 "/api/v1/players/me/results",
                 headers=_auth(token),

@@ -100,9 +100,17 @@ def sign_up(store: PlayerStore, email: str, display_name: str, password: str) ->
     return _issue_session(store, player), _to_player_out(player)
 
 
+# A real hash to check against when the email is unknown, so both failure paths take the same time
+# and response timing does not reveal which emails have accounts.
+_DUMMY_HASH = hash_password(secrets.token_urlsafe(16))
+
+
 def sign_in(store: PlayerStore, email: str, password: str) -> tuple[str, PlayerOut]:
     player = store.find_by_email(email.strip().lower())
-    if player is None or not verify_password(password, player.password_hash):
+    if player is None:
+        verify_password(password, _DUMMY_HASH)
+        raise PlayerError("Incorrect email or password.", 401)
+    if not verify_password(password, player.password_hash):
         raise PlayerError("Incorrect email or password.", 401)
     return _issue_session(store, player), _to_player_out(player)
 

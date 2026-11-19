@@ -11,7 +11,7 @@ class SyntheticDatasetRequest(BaseModel):
     slope: float = 2.0
     intercept: float = 1.0
     noise: float = Field(default=0.0, ge=0)
-    seed: int = Field(default=0, ge=0)
+    seed: int = Field(default=0, ge=0, le=2**32 - 1)
 
     @field_validator("slope", "intercept", "noise")
     @classmethod
@@ -24,7 +24,7 @@ class SyntheticDatasetRequest(BaseModel):
 class KMeansDatasetRequest(BaseModel):
     samples: int = Field(default=60, gt=0, le=10_000)
     noise: float = Field(default=0.1, ge=0)
-    seed: int = Field(default=0, ge=0)
+    seed: int = Field(default=0, ge=0, le=2**32 - 1)
 
     @field_validator("noise")
     @classmethod
@@ -42,7 +42,7 @@ class TrainingConfigurationRequest(BaseModel):
     clusters: int | None = Field(default=None, gt=0, le=10_000)
     iterations: int | None = Field(default=None, gt=0, le=10_000)
     hidden_neurons: int | None = Field(default=3, ge=2, le=4)
-    seed: int = Field(default=0, ge=0)
+    seed: int = Field(default=0, ge=0, le=2**32 - 1)
 
     @field_validator("learning_rate", "initial_weight", "initial_bias")
     @classmethod

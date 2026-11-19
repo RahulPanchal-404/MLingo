@@ -1108,7 +1108,7 @@ export const STOCK_PREDICTION_PROJECT: ProjectDefinition = {
   title: "Stock Price Prediction",
   tagline: "Time-series forecasting, rolling moving averages, trend extrapolation, and financial market risk reality.",
   problemStatement:
-    "An algorithmic trading educational laboratory wants students to understand the mathematical mechanics and strict empirical limitations of financial market forecasting. Using sequential daily stock quotes (Open, High, Low, Volume), compute 7-day and 20-day Simple Moving Averages (SMA), fit a lagged autoregressive linear model to forecast closing prices, and model volatility prediction cones while documenting financial risk warnings.",
+    "An algorithmic trading educational laboratory wants students to understand the mathematical mechanics and strict empirical limitations of financial market forecasting. Using only what is known before each day's close (today's open, plus the previous day's close, range and volume and a 3-day average of past closes), fit a lagged linear model to forecast the closing price. Days are split in time order, so the model is always tested on days after the ones it trained on.",
   type: "regression",
   datasetId: "stock_price_prediction",
   difficulty: "Intermediate",
@@ -1117,7 +1117,7 @@ export const STOCK_PREDICTION_PROJECT: ProjectDefinition = {
   technologiesUsed: ["Python 3.11", "NumPy", "Pandas", "Scikit-Learn", "Matplotlib"],
   learningObjectives: [
     "Structure chronological time-series data without future look-ahead bias (strict temporal splitting).",
-    "Engineer rolling window features: 7-day and 20-day Simple Moving Averages (SMA) and rolling volatility.",
+    "Engineer lagged features from past days only (previous close, range, volume, 3-day average) so nothing from the future leaks in.",
     "Formulate autoregressive linear regression using lagged prices y(t) = w1*y(t-1) + w2*y(t-2) + b.",
     "Evaluate forecast accuracy using Mean Absolute Percentage Error (MAPE) and directional accuracy.",
     "Articulate the Efficient Market Hypothesis and understand why past price patterns cannot guarantee future market returns.",
@@ -1167,7 +1167,7 @@ export const STOCK_PREDICTION_PROJECT: ProjectDefinition = {
   ],
   implementationSteps: [
     { step: 1, title: "Historical Data Ingestion", description: "Collect chronological Open, High, Low, Close, Volume stock bars." },
-    { step: 2, title: "Feature Lagging", description: "Compute 5-day SMA and lag-1, lag-2 features without lookahead bias." },
+    { step: 2, title: "Feature Lagging", description: "Compute lag-1 and lag-2 closes and a 3-day average of previous closes, with no lookahead." },
     { step: 3, title: "Temporal Split", description: "Partition the first 80% of days for training and final 20% for testing." },
     { step: 4, title: "Model Fitting", description: "Fit autoregressive linear model on historical features." },
     { step: 5, title: "Evaluation & Risk Audit", description: "Plot test predictions against actual close and compute directional hit rate." },

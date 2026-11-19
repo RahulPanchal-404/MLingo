@@ -4,10 +4,13 @@ export function SplitControls({
   config,
   totalRows,
   onChange,
+  chronological = false,
 }: {
   config: SplitConfig;
   totalRows: number;
   onChange: (updated: SplitConfig) => void;
+  /** Time-ordered data: no shuffling, so the seed does nothing. */
+  chronological?: boolean;
 }) {
   const trainCount = Math.max(1, Math.min(totalRows - 1, Math.round(config.trainRatio * totalRows)));
   const testCount = totalRows - trainCount;
@@ -60,6 +63,16 @@ export function SplitControls({
           </div>
         </div>
 
+        {chronological ? (
+          <div>
+            <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Time-ordered split</span>
+            <p className="mt-2 text-[11px] text-slate-600 dark:text-slate-400">
+              These rows are days in order, so they are not shuffled: the earliest days train the model and the most recent days test it.
+              Shuffling would let the model learn from the future.
+            </p>
+          </div>
+        ) : (
+          <>
         {/* Random Seed Input */}
         <div>
           <label htmlFor="split-seed-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -87,6 +100,8 @@ export function SplitControls({
             Fixing the seed guarantees identical train/test splits across runs.
           </p>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

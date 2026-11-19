@@ -63,8 +63,8 @@ export function DataWorkbench() {
 
   // 2. Train / Test Split
   const { train: trainRaw, test: testRaw } = useMemo(
-    () => splitTrainTest(dataset.rows, split),
-    [dataset.rows, split]
+    () => splitTrainTest(dataset.rows, split, { chronological: dataset.chronological }),
+    [dataset.rows, dataset.chronological, split]
   );
 
   // 3. Preprocessing (FIT ONLY ON TRAIN!)
@@ -372,7 +372,7 @@ export function DataWorkbench() {
         {/* STEP 4: Split */}
         {activeStep === 4 && (
           <div className="space-y-6">
-            <SplitControls config={split} totalRows={dataset.rows.length} onChange={setSplit} />
+            <SplitControls config={split} totalRows={dataset.rows.length} onChange={setSplit} chronological={dataset.chronological} />
             <LeakageExplainer />
             <div className="flex justify-between">
               <button

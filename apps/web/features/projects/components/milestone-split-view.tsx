@@ -26,8 +26,8 @@ export function MilestoneSplitView({
   const dataset = useMemo(() => getWorkbenchDataset(project.datasetId), [project.datasetId]);
 
   const { train, test } = useMemo(
-    () => splitTrainTest(dataset.rows, state.splitConfig),
-    [dataset.rows, state.splitConfig]
+    () => splitTrainTest(dataset.rows, state.splitConfig, { chronological: dataset.chronological }),
+    [dataset.rows, dataset.chronological, state.splitConfig]
   );
 
   return (
@@ -53,6 +53,7 @@ export function MilestoneSplitView({
         config={state.splitConfig}
         totalRows={dataset.rows.length}
         onChange={onUpdateSplit}
+        chronological={dataset.chronological}
       />
 
       {/* Partition Visual Breakdown */}

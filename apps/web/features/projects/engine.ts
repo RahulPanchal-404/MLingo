@@ -30,7 +30,7 @@ export function baselineOptions(project: ProjectDefinition): TrainOptions {
 /** Prepare the project's dataset exactly as the learner configured it, then train and evaluate. */
 export function runProject(project: ProjectDefinition, state: ProjectState, override: Partial<TrainOptions> & { threshold?: number } = {}) {
   const dataset = getWorkbenchDataset(project.datasetId);
-  const { train: trainRaw, test: testRaw } = splitTrainTest(dataset.rows, state.splitConfig);
+  const { train: trainRaw, test: testRaw } = splitTrainTest(dataset.rows, state.splitConfig, { chronological: dataset.chronological });
   const pipeline = fitPreprocessing(trainRaw, state.preprocessingConfig, dataset.targetColumn);
   const train = transformWithPipeline(trainRaw, pipeline, dataset.targetColumn);
   const test = transformWithPipeline(testRaw, pipeline, dataset.targetColumn);

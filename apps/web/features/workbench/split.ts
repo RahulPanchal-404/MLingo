@@ -15,7 +15,8 @@ function createSeededRandom(seed: number): () => number {
 
 export function splitTrainTest<T>(
   items: T[],
-  config: SplitConfig
+  config: SplitConfig,
+  opts: { chronological?: boolean } = {}
 ): { train: T[]; test: T[] } {
   const n = items.length;
   if (n < 2) {
@@ -24,6 +25,11 @@ export function splitTrainTest<T>(
   if (config.trainRatio <= 0 || config.trainRatio >= 1) {
     throw new Error("trainRatio must be strictly between 0 and 1");
   }
+
+  const trainCountTs = Math.max(1, Math.min(n - 1, Math.round(config.trainRatio * n)));
+  // Time series: never shuffle. Train on the earliest rows, test on the most recent ones,
+  // otherwise the model is trained on the future and tested on the past.
+  if (opts.chronological) return { train: items.slice(0, trainCountTs), test: items.slice(trainCountTs) };
 
   const rng = createSeededRandom(config.seed);
 

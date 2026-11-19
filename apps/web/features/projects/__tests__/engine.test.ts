@@ -40,3 +40,16 @@ describe("project engine", () => {
     expect(result.trainClassification).toBeDefined();
   });
 });
+
+describe("stock project (no lookahead)", () => {
+  it("splits chronologically and uses only pre-close features", async () => {
+    const { STOCK_PREDICTION_PROJECT } = await import("../definitions");
+    const run = runProject(STOCK_PREDICTION_PROJECT, state);
+    const trainDays = run.trainRaw.map((r) => Number(r.day_seq));
+    const testDays = run.testRaw.map((r) => Number(r.day_seq));
+    expect(Math.max(...trainDays)).toBeLessThan(Math.min(...testDays));
+    for (const col of ["high_price", "low_price", "volume_k", "ma_5day"]) expect(run.trainRaw[0]).not.toHaveProperty(col);
+    expect(run.result.diverged).toBe(false);
+    expect(run.result.regression!.testR2).toBeGreaterThan(0.5);
+  });
+});

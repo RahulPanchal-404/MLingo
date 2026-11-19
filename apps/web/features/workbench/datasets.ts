@@ -6,6 +6,8 @@ export type WorkbenchDatasetRecord = {
   taskType: TaskType;
   description: string;
   targetColumn?: string;
+  /** Rows are in time order: split chronologically instead of shuffling. */
+  chronological?: boolean;
   rows: Array<Record<string, string | number | null>>;
 };
 
@@ -157,19 +159,20 @@ export const MOVIE_RATING_DATA: Array<Record<string, string | number | null>> = 
 ];
 
 // 9. PROJECT 09: STOCK PRICE PREDICTION (Time-Series Regression)
+// Every feature is known before the day's close: today's opening price plus the previous days' figures.
+// (Same-day high/low/volume are only known after the close, so using them would leak the answer.)
 export const STOCK_PRICE_DATA: Array<Record<string, string | number | null>> = [
-  { day_seq: 1, open_price: 150.0, high_price: 152.5, low_price: 149.0, volume_k: 1200, ma_5day: 148.5, close_price: 151.8 },
-  { day_seq: 2, open_price: 152.0, high_price: 154.0, low_price: 151.0, volume_k: 1350, ma_5day: 149.8, close_price: 153.2 },
-  { day_seq: 3, open_price: 153.5, high_price: 156.0, low_price: 152.8, volume_k: 1400, ma_5day: 151.0, close_price: 155.5 },
-  { day_seq: 4, open_price: 155.0, high_price: 157.2, low_price: 154.0, volume_k: 1250, ma_5day: 152.4, close_price: 156.0 },
-  { day_seq: 5, open_price: 156.5, high_price: 158.0, low_price: 155.0, volume_k: 1100, ma_5day: 154.5, close_price: 157.8 },
-  { day_seq: 6, open_price: 158.0, high_price: 160.5, low_price: 157.5, volume_k: 1500, ma_5day: null, close_price: 159.2 }, // intentional missing
-  { day_seq: 7, open_price: 159.5, high_price: 161.0, low_price: 158.0, volume_k: 1300, ma_5day: 157.1, close_price: 160.5 },
-  { day_seq: 8, open_price: 161.0, high_price: 163.0, low_price: 160.0, volume_k: 1420, ma_5day: 158.6, close_price: 162.0 },
-  { day_seq: 9, open_price: 162.5, high_price: 164.5, low_price: 161.5, volume_k: 1600, ma_5day: 159.9, close_price: 163.8 },
-  { day_seq: 10, open_price: 164.0, high_price: 165.5, low_price: 162.8, volume_k: 1380, ma_5day: 161.5, close_price: 164.2 },
-  { day_seq: 11, open_price: 164.5, high_price: 166.0, low_price: 163.5, volume_k: 1280, ma_5day: 162.9, close_price: 165.7 },
-  { day_seq: 12, open_price: 166.0, high_price: 168.0, low_price: 165.0, volume_k: 1700, ma_5day: 164.4, close_price: 167.5 },
+  { day_seq: 2, open_price: 152.0, prev_close: 151.8, prev_high: 152.5, prev_low: 149.0, prev_volume_k: 1200, avg_close_3d: 151.8, close_price: 153.2 },
+  { day_seq: 3, open_price: 153.5, prev_close: 153.2, prev_high: 154.0, prev_low: 151.0, prev_volume_k: 1350, avg_close_3d: 152.5, close_price: 155.5 },
+  { day_seq: 4, open_price: 155.0, prev_close: 155.5, prev_high: 156.0, prev_low: 152.8, prev_volume_k: 1400, avg_close_3d: 153.5, close_price: 156.0 },
+  { day_seq: 5, open_price: 156.5, prev_close: 156.0, prev_high: 157.2, prev_low: 154.0, prev_volume_k: 1250, avg_close_3d: 154.9, close_price: 157.8 },
+  { day_seq: 6, open_price: 158.0, prev_close: 157.8, prev_high: 158.0, prev_low: 155.0, prev_volume_k: 1100, avg_close_3d: null, close_price: 159.2 }, // intentional missing
+  { day_seq: 7, open_price: 159.5, prev_close: 159.2, prev_high: 160.5, prev_low: 157.5, prev_volume_k: 1500, avg_close_3d: 157.67, close_price: 160.5 },
+  { day_seq: 8, open_price: 161.0, prev_close: 160.5, prev_high: 161.0, prev_low: 158.0, prev_volume_k: 1300, avg_close_3d: 159.17, close_price: 162.0 },
+  { day_seq: 9, open_price: 162.5, prev_close: 162.0, prev_high: 163.0, prev_low: 160.0, prev_volume_k: 1420, avg_close_3d: 160.57, close_price: 163.8 },
+  { day_seq: 10, open_price: 164.0, prev_close: 163.8, prev_high: 164.5, prev_low: 161.5, prev_volume_k: 1600, avg_close_3d: 162.1, close_price: 164.2 },
+  { day_seq: 11, open_price: 164.5, prev_close: 164.2, prev_high: 165.5, prev_low: 162.8, prev_volume_k: 1380, avg_close_3d: 163.33, close_price: 165.7 },
+  { day_seq: 12, open_price: 166.0, prev_close: 165.7, prev_high: 166.0, prev_low: 163.5, prev_volume_k: 1280, avg_close_3d: 164.57, close_price: 167.5 },
 ];
 
 // 10. PROJECT 10: CREDIT CARD FRAUD DETECTION (Imbalanced Binary Classification)
@@ -258,8 +261,9 @@ export const AVAILABLE_WORKBENCH_DATASETS: WorkbenchDatasetRecord[] = [
     id: "stock_price_prediction",
     name: "Daily Equity Stock Quotations",
     taskType: "regression",
-    description: "Forecast equity closing prices ($) from sequential trading days, moving averages, daily high/low spreads, and volume.",
+    description: "Forecast the day's closing price ($) from its opening price and the previous days' close, range, volume and 3-day average — only what is known before the close.",
     targetColumn: "close_price",
+    chronological: true,
     rows: STOCK_PRICE_DATA,
   },
   {

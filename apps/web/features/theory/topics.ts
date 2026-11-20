@@ -78,10 +78,13 @@ import { NEW_REGRESSION_THEORY } from "./core/new-regression";
 import { NEW_CLASSIFICATION_THEORY } from "./core/new-classification";
 import { NEW_BASICS_THEORY } from "./core/new-basics";
 import { applySupplements } from "./core/supplements";
+import { RL_THEORY } from "./core/new-rl";
+import { TEXTBOOK } from "./core/textbook";
 
 const CORE_THEORY: TheoryTopic[] = [
   ...FOUNDATIONS_THEORY,
   ...NEW_BASICS_THEORY,
+  ...RL_THEORY,
   ...REGRESSION_THEORY,
   ...NEW_REGRESSION_THEORY,
   ...CLASSIFICATION_THEORY,
@@ -95,7 +98,24 @@ const CORE_THEORY: TheoryTopic[] = [
   ...MORE_WORKFLOW_THEORY,
 ];
 
-export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => applySupplements(mergeDeep(t, DEEP[t.slug])));
+/**
+ * Adds the topic's MLingo textbook sections, in textbook order, just before "In Python":
+ * the page opens with the short intuition, then the textbook builds the full theory step by step.
+ */
+function applyTextbook(t: TheoryTopic): TheoryTopic {
+  const book = TEXTBOOK[t.slug];
+  if (!book?.length) return t;
+  const intro: Section = {
+    heading: "From the MLingo textbook",
+    blocks: [{ callout: { title: "The full theory, step by step", body: "The sections below are the MLingo textbook chapters for this topic, in order. Derivations and from-scratch code are folded: open them when you want the details." } }],
+  };
+  const at = t.sections.findIndex((s) => s.heading === "In Python");
+  const i = at >= 0 ? at : t.sections.findIndex((s) => s.heading === "Common mistakes");
+  const pos = i >= 0 ? i : t.sections.length;
+  return { ...t, sections: [...t.sections.slice(0, pos), intro, ...book, ...t.sections.slice(pos)] };
+}
+
+export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => applyTextbook(applySupplements(mergeDeep(t, DEEP[t.slug]))));
 
 export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Unsupervised learning", "Neural networks", "Workflow"] as const;
 export const getTheory = (slug: string) => THEORY.find((t) => t.slug === slug);

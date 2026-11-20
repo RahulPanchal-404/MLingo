@@ -3,6 +3,10 @@ import { CodeBlock, MathBlock, TexText } from "./tex";
 import type { Block } from "./topics";
 import { TryIt } from "./widgets";
 
+const LIBRARY = /\b(from|import)\s+(sklearn|pandas|scipy|statsmodels|torch|tensorflow|keras|xgboost|lightgbm|catboost|seaborn|matplotlib)\b/;
+/** True when a snippet uses an ML/data library (shown openly); pure-Python/NumPy maths is folded. */
+export const isLibraryCode = (code: string) => LIBRARY.test(code);
+
 /** Renders one theory block. Server component; interactive parts hydrate on the client. */
 export function BlockView({ b }: { b: Block }) {
   if ("math" in b)
@@ -11,7 +15,21 @@ export function BlockView({ b }: { b: Block }) {
         <MathBlock tex={b.math} />
       </div>
     );
-  if ("code" in b) return <CodeBlock code={b.code} />;
+  if ("code" in b) {
+    // Library code (scikit-learn, pandas, SciPy…) is what learners use day to day, so it stays visible.
+    // From-scratch implementations are folded away, like derivations, for readers who want them.
+    if (isLibraryCode(b.code)) return <CodeBlock code={b.code} />;
+    return (
+      <details className="group rounded-2xl border-2 border-[var(--panel-line)] bg-white dark:bg-slate-900">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-slate-950 dark:text-white">
+          <span>From-scratch Python (how it works under the hood)</span>
+          <span className="rounded-full border-2 border-slate-950 bg-[#a7f3d0] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show the code</span>
+          <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+        </summary>
+        <div className="border-t-2 border-[var(--panel-line)] p-3"><CodeBlock code={b.code} /></div>
+      </details>
+    );
+  }
   if ("list" in b)
     return (
       <ul className="list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">

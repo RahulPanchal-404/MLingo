@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { levelsForLesson } from "@/features/games/registry";
-import { getTheory } from "@/features/theory/topics";
 import type { LessonDefinition } from "../lessons-data";
 import { ChapterMotif } from "../chapter-motif";
 import { WatchRow } from "./watch-row";
 import { chapterForLabel, chapterStyle } from "../chapter-style";
 
 /** `children` is the server-rendered step-by-step walkthrough, placed before the hands-on card. */
-export function LessonLayout({ lesson, children }: { lesson: LessonDefinition; children?: React.ReactNode }) {
+export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: LessonDefinition; hasTheory?: boolean; children?: React.ReactNode }) {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
 
   const selectedOption = selectedOptionIndex !== null && lesson.thinkPrompt
@@ -265,7 +264,7 @@ export function LessonLayout({ lesson, children }: { lesson: LessonDefinition; c
       </section>
 
       {/* Practice it in a game */}
-      {getTheory(lesson.slug) && lesson.nowTryIt.href !== `/theory/${lesson.slug}` ? (
+      {hasTheory && lesson.nowTryIt.href !== `/theory/${lesson.slug}` ? (
         <Link
           href={`/theory/${lesson.slug}`}
           className="flex items-center justify-between gap-4 rounded-2xl border border-violet-200 bg-violet-50/70 p-5 transition hover:border-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10"

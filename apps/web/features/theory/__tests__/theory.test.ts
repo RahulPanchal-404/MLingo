@@ -68,3 +68,12 @@ describe("model lessons", () => {
     for (const g of GAMES) for (const lv of g.levels) if (lv.lessonSlug) expect(getLessonBySlug(lv.lessonSlug), `${g.id}:${lv.id}`).toBeTruthy();
   });
 });
+
+describe("textbook coverage", () => {
+  it("every textbook section is attached to a real theory page", async () => {
+    const { TEXTBOOK } = await import("../core/textbook");
+    for (const slug of Object.keys(TEXTBOOK)) expect(THEORY.some((t) => t.slug === slug), slug).toBe(true);
+    const sections = Object.values(TEXTBOOK).flat().filter((s) => /^\d+\.\d+\.\d+ /.test(s.heading));
+    expect(sections.length).toBe(385);
+  });
+});

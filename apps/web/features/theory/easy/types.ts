@@ -7,8 +7,8 @@ export type EasySection = {
   /** Two or three sentences in everyday words, shown first. */
   plain?: string;
   examples?: ExampleSpec[];
-  /** Replace block n (for example a formula written in plain text, or a correction). */
-  replace?: Record<number, Block>;
+  /** Replace block "n" (for example a formula written in plain text, or a correction); "n.d.m" replaces block m inside derivation n. */
+  replace?: Record<string, Block>;
   /** New code steps for this section (added to "How to code it", linked from the end of the section). */
   code?: EasyCode[];
 };

@@ -24,7 +24,11 @@ export function applyEasy(t: TheoryTopic, e: EasyTopic | undefined): TheoryTopic
     const sec: Section = { heading: s.heading, blocks };
     let codeIndex = 0;
     s.blocks.forEach((orig, i) => {
-      const b = es?.replace?.[i] ?? orig;
+      let b = es?.replace?.[String(i)] ?? orig;
+      if ("derive" in b) {
+        const inner = b.derive.blocks.map((x, j) => es?.replace?.[`${i}.d.${j}`] ?? x);
+        b = { derive: { ...b.derive, blocks: inner } };
+      }
       if ("code" in b) {
         const ec = e?.code?.[`${s.heading}#${codeIndex++}`];
         const step: Step = { n: steps.length + 1, goal: ec?.goal ?? b.goal ?? s.heading.replace(/^[\d.]+\s+/, ""), code: ec?.code ?? b.code, walk: ec?.walk ?? b.walk, figure: ec?.figure, from: isPython ? undefined : sec };

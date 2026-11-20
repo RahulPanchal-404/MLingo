@@ -89,7 +89,12 @@ describe("easy layer", () => {
         expect(headings, `${slug}: ${h}`).toContain(h);
         const n = base!.sections.find((s) => s.heading === h)!.blocks.length;
         for (const x of es.examples ?? []) expect((x.at ?? 0) < n, `${slug}: ${h} at ${x.at}`).toBe(true);
-        for (const k of Object.keys(es.replace ?? {})) expect(Number(k) < n, `${slug}: ${h} replace ${k}`).toBe(true);
+        for (const k of Object.keys(es.replace ?? {})) {
+          const [i, , j] = k.split(".").map(Number);
+          const target = base!.sections.find((s) => s.heading === h)!.blocks[i];
+          expect(target, `${slug}: ${h} replace ${k}`).toBeTruthy();
+          if (j !== undefined) expect(target && "derive" in target && j < target.derive.blocks.length, `${slug}: ${h} replace ${k}`).toBe(true);
+        }
         for (const c of es.code ?? []) expect(c.code?.length, `${slug}: ${h} new code`).toBeTruthy();
       }
       for (const key of Object.keys(e.code ?? {})) {

@@ -6,6 +6,7 @@ import { ADAXGB, ENSEMBLE, FOREST, GBOOST } from "./classification3";
 import { GD, GDV, HML, LOSS, LR, RL, WIML } from "./foundations";
 import { LINEAR_ALGEBRA, VECTORS } from "./prereqs";
 import { DBSCAN, HIER, KMEANS, PCA } from "./unsupervised";
+import { NEURAL, TRAIN_NN } from "./neural";
 import { DIAGNOSTICS, LINEAR, METRICS, MULTIPLE, POLY, REGULARIZATION, TREE_KNN } from "./regression";
 import { NUMPY_PANDAS, PLOTTING_SKLEARN, STATS_INFERENCE } from "./python";
 
@@ -49,4 +50,6 @@ export const EASY: Record<string, EasyTopic> = {
   "hierarchical-clustering": HIER,
   "dbscan": DBSCAN,
   "pca": PCA,
+  "neural-networks": NEURAL,
+  "training-neural-networks": TRAIN_NN,
 };

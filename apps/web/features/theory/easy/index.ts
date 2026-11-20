@@ -1,5 +1,8 @@
 import type { EasyTopic } from "./types";
 import { DERIVATIVES, PARTIALS, PROBABILITY } from "./calc";
+import { KNN, LOGISTIC, SOFTMAX, TREES } from "./classification1";
+import { CMETRICS, NB, ROC, SVM } from "./classification2";
+import { ADAXGB, ENSEMBLE, FOREST, GBOOST } from "./classification3";
 import { GD, GDV, HML, LOSS, LR, RL, WIML } from "./foundations";
 import { LINEAR_ALGEBRA, VECTORS } from "./prereqs";
 import { DIAGNOSTICS, LINEAR, METRICS, MULTIPLE, POLY, REGULARIZATION, TREE_KNN } from "./regression";
@@ -29,4 +32,16 @@ export const EASY: Record<string, EasyTopic> = {
   "regression-metrics": METRICS,
   "regularization": REGULARIZATION,
   "tree-knn-regression": TREE_KNN,
+  "logistic-regression": LOGISTIC,
+  "multiclass-softmax": SOFTMAX,
+  "k-nearest-neighbors": KNN,
+  "decision-trees": TREES,
+  "classification-metrics": CMETRICS,
+  "roc-auc-calibration": ROC,
+  "naive-bayes": NB,
+  "support-vector-machines": SVM,
+  "random-forests": FOREST,
+  "gradient-boosting": GBOOST,
+  "adaboost-xgboost": ADAXGB,
+  "ensemble-methods": ENSEMBLE,
 };

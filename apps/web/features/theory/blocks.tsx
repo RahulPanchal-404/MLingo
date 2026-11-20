@@ -11,7 +11,7 @@ export const isLibraryCode = (code: string) => LIBRARY.test(code);
 function WalkList({ walk }: { walk: Walk[] }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-      <p className="mb-2 text-sm font-bold text-slate-950 dark:text-white">What each line does</p>
+      <p className="mb-2 text-sm font-bold text-slate-950 dark:text-white">Explanation: what each part does</p>
       <ol className="space-y-2.5">
         {walk.map((w, i) => (
           <li key={i} className="grid gap-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
@@ -45,9 +45,9 @@ export function BlockView({ b }: { b: Block }) {
     );
   if ("codelink" in b)
     return (
-      <a href={`#code-${b.codelink.n}`} className="flex items-center justify-between gap-3 rounded-xl border-2 border-dashed border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-500/10">
-        <span>💻 Code this: Step {b.codelink.n}, <TexText text={b.codelink.goal} /></span>
-        <span aria-hidden="true">↓</span>
+      <a href={b.codelink.href ?? `#code-${b.codelink.n}`} className="flex items-center justify-between gap-3 rounded-xl border-2 border-dashed border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-500/10">
+        <span>💻 See the code: Step {b.codelink.n}, <TexText text={b.codelink.goal} /></span>
+        <span aria-hidden="true">→</span>
       </a>
     );
   if ("codestep" in b) {
@@ -79,7 +79,7 @@ export function BlockView({ b }: { b: Block }) {
           </details>
         )}
         {c.back !== undefined ? (
-          <a href={`#s${c.back}`} className="inline-block text-sm font-semibold text-teal-700 hover:underline dark:text-teal-300">↑ Back to the theory: {c.backTitle}</a>
+          <a href={c.backHref ?? `#s${c.back}`} className="inline-block text-sm font-semibold text-teal-700 hover:underline dark:text-teal-300">↑ Back to the theory: {c.backTitle}</a>
         ) : null}
       </div>
     );

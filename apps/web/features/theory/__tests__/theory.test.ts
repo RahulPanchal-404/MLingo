@@ -104,6 +104,15 @@ describe("easy layer", () => {
       }
     }
   });
+  it("every topic with code has settings to tune and variations to try", async () => {
+    const { CODE_EXTRAS } = await import("../easy/tuning");
+    for (const t of THEORY) {
+      if (!t.sections.some((s) => s.blocks.some((b) => "codestep" in b))) continue;
+      expect(CODE_EXTRAS[t.slug]?.tune?.length, `${t.slug} tune`).toBeGreaterThan(0);
+      expect(CODE_EXTRAS[t.slug]?.vary?.length, `${t.slug} vary`).toBeGreaterThan(0);
+    }
+  });
+
   it("code lives in How to code it, and every walk line is really in its code", () => {
     for (const t of THEORY) {
       expect(t.sections.flatMap((s) => s.blocks).some((b) => "code" in b), `${t.slug} loose code`).toBe(false);

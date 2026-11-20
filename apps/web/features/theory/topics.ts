@@ -29,9 +29,9 @@ export type Block =
   /** A small example: "worked" solves numbers step by step, "idea" illustrates a concept. */
   | { example: { title: string; kind?: "worked" | "idea"; blocks: Block[] } }
   /** Points from the theory to its step in "How to code it". */
-  | { codelink: { n: number; goal: string } }
+  | { codelink: { n: number; goal: string; href?: string } }
   /** One step of "How to code it"; `back` is the index of the theory section it came from. */
-  | { codestep: { n: number; goal: string; code: string; walk?: Walk[]; back?: number; backTitle?: string; open?: boolean; figure?: { src: string; alt: string } } }
+  | { codestep: { n: number; goal: string; code: string; walk?: Walk[]; back?: number; backTitle?: string; backHref?: string; open?: boolean; figure?: { src: string; alt: string } } }
   /** A highlighted box: "In one sentence", "Intuition", etc. */
   | { callout: { title: string; body: string } }
   /** A worked example revealed one step at a time. */

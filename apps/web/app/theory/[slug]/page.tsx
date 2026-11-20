@@ -7,7 +7,9 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { WatchRow } from "@/features/learning/components/watch-row";
 import { BlockView } from "@/features/theory/blocks";
+import { HOW_TO_CODE } from "@/features/theory/easy/apply";
 import { THEORY, getTheory } from "@/features/theory/topics";
+import { TopicTabs } from "@/features/theory/topic-tabs";
 
 type TheoryPageProps = { params: Promise<{ slug: string }> };
 
@@ -28,6 +30,9 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
   const i = THEORY.indexOf(topic);
   const prev = THEORY[i - 1];
   const next = THEORY[i + 1];
+  const hasCode = topic.sections.some((s) => s.heading === HOW_TO_CODE);
+  // The code steps have their own page (/theory/[slug]/code); keep each section's original index as its anchor.
+  const shown = topic.sections.map((s, n) => ({ s, n })).filter(({ s }) => s.heading !== HOW_TO_CODE);
   return (
     <AppShell>
       <article className="mx-auto max-w-3xl space-y-8 pb-16">
@@ -54,21 +59,22 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
               </Link>
             ) : null}
           </div>
+          {hasCode ? <TopicTabs slug={topic.slug} active="theory" /> : null}
         </header>
         <nav aria-label="On this page" className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500">On this page</p>
           <ol className="list-decimal space-y-0.5 pl-5">
-            {topic.sections.map((s, n) => (
+            {shown.map(({ s, n }) => (
               <li key={s.heading}>
                 <a href={`#s${n}`} className="text-teal-700 hover:underline dark:text-teal-300">{s.heading}</a>
               </li>
             ))}
           </ol>
         </nav>
-        {topic.sections.map((s, n) => (
+        {shown.map(({ s, n }, k) => (
           <section key={s.heading} id={`s${n}`} className="scroll-mt-24 space-y-3">
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{n + 1}. {s.heading}</h2>
-            {s.blocks.map((b, k) => <BlockView key={k} b={b} />)}
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{k + 1}. {s.heading}</h2>
+            {s.blocks.map((b, j) => <BlockView key={j} b={b} />)}
           </section>
         ))}
         <WatchRow slug={topic.slug} />

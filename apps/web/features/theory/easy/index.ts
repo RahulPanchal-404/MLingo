@@ -8,6 +8,7 @@ import { LINEAR_ALGEBRA, VECTORS } from "./prereqs";
 import { DBSCAN, HIER, KMEANS, PCA } from "./unsupervised";
 import { NEURAL, TRAIN_NN } from "./neural";
 import { BIASVAR, SCALING, SPLIT } from "./workflow1";
+import { CVTUNE, IMBALANCED } from "./workflow2";
 import { DIAGNOSTICS, LINEAR, METRICS, MULTIPLE, POLY, REGULARIZATION, TREE_KNN } from "./regression";
 import { NUMPY_PANDAS, PLOTTING_SKLEARN, STATS_INFERENCE } from "./python";
 
@@ -56,4 +57,6 @@ export const EASY: Record<string, EasyTopic> = {
   "feature-scaling": SCALING,
   "train-test-split": SPLIT,
   "bias-variance": BIASVAR,
+  "cross-validation-tuning": CVTUNE,
+  "imbalanced-data": IMBALANCED,
 };

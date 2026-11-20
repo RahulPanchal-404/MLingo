@@ -9,14 +9,16 @@ export const isLibraryCode = (code: string) => LIBRARY.test(code);
 
 /** "What each line does": a code fragment beside a plain explanation. */
 function WalkList({ walk }: { walk: Walk[] }) {
+  // Show the code part without its trailing "# ..." note, so the explanation below it is the only commentary.
+  const bare = (line: string) => line.replace(/\s+#(?![^"']*["'][^"']*$).*$/, "").trimEnd();
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-      <p className="mb-2 text-sm font-bold text-slate-950 dark:text-white">Explanation: what each part does</p>
-      <ol className="space-y-2.5">
+      <p className="mb-3 text-sm font-bold text-slate-950 dark:text-white">Explanation: what each part does</p>
+      <ol className="space-y-3">
         {walk.map((w, i) => (
-          <li key={i} className="grid gap-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
-            <code className="block self-start overflow-x-auto whitespace-pre rounded-lg bg-slate-900 px-2.5 py-1.5 font-mono text-[12.5px] text-emerald-200">{w.line}</code>
-            <span className="text-[14.5px] leading-relaxed text-slate-700 dark:text-slate-300"><TexText text={w.say} /></span>
+          <li key={i} className="space-y-1.5">
+            <code className="block whitespace-pre-wrap break-words rounded-lg bg-slate-900 px-3 py-2 font-mono text-[13px] text-emerald-200">{bare(w.line) || w.line}</code>
+            <p className="pl-1 text-[15px] leading-relaxed text-slate-700 dark:text-slate-300"><TexText text={w.say} /></p>
           </li>
         ))}
       </ol>

@@ -55,7 +55,7 @@ export function applyEasy(t: TheoryTopic, e: EasyTopic | undefined): TheoryTopic
   const how: Section = { heading: HOW_TO_CODE, blocks: [] };
   out.splice(pos, 0, how);
   how.blocks = [
-    { callout: { title: "Build it one step at a time", body: "Each step below is a complete program you can run on its own. Each step is a complete program you can run on its own. Read the goal, run the code, then read the explanation under it. The printed output is shown at the end of each program." } },
+    { callout: { title: "Build it one step at a time", body: "Each step below is a complete program you can run on its own. Read the goal, run the code, then read the explanation under it. The printed output is shown at the end of each program." } },
     ...steps.map((st): Block => {
       const back = st.from ? out.indexOf(st.from) : -1;
       return { codestep: { n: st.n, goal: st.goal, code: st.code, walk: st.walk, figure: st.figure, open: true, backHref: back >= 0 ? `/theory/${t.slug}#s${back}` : undefined, back: back >= 0 ? back : undefined, backTitle: back >= 0 ? out[back].heading : undefined } };

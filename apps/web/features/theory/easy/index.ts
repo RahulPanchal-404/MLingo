@@ -9,6 +9,7 @@ import { DBSCAN, HIER, KMEANS, PCA } from "./unsupervised";
 import { NEURAL, TRAIN_NN } from "./neural";
 import { BIASVAR, SCALING, SPLIT } from "./workflow1";
 import { CVTUNE, IMBALANCED } from "./workflow2";
+import { FEATURES } from "./workflow3";
 import { DIAGNOSTICS, LINEAR, METRICS, MULTIPLE, POLY, REGULARIZATION, TREE_KNN } from "./regression";
 import { NUMPY_PANDAS, PLOTTING_SKLEARN, STATS_INFERENCE } from "./python";
 
@@ -59,4 +60,5 @@ export const EASY: Record<string, EasyTopic> = {
   "bias-variance": BIASVAR,
   "cross-validation-tuning": CVTUNE,
   "imbalanced-data": IMBALANCED,
+  "feature-engineering": FEATURES,
 };

@@ -7,6 +7,7 @@ import { GD, GDV, HML, LOSS, LR, RL, WIML } from "./foundations";
 import { LINEAR_ALGEBRA, VECTORS } from "./prereqs";
 import { DBSCAN, HIER, KMEANS, PCA } from "./unsupervised";
 import { NEURAL, TRAIN_NN } from "./neural";
+import { BIASVAR, SCALING, SPLIT } from "./workflow1";
 import { DIAGNOSTICS, LINEAR, METRICS, MULTIPLE, POLY, REGULARIZATION, TREE_KNN } from "./regression";
 import { NUMPY_PANDAS, PLOTTING_SKLEARN, STATS_INFERENCE } from "./python";
 
@@ -52,4 +53,7 @@ export const EASY: Record<string, EasyTopic> = {
   "pca": PCA,
   "neural-networks": NEURAL,
   "training-neural-networks": TRAIN_NN,
+  "feature-scaling": SCALING,
+  "train-test-split": SPLIT,
+  "bias-variance": BIASVAR,
 };

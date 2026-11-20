@@ -15,11 +15,23 @@ export type WidgetId =
   | "bayes"
   | "neuron";
 
+/** One line (or fragment) of a code snippet and what it does. */
+export type Walk = { line: string; say: string };
+
 export type Block =
   | { p: string }
   | { math: string }
   | { list: string[] }
-  | { code: string }
+  /** Code; `goal` and `walk` (line-by-line explanation) are used in the "How to code it" section. */
+  | { code: string; goal?: string; walk?: Walk[] }
+  /** A short plain-words version of the section, shown first. */
+  | { plain: string }
+  /** A small example: "worked" solves numbers step by step, "idea" illustrates a concept. */
+  | { example: { title: string; kind?: "worked" | "idea"; blocks: Block[] } }
+  /** Points from the theory to its step in "How to code it". */
+  | { codelink: { n: number; goal: string } }
+  /** One step of "How to code it"; `back` is the index of the theory section it came from. */
+  | { codestep: { n: number; goal: string; code: string; walk?: Walk[]; back?: number; backTitle?: string; open?: boolean; figure?: { src: string; alt: string } } }
   /** A highlighted box: "In one sentence", "Intuition", etc. */
   | { callout: { title: string; body: string } }
   /** A worked example revealed one step at a time. */
@@ -42,6 +54,10 @@ export function blockTexts(b: Block): string[] {
   if ("math" in b) return [`$$${b.math}$$`];
   if ("list" in b) return b.list;
   if ("code" in b) return [];
+  if ("codestep" in b) return [b.codestep.goal, ...(b.codestep.walk ?? []).map((w) => w.say)];
+  if ("codelink" in b) return [b.codelink.goal];
+  if ("plain" in b) return [b.plain];
+  if ("example" in b) return [b.example.title, ...b.example.blocks.flatMap(blockTexts)];
   if ("callout" in b) return [b.callout.title, b.callout.body];
   if ("steps" in b) return b.steps.flatMap((s) => [s.title, s.body, ...(s.math ? [`$$${s.math}$$`] : [])]);
   if ("derive" in b) return [b.derive.title, ...b.derive.blocks.flatMap(blockTexts)];
@@ -78,6 +94,8 @@ import { NEW_REGRESSION_THEORY } from "./core/new-regression";
 import { NEW_CLASSIFICATION_THEORY } from "./core/new-classification";
 import { NEW_BASICS_THEORY } from "./core/new-basics";
 import { applySupplements } from "./core/supplements";
+import { EASY } from "./easy";
+import { applyEasy } from "./easy/apply";
 import { RL_THEORY } from "./core/new-rl";
 import { TEXTBOOK } from "./core/textbook";
 
@@ -115,7 +133,10 @@ function applyTextbook(t: TheoryTopic): TheoryTopic {
   return { ...t, sections: [...t.sections.slice(0, pos), intro, ...book, ...t.sections.slice(pos)] };
 }
 
-export const THEORY: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => applyTextbook(applySupplements(mergeDeep(t, DEEP[t.slug]))));
+/** Every topic with its textbook sections, before the easy layer (examples, plain words, How to code it). */
+export const THEORY_BASE: TheoryTopic[] = [...PREREQ_THEORY, ...CORE_THEORY].map((t) => applyTextbook(applySupplements(mergeDeep(t, DEEP[t.slug]))));
+
+export const THEORY: TheoryTopic[] = THEORY_BASE.map((t) => applyEasy(t, EASY[t.slug]));
 
 export const THEORY_GROUPS = ["Prerequisites", "Foundations", "Regression", "Classification", "Unsupervised learning", "Neural networks", "Workflow"] as const;
 export const getTheory = (slug: string) => THEORY.find((t) => t.slug === slug);

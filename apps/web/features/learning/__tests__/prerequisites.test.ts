@@ -22,7 +22,7 @@ describe("Before you start: math & python", () => {
   it("theory pages include worked Python code", () => {
     for (const l of PREREQ_LESSONS) {
       const blocks = getTheory(l.slug)!.sections.flatMap((s) => s.blocks);
-      expect(blocks.some((b) => "code" in b), l.slug).toBe(true);
+      expect(blocks.some((b) => "codestep" in b), l.slug).toBe(true);
     }
   });
 

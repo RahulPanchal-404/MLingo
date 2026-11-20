@@ -1,14 +1,89 @@
 import { Quiz, Stepper } from "./interactive";
 import { CodeBlock, MathBlock, TexText } from "./tex";
-import type { Block } from "./topics";
+import type { Block, Walk } from "./topics";
 import { TryIt } from "./widgets";
 
 const LIBRARY = /\b(from|import)\s+(sklearn|pandas|scipy|statsmodels|torch|tensorflow|keras|xgboost|lightgbm|catboost|seaborn|matplotlib)\b/;
 /** True when a snippet uses an ML/data library (shown openly); pure-Python/NumPy maths is folded. */
 export const isLibraryCode = (code: string) => LIBRARY.test(code);
 
+/** "What each line does": a code fragment beside a plain explanation. */
+function WalkList({ walk }: { walk: Walk[] }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
+      <p className="mb-2 text-sm font-bold text-slate-950 dark:text-white">What each line does</p>
+      <ol className="space-y-2.5">
+        {walk.map((w, i) => (
+          <li key={i} className="grid gap-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
+            <code className="block self-start overflow-x-auto whitespace-pre rounded-lg bg-slate-900 px-2.5 py-1.5 font-mono text-[12.5px] text-emerald-200">{w.line}</code>
+            <span className="text-[14.5px] leading-relaxed text-slate-700 dark:text-slate-300"><TexText text={w.say} /></span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 /** Renders one theory block. Server component; interactive parts hydrate on the client. */
 export function BlockView({ b }: { b: Block }) {
+  if ("plain" in b)
+    return (
+      <aside className="rounded-2xl border-l-[6px] border-emerald-500 bg-emerald-50 px-5 py-4 dark:bg-emerald-500/10">
+        <p className="text-xs font-bold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">In plain words</p>
+        <p className="mt-1 text-[16px] leading-relaxed text-slate-900 dark:text-slate-100"><TexText text={b.plain} /></p>
+      </aside>
+    );
+  if ("example" in b)
+    return (
+      <div className="light-island rounded-2xl border-2 border-slate-950 bg-[#fff4d6] p-5">
+        <p className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border-2 border-slate-950 bg-[#ffd166] px-2.5 py-0.5 text-xs font-bold text-slate-950">{b.example.kind === "idea" ? "Example" : "Worked example"}</span>
+          <span className="font-semibold text-slate-950"><TexText text={b.example.title} /></span>
+        </p>
+        <div className="mt-3 space-y-3 [&_p]:text-slate-800">{b.example.blocks.map((inner, i) => <BlockView key={i} b={inner} />)}</div>
+      </div>
+    );
+  if ("codelink" in b)
+    return (
+      <a href={`#code-${b.codelink.n}`} className="flex items-center justify-between gap-3 rounded-xl border-2 border-dashed border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-500/10">
+        <span>💻 Code this: Step {b.codelink.n}, <TexText text={b.codelink.goal} /></span>
+        <span aria-hidden="true">↓</span>
+      </a>
+    );
+  if ("codestep" in b) {
+    const c = b.codestep;
+    const body = (
+      <div className="space-y-3">
+        <CodeBlock code={c.code} />
+        {c.figure ? (
+          <figure className="light-island overflow-hidden rounded-xl border border-slate-200 bg-white">
+            {/* eslint-disable-next-line @next/next/no-img-element -- static SVG drawn by this code step */}
+            <img src={c.figure.src} alt={c.figure.alt} loading="lazy" className="mx-auto block h-auto max-w-full" />
+            <figcaption className="border-t border-slate-200 px-3 py-2 text-[13px] text-slate-600">The figure this code draws.</figcaption>
+          </figure>
+        ) : null}
+        {c.walk?.length ? <WalkList walk={c.walk} /> : null}
+      </div>
+    );
+    return (
+      <div id={`code-${c.n}`} className="scroll-mt-24 space-y-3 rounded-2xl border-2 border-[var(--panel-line)] bg-white p-4 dark:bg-slate-900">
+        <h3 className="text-[17px] font-extrabold text-slate-950 dark:text-white">Step {c.n}: <TexText text={c.goal} /></h3>
+        {c.open || isLibraryCode(c.code) ? body : (
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 dark:bg-slate-800 dark:text-white">
+              <span>From-scratch Python (how it works under the hood)</span>
+              <span className="rounded-full border-2 border-slate-950 bg-[#a7f3d0] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show the code</span>
+              <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+            </summary>
+            <div className="pt-3">{body}</div>
+          </details>
+        )}
+        {c.back !== undefined ? (
+          <a href={`#s${c.back}`} className="inline-block text-sm font-semibold text-teal-700 hover:underline dark:text-teal-300">↑ Back to the theory: {c.backTitle}</a>
+        ) : null}
+      </div>
+    );
+  }
   if ("math" in b)
     return (
       <div className="rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900">

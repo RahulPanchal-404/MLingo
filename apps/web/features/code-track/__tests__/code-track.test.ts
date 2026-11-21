@@ -5,6 +5,7 @@ import { getTheory } from "@/features/theory/topics";
 
 import { ALGO_GUIDES, CODE_MODULES, CODE_PARTS, MISSING_TOPICS } from "../curriculum";
 import { GUIDE_MODULES } from "../guides";
+import { LESSONS } from "../lessons";
 import type { Program } from "../types";
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
@@ -38,6 +39,16 @@ describe("code track", () => {
       for (const w of p.walk) expect(p.code, `${where}: ${w.line}`).toContain(w.line);
       if ((p.lang ?? "python") === "python" && p.code.includes("print(") && !p.code.includes("FastAPI")) expect(p.code, where).toContain("# Output:");
     }
+  });
+
+  it("lessons belong to modules, and every Python cell that prints shows its output", () => {
+    for (const [slug, lesson] of Object.entries(LESSONS)) {
+      expect(CODE_MODULES.some((m) => m.slug === slug), slug).toBe(true);
+      for (const s of lesson.sections)
+        for (const b of s.blocks)
+          if ("cell" in b && b.cell.lang === "python" && b.cell.code.includes("print(")) expect(b.cell.output, `${slug}: ${s.heading}`).toBeTruthy();
+    }
+    expect(EMOJI.test(JSON.stringify(LESSONS))).toBe(false);
   });
 
   it("has no emojis", () => {

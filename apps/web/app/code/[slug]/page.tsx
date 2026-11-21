@@ -8,6 +8,8 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { ALGO_GUIDES, CODE_MODULES, getCodeModule } from "@/features/code-track/curriculum";
 import { GUIDE_MODULES } from "@/features/code-track/guides";
+import { LESSONS } from "@/features/code-track/lessons";
+import { LessonBlockView } from "@/features/code-track/lesson-view";
 import { ModuleLinks } from "@/features/code-track/module-links";
 import { ProgramView } from "@/features/code-track/program-view";
 import { BlockView } from "@/features/theory/blocks";
@@ -95,6 +97,27 @@ function topicSections(slug: string): Section[] {
   return out;
 }
 
+function lessonSections(slug: string): Section[] {
+  const lesson = LESSONS[slug];
+  const out: Section[] = lesson.sections.map((s, i) => ({
+    id: `s${i}`,
+    heading: s.heading,
+    body: <div>{s.blocks.map((b, k) => <LessonBlockView key={k} b={b} />)}</div>,
+  }));
+  const programs = getTheory(slug)?.sections.find((s) => s.heading === HOW_TO_CODE)?.blocks.filter((b) => "codestep" in b) ?? [];
+  if (programs.length) {
+    out.push({ id: "programs", heading: "From scratch: the programs behind the theory", body: (
+      <div className="space-y-4">
+        <p className="text-[16.5px] leading-[1.75] text-slate-700 dark:text-slate-300">
+          The library hides the maths. These programs implement it directly, in the same order as the Theory &amp; Math page, so you can see each formula work on real numbers.
+        </p>
+        {programs.map((b, k) => <BlockView key={k} b={b} />)}
+      </div>
+    ) });
+  }
+  return out;
+}
+
 function guideSections(slug: string): Section[] {
   const g = GUIDE_MODULES[slug];
   return g.sections.map((s, i) => ({
@@ -112,41 +135,44 @@ export default async function CodeModulePage({ params }: Props) {
   const { slug } = await params;
   const m = getCodeModule(slug);
   if (!m) notFound();
-  const sections = m.kind === "guide" ? guideSections(slug) : topicSections(slug);
+  const sections = LESSONS[slug] ? lessonSections(slug) : m.kind === "guide" ? guideSections(slug) : topicSections(slug);
   const i = CODE_MODULES.indexOf(m);
   const prev = CODE_MODULES[i - 1];
   const next = CODE_MODULES[i + 1];
   return (
     <AppShell>
-      <article className="mx-auto max-w-3xl space-y-8 pb-16">
-        <nav className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
-          <Link href="/code" className="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">← Code track</Link>
-          <span className="rounded-full border border-teal-200 bg-teal-50 px-3 py-0.5 font-mono text-xs font-semibold text-teal-800 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-200">
-            Module {i + 1} of {CODE_MODULES.length} · {m.part}
-          </span>
-        </nav>
-        <header className="space-y-4">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">{m.title}</h1>
-          <p className="text-base text-slate-600 dark:text-slate-400">{m.summary}</p>
-          <ModuleLinks slug={slug} project={m.project} />
-        </header>
-        <nav aria-label="On this page" className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500">On this page</p>
-          <ol className="list-decimal space-y-0.5 pl-5">
-            {sections.map((s) => <li key={s.id}><a href={`#${s.id}`} className="text-teal-700 hover:underline dark:text-teal-300">{s.heading}</a></li>)}
-          </ol>
-        </nav>
-        {sections.map((s, k) => (
-          <section key={s.id} id={s.id} className="scroll-mt-24 space-y-3">
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{k + 1}. {s.heading}</h2>
-            {s.body}
-          </section>
-        ))}
-        <nav className="flex justify-between gap-4 border-t border-slate-200 pt-6 text-sm dark:border-slate-800">
-          {prev ? <Link href={`/code/${prev.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">← {prev.title}</Link> : <span />}
-          {next ? <Link href={`/code/${next.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">{next.title} →</Link> : <span />}
-        </nav>
-      </article>
+      <div className="mx-auto max-w-6xl pb-20 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+        <aside className="hidden lg:block">
+          <nav aria-label="Contents" className="sticky top-24 space-y-1 text-sm">
+            <Link href="/code" className="mb-4 block font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white">Code track</Link>
+            <p className="pb-1 font-semibold text-slate-900 dark:text-white">Contents</p>
+            {sections.map((s) => (
+              <a key={s.id} href={`#${s.id}`} className="block py-1 leading-snug text-slate-600 hover:text-teal-700 dark:text-slate-400 dark:hover:text-teal-300">{s.heading}</a>
+            ))}
+          </nav>
+        </aside>
+        <article className="min-w-0 max-w-[46rem]">
+          <header className="space-y-4 border-b border-slate-200 pb-8 dark:border-slate-800">
+            <p className="text-sm text-slate-500">
+              <Link href="/code" className="hover:text-slate-900 dark:hover:text-white lg:hidden">Code track · </Link>
+              {m.part}, module {i + 1} of {CODE_MODULES.length}
+            </p>
+            <h1 className="text-[2.4rem] font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white">{LESSONS[slug]?.title ?? m.title}</h1>
+            <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">{LESSONS[slug]?.summary ?? m.summary}</p>
+            <ModuleLinks slug={slug} project={m.project} />
+          </header>
+          {sections.map((s) => (
+            <section key={s.id} id={s.id} className="scroll-mt-24 pt-10">
+              <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{s.heading}</h2>
+              {s.body}
+            </section>
+          ))}
+          <nav className="mt-16 grid gap-6 border-t border-slate-200 pt-6 text-sm sm:grid-cols-2 dark:border-slate-800">
+            {prev ? <Link href={`/code/${prev.slug}`} className="group"><span className="block text-slate-500">Previous</span><span className="font-semibold text-slate-900 group-hover:text-teal-700 dark:text-white dark:group-hover:text-teal-300">{prev.title}</span></Link> : <span />}
+            {next ? <Link href={`/code/${next.slug}`} className="group sm:text-right"><span className="block text-slate-500">Next</span><span className="font-semibold text-slate-900 group-hover:text-teal-700 dark:text-white dark:group-hover:text-teal-300">{next.title}</span></Link> : <span />}
+          </nav>
+        </article>
+      </div>
     </AppShell>
   );
 }

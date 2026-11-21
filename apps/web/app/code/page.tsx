@@ -13,31 +13,33 @@ export default function CodeIndexPage() {
   const numberOf = (slug: string) => CODE_MODULES.findIndex((m) => m.slug === slug) + 1;
   return (
     <AppShell>
-      <div className="mx-auto max-w-5xl space-y-10 pb-16">
-        <header className="space-y-3">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">Code: build it yourself</h1>
-          <p className="max-w-3xl text-slate-600 dark:text-slate-400">
-            The practical track. Set up your machine, prepare real data, use every algorithm in scikit-learn and PyTorch, learn what to tune
-            and what to leave alone, then evaluate and ship a model. Every program on these pages has been run, and its output is shown.
+      <div className="mx-auto max-w-3xl pb-20">
+        <header className="space-y-4 border-b border-slate-200 pb-10 dark:border-slate-800">
+          <h1 className="text-[2.6rem] font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white">Build it in code</h1>
+          <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+            The lessons give you the intuition and Theory &amp; Math gives you the equations. This track teaches you to write the code: setting up a
+            project, preparing real data, using and tuning each algorithm in scikit-learn and PyTorch, and shipping a model. Every example runs, and the
+            output you see is the output it produced.
           </p>
-          <p className="text-sm text-slate-500">{CODE_MODULES.length} modules in {CODE_PARTS.length} parts. Work through them in order, or jump to the one you need.</p>
+          <p className="text-[15px] text-slate-600 dark:text-slate-400">
+            New to coding ML? Start with <Link href="/code/setup" className="font-semibold text-teal-700 underline underline-offset-4 dark:text-teal-300">Set up your machine</Link> and{" "}
+            <Link href="/code/first-model" className="font-semibold text-teal-700 underline underline-offset-4 dark:text-teal-300">Your first model, end to end</Link>, then follow the parts in order.
+          </p>
         </header>
         {CODE_PARTS.map((part, pi) => (
-          <section key={part.title} className="space-y-4">
-            <div className="border-b border-slate-200 pb-2 dark:border-slate-800">
-              <h2 className="text-xl font-bold text-slate-950 dark:text-white">Part {pi + 1}. {part.title}</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">{part.summary}</p>
-            </div>
-            <ol className="grid gap-3 md:grid-cols-2">
+          <section key={part.title} className="pt-10">
+            <h2 className="text-xl font-bold text-slate-950 dark:text-white">Part {pi + 1}: {part.title}</h2>
+            <p className="mt-1 text-[15px] text-slate-600 dark:text-slate-400">{part.summary}</p>
+            <ol className="mt-4 divide-y divide-slate-200 dark:divide-slate-800">
               {part.entries.map((e) => {
                 const m = CODE_MODULES.find((x) => x.slug === e.slug)!;
                 return (
                   <li key={e.slug}>
-                    <Link href={`/code/${e.slug}`} className="group flex h-full gap-3 rounded-2xl border border-slate-200 bg-white p-4 hover:border-teal-600 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-teal-400">
-                      <span className="font-mono text-sm font-bold text-slate-400">{String(numberOf(e.slug)).padStart(2, "0")}</span>
+                    <Link href={`/code/${e.slug}`} className="group grid grid-cols-[2.5rem_1fr] gap-x-2 py-3">
+                      <span className="pt-0.5 text-sm tabular-nums text-slate-400">{numberOf(e.slug)}</span>
                       <span>
-                        <span className="block font-bold text-slate-900 group-hover:text-teal-700 dark:text-white dark:group-hover:text-teal-300">{m.title}</span>
-                        <span className="mt-1 block text-sm text-slate-600 dark:text-slate-400">{m.summary}</span>
+                        <span className="block font-semibold text-slate-900 group-hover:text-teal-700 dark:text-white dark:group-hover:text-teal-300">{m.title}</span>
+                        <span className="block text-sm leading-relaxed text-slate-600 dark:text-slate-400">{m.summary}</span>
                       </span>
                     </Link>
                   </li>

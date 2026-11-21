@@ -28,3 +28,20 @@ export type AlgoGuide = {
   checks: { if: string; do: string }[];
   optimise: { what: string; when: string; not: string }[];
 };
+
+/** A runnable cell in a lesson: code, and the output it printed when the lesson was built. */
+export type LessonCell = { code: string; lang: string; output?: string };
+
+export type LessonBlock =
+  | { p: string }
+  | { list: string[] }
+  | { note: string }
+  | { table: { head: string[]; rows: string[][] } }
+  | { cell: LessonCell };
+
+/** A Code track lesson written as prose with executable cells, built from Markdown. */
+export type Lesson = {
+  title: string;
+  summary: string;
+  sections: { heading: string; blocks: LessonBlock[] }[];
+};

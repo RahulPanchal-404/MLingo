@@ -14,6 +14,10 @@ export function Cell({ cell }: { cell: LessonCell }) {
           <pre className="overflow-x-auto font-mono text-[13px] leading-relaxed text-slate-800 dark:text-slate-200">{cell.output}</pre>
         </div>
       ) : null}
+      {cell.figures?.map((src) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={src} src={src} alt="The figure this code draws" className="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-2 dark:border-slate-700" />
+      ))}
     </figure>
   );
 }

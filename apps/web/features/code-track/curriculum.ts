@@ -10,16 +10,16 @@ export const ALGO_GUIDES: Record<string, AlgoGuide> = { ...ALGO_GUIDES_1, ...ALG
 
 /** One entry in the Code track. A theory slug means the page is built from that topic; otherwise it is a guide module. */
 type Entry = { slug: string; project?: string };
-type Part = { title: string; summary: string; entries: Entry[] };
+type Part = { title: string; summary: string; chapter: string; entries: Entry[] };
 
 export const CODE_PARTS: Part[] = [
   {
-    title: "Getting started",
+    title: "Getting started", chapter: "foundations",
     summary: "Set up your machine, run a complete project once, and learn the tools every later module uses.",
     entries: [{ slug: "setup" }, { slug: "first-model" }, { slug: "project-structure" }, { slug: "python-numpy-pandas" }, { slug: "python-plotting-sklearn" }],
   },
   {
-    title: "Data and preprocessing",
+    title: "Data and preprocessing", chapter: "workflow",
     summary: "Load, inspect and clean data, then prepare each kind of column, and validate without leakage.",
     entries: [
       { slug: "load-inspect" }, { slug: "data-quality" }, { slug: "missing-values" }, { slug: "numeric-features" },
@@ -30,7 +30,7 @@ export const CODE_PARTS: Part[] = [
     ],
   },
   {
-    title: "How models train",
+    title: "How models train", chapter: "foundations",
     summary: "Losses, gradient descent and learning rates in code: what `fit` is doing underneath.",
     entries: [
       { slug: "what-is-machine-learning" }, { slug: "how-models-learn" }, { slug: "loss-functions" },
@@ -38,7 +38,7 @@ export const CODE_PARTS: Part[] = [
     ],
   },
   {
-    title: "Regression",
+    title: "Regression", chapter: "regression",
     summary: "Predict numbers: linear models, curves, regularisation and non-linear regressors.",
     entries: [
       { slug: "linear-regression", project: "salary-prediction" }, { slug: "multiple-linear-regression", project: "house-price-prediction" },
@@ -47,7 +47,7 @@ export const CODE_PARTS: Part[] = [
     ],
   },
   {
-    title: "Classification",
+    title: "Classification", chapter: "supervised",
     summary: "Predict categories: from logistic regression to boosting and ensembles.",
     entries: [
       { slug: "logistic-regression", project: "student-outcome" }, { slug: "k-nearest-neighbors", project: "movie-recommendation" },
@@ -58,7 +58,7 @@ export const CODE_PARTS: Part[] = [
     ],
   },
   {
-    title: "Unsupervised learning",
+    title: "Unsupervised learning", chapter: "unsupervised",
     summary: "Find structure without labels: clustering and dimensionality reduction.",
     entries: [
       { slug: "k-means", project: "customer-segmentation" }, { slug: "hierarchical-clustering", project: "customer-segmentation-rfm" },
@@ -66,12 +66,12 @@ export const CODE_PARTS: Part[] = [
     ],
   },
   {
-    title: "Neural networks",
+    title: "Neural networks", chapter: "deep-learning",
     summary: "From scikit-learn's MLP to a PyTorch training loop.",
     entries: [{ slug: "neural-networks", project: "digit-recognition" }, { slug: "training-neural-networks", project: "digit-recognition" }],
   },
   {
-    title: "Evaluate, tune and ship",
+    title: "Evaluate, tune and ship", chapter: "capstone",
     summary: "Measure honestly, tune efficiently, compare models fairly, and put a model into use.",
     entries: [
       { slug: "regression-metrics", project: "house-price-prediction" }, { slug: "regression-diagnostics", project: "house-price-prediction" },
@@ -80,7 +80,7 @@ export const CODE_PARTS: Part[] = [
     ],
   },
   {
-    title: "Reference: maths and other methods in code",
+    title: "Reference: maths and other methods in code", chapter: "foundations",
     summary: "The maths behind the models, and reinforcement learning, written as runnable NumPy.",
     entries: [
       { slug: "vectors-matrices-notation" }, { slug: "linear-algebra-for-ml" }, { slug: "derivatives-chain-rule" },
@@ -110,3 +110,9 @@ export const getCodeModule = (slug: string) => CODE_MODULES.find((m) => m.slug =
 
 /** Theory topics that have programs but no Code track page would leave links dangling; the test suite checks this list is empty. */
 export const MISSING_TOPICS = THEORY.filter((t) => t.sections.some((s) => s.blocks.some((b) => "codestep" in b)) && !getCodeModule(t.slug)).map((t) => t.slug);
+
+/** Rough reading-and-running time for a module, from its length and number of programs. */
+export function minutesFor(slug: string, words: number, cells: number): string {
+  void slug;
+  return `${Math.max(5, Math.round(words / 180 + cells * 1.5))} min`;
+}

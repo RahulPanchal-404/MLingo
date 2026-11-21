@@ -30,7 +30,7 @@ export type AlgoGuide = {
 };
 
 /** A runnable cell in a lesson: code, and the output it printed when the lesson was built. */
-export type LessonCell = { code: string; lang: string; output?: string };
+export type LessonCell = { code: string; lang: string; output?: string; figures?: string[] };
 
 export type LessonBlock =
   | { p: string }

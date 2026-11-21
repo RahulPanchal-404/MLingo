@@ -104,7 +104,7 @@ export const FOUNDATIONAL_LESSONS: LessonDefinition[] = [
     },
     nowTryIt: {
       headline: "Now see a model learn in real time",
-      buttonLabel: "⚡ Try the Interactive Demo →",
+      buttonLabel: "Try the Interactive Demo →",
       href: "/demo",
       whatToObserve: [
         "Notice raw data points plotted without any line in Step 1.",
@@ -379,7 +379,7 @@ export const FOUNDATIONAL_LESSONS: LessonDefinition[] = [
     },
     nowTryIt: {
       headline: "Intentionally break gradient descent with an aggressive learning rate",
-      buttonLabel: "⚡ Open Break Mode Challenge →",
+      buttonLabel: "Open Break Mode Challenge →",
       href: "/challenges/gradient-descent-instability",
       whatToObserve: [
         "In Break Mode, the learning rate is intentionally preset to an unstable value (α = 1.1).",

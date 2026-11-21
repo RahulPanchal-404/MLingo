@@ -20,7 +20,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "learn",
     stepNumber: "01",
     action: "LEARN",
-    icon: "📖",
+    icon: "",
     shortLabel: "Understand intuition",
     summary: "Establish strong mental models before touching code. Explore physical analogies, mathematical formulas, and active prediction checks.",
     whatYouObserve: "How datasets map inputs X to labels y, and how cost functions define the optimization landscape.",
@@ -31,7 +31,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "run",
     stepNumber: "02",
     action: "RUN",
-    icon: "▶️",
+    icon: "",
     shortLabel: "Train a real model",
     summary: "Execute authentic gradient descent, logistic regression, or clustering algorithms with real mathematical steps.",
     whatYouObserve: "Live telemetry recording parameter updates across every single epoch without pre-baked animations.",
@@ -42,7 +42,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "scrub",
     stepNumber: "03",
     action: "SCRUB",
-    icon: "⏱️",
+    icon: "",
     shortLabel: "Frame-by-frame scrub",
     summary: "Slow down time. Move forward and backward across the training timeline just like an editor scrubbing video.",
     whatYouObserve: "The synchronized transition of loss curves, decision boundaries, and parameter vectors.",
@@ -53,7 +53,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "inspect",
     stepNumber: "04",
     action: "INSPECT",
-    icon: "🔬",
+    icon: "",
     shortLabel: "Audit model internals",
     summary: "Open Model X-Ray to peer directly into weights, biases, activations, and gradient norms at any training frame.",
     whatYouObserve: "The mathematical reasons why a specific parameter moved up or down during that iteration.",
@@ -64,7 +64,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "break",
     stepNumber: "05",
     action: "BREAK",
-    icon: "⚡",
+    icon: "",
     shortLabel: "Induce failure modes",
     summary: "Great engineers learn through failure. Intentionally destabilize learning rates, centroid seeds, or thresholds.",
     whatYouObserve: "Exploding loss, numerical divergence, local minima traps, and gradient vanishing.",
@@ -75,7 +75,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "compare",
     stepNumber: "06",
     action: "COMPARE",
-    icon: "⚖️",
+    icon: "",
     shortLabel: "Side-by-side runs",
     summary: "Lock Run A and Run B side-by-side to isolate the exact hyperparameter that caused divergent behavior.",
     whatYouObserve: "How learning rate α = 0.05 yields stable convergence while α = 0.35 oscillates out of control.",
@@ -86,7 +86,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "understand",
     stepNumber: "07",
     action: "UNDERSTAND",
-    icon: "💡",
+    icon: "",
     shortLabel: "Connect code to math",
     summary: "Switch between Math Mode, Code Mode, and AI Tutor explanations grounded in live telemetry.",
     whatYouObserve: "How calculus chain-rule gradients in LaTeX correspond directly to NumPy matrix operations.",
@@ -97,7 +97,7 @@ const LEARNING_STEPS: LearningStepItem[] = [
     id: "build",
     stepNumber: "08",
     action: "BUILD",
-    icon: "🚀",
+    icon: "",
     shortLabel: "Apply in projects",
     summary: "Graduate from isolated experiments to guided, end-to-end data science projects and portfolio case studies.",
     whatYouObserve: "Real business metrics: Salary Prediction, Student Outcomes, and Retail Customer Segmentation.",
@@ -141,7 +141,6 @@ export function LearningLoopInteractive() {
               }`}
             >
               <div className="flex items-center justify-between text-xs w-full">
-                <span className="text-base">{item.icon}</span>
                 <span
                   className={`font-mono text-[10px] font-bold ${
                     isSelected ? "text-teal-200 dark:text-teal-300" : "text-slate-400 dark:text-slate-500"
@@ -176,7 +175,6 @@ export function LearningLoopInteractive() {
       <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-slate-50 via-white to-teal-50/40 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-3 max-w-2xl">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{activeStep.icon}</span>
             <div className="flex items-center gap-2">
               <span className="rounded-md bg-teal-50 dark:bg-teal-500/20 border border-teal-200 dark:border-teal-500/40 px-2 py-0.5 font-mono text-xs font-bold text-teal-800 dark:text-teal-300">
                 STEP {activeStep.stepNumber}

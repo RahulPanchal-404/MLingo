@@ -259,7 +259,7 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
         >
           <span>
             {isInProgress
-              ? `⚡ Continue Building (${percentage}%) →`
+              ? `Continue Building (${percentage}%) →`
               : isCompleted
               ? "Review Completed Case Study →"
               : "Start Building Project →"}

@@ -239,7 +239,6 @@ export function ProgressPage() {
       <section className="rounded-2xl border border-teal-500/30 dark:border-teal-500/20 bg-gradient-to-r from-teal-500/10 via-slate-50/50 to-indigo-500/10 dark:from-teal-950/30 dark:via-slate-900/40 dark:to-indigo-950/30 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
         <div className="space-y-1">
           <div className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300 flex items-center gap-1.5">
-            <span>🎯</span>
             <span>Recommended Next Action</span>
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -348,7 +347,6 @@ export function ProgressPage() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:border-teal-500/50 hover:bg-teal-50/20 dark:hover:bg-teal-950/20 transition-all space-y-1"
           >
             <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <span>🏗️</span>
               <span>Project Studio</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -361,7 +359,6 @@ export function ProgressPage() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:border-teal-500/50 hover:bg-teal-50/20 dark:hover:bg-teal-950/20 transition-all space-y-1"
           >
             <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <span>🔬</span>
               <span>ML Laboratories</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -374,7 +371,6 @@ export function ProgressPage() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:border-teal-500/50 hover:bg-teal-50/20 dark:hover:bg-teal-950/20 transition-all space-y-1"
           >
             <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <span>📊</span>
               <span>Data Workbench</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -387,7 +383,6 @@ export function ProgressPage() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:border-teal-500/50 hover:bg-teal-50/20 dark:hover:bg-teal-950/20 transition-all space-y-1"
           >
             <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <span>⚡</span>
               <span>Investigation Missions</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">

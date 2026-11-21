@@ -105,7 +105,7 @@ export function OnboardingModal() {
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in-50 duration-200">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800">
-                ✨ Core Philosophy
+                 Core Philosophy
               </div>
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
                 “Machine Learning, Frame by Frame.”
@@ -122,7 +122,7 @@ export function OnboardingModal() {
           {step === 2 && (
             <div className="space-y-4 animate-in fade-in-50 duration-200">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800">
-                🔄 The MLingo Learning Loop
+                 The MLingo Learning Loop
               </div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900">
                 How you learn in MLingo
@@ -155,7 +155,7 @@ export function OnboardingModal() {
           {step === 3 && (
             <div className="space-y-3 animate-in fade-in-50 duration-200">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800">
-                🎯 Choose Your Starting Point
+                 Choose Your Starting Point
               </div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900">
                 Where would you like to begin?
@@ -166,25 +166,25 @@ export function OnboardingModal() {
                     id: "/learn",
                     title: "Understand ML Foundations",
                     desc: "Step-by-step curriculum starting with features, datasets, and loss.",
-                    icon: "📚",
+                    icon: "",
                   },
                   {
                     id: "/demo",
                     title: "Take the Interactive Demo",
                     desc: "2-minute live walkthrough scrubbing frames and asking the AI Tutor.",
-                    icon: "⚡",
+                    icon: "",
                   },
                   {
                     id: "/labs",
                     title: "Explore a Hands-on Lab",
                     desc: "Interactive Linear, Logistic, K-Means, or Neural Network lab.",
-                    icon: "🧪",
+                    icon: "",
                   },
                   {
                     id: "/projects",
                     title: "Start a Guided Project",
                     desc: "Complete end-to-end data science projects for your portfolio.",
-                    icon: "🚀",
+                    icon: "",
                   },
                 ].map((option) => {
                   const isSelected = selectedPath === option.id;
@@ -199,7 +199,6 @@ export function OnboardingModal() {
                           : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <span className="text-xl">{option.icon}</span>
                       <div>
                         <div className="text-xs font-bold text-slate-900">
                           {option.title}
@@ -218,7 +217,7 @@ export function OnboardingModal() {
           {step === 4 && (
             <div className="space-y-4 animate-in fade-in-50 duration-200">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800">
-                🎉 Ready to Explore
+                 Ready to Explore
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                 You are ready to begin.
@@ -227,7 +226,6 @@ export function OnboardingModal() {
                 Remember: in MLingo, whenever you feel curious or uncertain about what a gradient, parameter, or evaluation metric means, click the floating <strong>Ask MLingo Tutor</strong> button at the bottom right.
               </p>
               <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3.5 text-xs text-teal-950 flex items-center gap-3">
-                <span className="text-2xl">💡</span>
                 <span>
                   The AI Tutor inspects your active training state in real-time and grounds every explanation in actual mathematical evidence.
                 </span>

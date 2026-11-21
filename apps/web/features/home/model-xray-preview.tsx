@@ -215,7 +215,6 @@ export function ModelXRayPreview() {
 
         {/* X-Ray Pedagogical Summary Banner */}
         <div className="rounded-xl border border-teal-200 dark:border-teal-500/30 bg-teal-50/80 dark:bg-teal-950/40 p-4 font-mono text-xs text-teal-900 dark:text-teal-200 flex items-start gap-3">
-          <span className="text-base text-teal-600 dark:text-teal-400">🔬</span>
           <div>
             <strong className="text-teal-950 dark:text-white block mb-0.5">
               X-RAY TAKEAWAY FOR STEP {currentFrame.step}:

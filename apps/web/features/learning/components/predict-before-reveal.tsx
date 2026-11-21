@@ -54,7 +54,6 @@ export function PredictBeforeReveal({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-700 text-sm text-white shadow-xs">
-            🤔
           </span>
           <span className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-200">
             {title}
@@ -149,7 +148,7 @@ export function PredictBeforeReveal({
       {showOutcome && (
         <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2 animate-in fade-in-50 duration-200 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-base">{isSelectedAccurate ? "🎉" : "💡"}</span>
+            <span className="text-base">{isSelectedAccurate ? "": ""}</span>
             <div className="text-xs font-bold text-slate-900 dark:text-white">
               {isSelectedAccurate ? "Your hypothesis was confirmed!" : "Here is what actually happened:"}
             </div>

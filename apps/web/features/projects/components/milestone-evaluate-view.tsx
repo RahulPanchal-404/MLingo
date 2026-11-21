@@ -30,7 +30,6 @@ export function MilestoneEvaluateView({
       {/* Educational Goal Header Banner */}
       <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
         <div className="flex items-start gap-3">
-          <span className="text-xl">📊</span>
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
               Educational Goal — Multi-Metric Evaluation & Generalization Assessment

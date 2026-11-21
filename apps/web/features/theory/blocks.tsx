@@ -8,7 +8,7 @@ const LIBRARY = /\b(from|import)\s+(sklearn|pandas|scipy|statsmodels|torch|tenso
 export const isLibraryCode = (code: string) => LIBRARY.test(code);
 
 /** "What each line does": a code fragment beside a plain explanation. */
-function WalkList({ walk }: { walk: Walk[] }) {
+export function WalkList({ walk }: { walk: Walk[] }) {
   // Show the code part without its trailing "# ..." note, so the explanation below it is the only commentary.
   const bare = (line: string) => line.replace(/\s+#(?![^"']*["'][^"']*$).*$/, "").trimEnd();
   return (
@@ -48,7 +48,7 @@ export function BlockView({ b }: { b: Block }) {
   if ("codelink" in b)
     return (
       <a href={b.codelink.href ?? `#code-${b.codelink.n}`} className="flex items-center justify-between gap-3 rounded-xl border-2 border-dashed border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-500/10">
-        <span>💻 See the code: Step {b.codelink.n}, <TexText text={b.codelink.goal} /></span>
+        <span>See the code: Step {b.codelink.n}, <TexText text={b.codelink.goal} /></span>
         <span aria-hidden="true">→</span>
       </a>
     );

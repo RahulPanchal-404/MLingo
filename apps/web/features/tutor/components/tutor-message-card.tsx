@@ -61,7 +61,6 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
           <div className="flex items-center gap-1.5 font-bold text-teal-900 dark:text-teal-300">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-xs">
-              💡
             </span>
             <span>MLingo AI Tutor</span>
           </div>
@@ -117,7 +116,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
         {/* What to Inspect Next */}
         {message.what_to_inspect_next && (
           <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
-            👉 <strong>Next:</strong> <TutorText text={message.what_to_inspect_next} />
+             <strong>Next:</strong><TutorText text={message.what_to_inspect_next} />
           </p>
         )}
 
@@ -130,7 +129,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
                 onClick={() => handleScrollToAnchor(message.anchors?.math_anchor_id)}
                 className="inline-flex items-center gap-1 rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
-                📐 Open in Math Mode
+                 Open in Math Mode
               </button>
             )}
 
@@ -140,7 +139,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
                 onClick={() => handleScrollToAnchor(message.anchors?.code_anchor_id)}
                 className="inline-flex items-center gap-1 rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
-                💻 See in Code
+                 See in Code
               </button>
             )}
 
@@ -150,7 +149,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
                 onClick={() => handleScrollToAnchor(message.anchors?.model_xray_anchor_id)}
                 className="inline-flex items-center gap-1 rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
-                🔬 Inspect model state
+                 Inspect model state
               </button>
             )}
 
@@ -161,7 +160,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
                   onClick={() => handleJumpToStep(message.anchors?.timeline_step)}
                   className="inline-flex items-center gap-1 rounded-md bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 text-[11px] font-bold text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 dark:hover:bg-teal-900 transition-colors cursor-pointer"
                 >
-                  ⏱️ Jump to step {message.anchors.timeline_step + 1}
+                  Jump to step {message.anchors.timeline_step + 1}
                 </button>
               )}
           </div>
@@ -183,7 +182,7 @@ export function TutorMessageCard({ message, onSelectSuggestion }: TutorMessageCa
                     onClick={() => onSelectSuggestion(q)}
                     className="rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 text-[10px] font-medium text-teal-800 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:border-teal-300 transition-colors text-left cursor-pointer"
                   >
-                    💬 {q}
+                     {q}
                   </button>
                 ))}
               </div>

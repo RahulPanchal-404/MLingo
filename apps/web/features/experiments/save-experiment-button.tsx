@@ -54,7 +54,7 @@ export function SaveExperimentButton({ run, className = "" }: SaveExperimentButt
           onClick={() => setIsOpen(true)}
           type="button"
         >
-          💾 Save experiment
+           Save experiment
         </button>
       ) : (
         <form className="save-experiment-form" onSubmit={handleSave}>

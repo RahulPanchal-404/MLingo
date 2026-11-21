@@ -33,7 +33,7 @@ export function applyEasy(t: TheoryTopic, e: EasyTopic | undefined): TheoryTopic
         const ec = e?.code?.[`${s.heading}#${codeIndex++}`];
         const step: Step = { n: steps.length + 1, goal: ec?.goal ?? b.goal ?? s.heading.replace(/^[\d.]+\s+/, ""), code: ec?.code ?? b.code, walk: ec?.walk ?? b.walk, figure: ec?.figure, from: isPython ? undefined : sec };
         steps.push(step);
-        if (!isPython) blocks.push({ codelink: { n: step.n, goal: step.goal, href: `/theory/${t.slug}/code#code-${step.n}` } });
+        if (!isPython) blocks.push({ codelink: { n: step.n, goal: step.goal, href: `/code/${t.slug}#code-${step.n}` } });
       } else blocks.push(b);
       blocks.push(...examplesAt(i));
     });
@@ -41,7 +41,7 @@ export function applyEasy(t: TheoryTopic, e: EasyTopic | undefined): TheoryTopic
     for (const extra of es?.code ?? []) {
       const step: Step = { n: steps.length + 1, goal: extra.goal, code: extra.code ?? "", walk: extra.walk, figure: extra.figure, from: sec };
       steps.push(step);
-      blocks.push({ codelink: { n: step.n, goal: step.goal, href: `/theory/${t.slug}/code#code-${step.n}` } });
+      blocks.push({ codelink: { n: step.n, goal: step.goal, href: `/code/${t.slug}#code-${step.n}` } });
     }
     if (isPython) continue; // its code now lives in "How to code it"
     out.push(sec);

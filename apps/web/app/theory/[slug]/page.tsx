@@ -50,12 +50,12 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
           <div className="flex flex-wrap gap-2">
             {topic.learnHref ? (
               <Link href={topic.learnHref} className="rounded-xl bg-teal-700 px-4 py-2 text-sm font-bold text-white hover:bg-teal-600">
-                📘 The intuition (lesson)
+                The intuition (lesson)
               </Link>
             ) : null}
             {topic.playHref ? (
               <Link href={topic.playHref} className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-amber-950 hover:bg-amber-400">
-                🎮 Play it
+                Play it
               </Link>
             ) : null}
           </div>
@@ -77,6 +77,13 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
             {s.blocks.map((b, j) => <BlockView key={j} b={b} />)}
           </section>
         ))}
+        {hasCode ? (
+          <Link href={`/code/${topic.slug}`} className="block rounded-2xl border-2 border-[var(--panel-line)] bg-white p-5 hover:border-teal-600 dark:bg-slate-900 dark:hover:border-teal-400">
+            <span className="block text-xs font-bold uppercase tracking-wide text-slate-500">Next: build it</span>
+            <span className="mt-1 block text-lg font-extrabold text-slate-950 dark:text-white">{topic.title} in code</span>
+            <span className="mt-1 block text-sm text-slate-600 dark:text-slate-400">A template for your own data, the preprocessing it needs, what to tune and when not to, and every program from this page.</span>
+          </Link>
+        ) : null}
         <WatchRow slug={topic.slug} />
         <nav className="flex justify-between gap-4 border-t border-slate-200 pt-6 text-sm dark:border-slate-800">
           {prev ? <Link href={`/theory/${prev.slug}`} className="font-semibold text-teal-700 hover:underline dark:text-teal-300">← {prev.title}</Link> : <span />}

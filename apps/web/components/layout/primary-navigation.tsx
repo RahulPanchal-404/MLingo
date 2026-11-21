@@ -17,6 +17,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/learn", label: "Lessons", text: `${LESSON_COUNT} short lessons, foundations to clustering` },
       { href: "/theory", label: "Theory & Math", text: "The equations behind each lesson" },
+      { href: "/code", label: "Code", text: "Build it in Python: preprocessing to deployment" },
       { href: "/labs", label: "Labs", text: "Train a model and scrub every step" },
       { href: "/games", label: "Games", text: "One concept per level" },
       { href: "/challenges", label: "Challenges", text: "Break training, diagnose why" },

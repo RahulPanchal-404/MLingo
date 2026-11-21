@@ -55,7 +55,6 @@ export function PortfolioDashboard() {
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-teal-600 text-xs font-bold text-white shadow-xs">
-                📁
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
                 Showcase & Case Studies
@@ -82,7 +81,6 @@ export function PortfolioDashboard() {
         {/* Honest Storage & Sharing Callout */}
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-950/60 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
           <div className="flex items-center gap-2">
-            <span>💾</span>
             <span>
               <strong className="text-slate-800 dark:text-slate-200">Local Browser Storage:</strong> Your learning memory is stored in this browser.
             </span>
@@ -140,7 +138,6 @@ export function PortfolioDashboard() {
       {!hasCompleted && (
         <section className="rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 dark:border-teal-800/60 dark:bg-slate-900/60 p-8 text-center space-y-4">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-100 dark:bg-teal-950/80 text-2xl shadow-inner">
-            🌱
           </div>
           <div className="space-y-1">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
@@ -277,7 +274,7 @@ export function PortfolioDashboard() {
                     onClick={() => downloadProjectMarkdown(project, state)}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 py-1.5 text-center text-[11px] font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
                   >
-                    ⬇️ Download Markdown (.md)
+                    Download Markdown (.md)
                   </button>
                 </div>
               </article>

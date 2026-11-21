@@ -31,7 +31,7 @@ function GuidePanel({ game }: { game: GameDef }) {
         </div>
       </div>
       <div className="rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
-        <p className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">🏁 Your goal</p>
+        <p className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">Your goal</p>
         <p className="text-sm font-semibold text-slate-900 dark:text-white">{g.goal}</p>
       </div>
       <div>
@@ -46,11 +46,11 @@ function GuidePanel({ game }: { game: GameDef }) {
         </ol>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-200"><b>✅ Win: </b>{g.win}</p>
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-900 dark:bg-rose-500/10 dark:text-rose-200"><b>❌ Lose: </b>{g.lose}</p>
+        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-200"><b>Win: </b>{g.win}</p>
+        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-900 dark:bg-rose-500/10 dark:text-rose-200"><b>Lose: </b>{g.lose}</p>
       </div>
       <div>
-        <p className="mb-1.5 text-xs font-black uppercase tracking-wider text-violet-600 dark:text-violet-300">🎓 What everything means in ML</p>
+        <p className="mb-1.5 text-xs font-black uppercase tracking-wider text-violet-600 dark:text-violet-300">What everything means in ML</p>
         <table className="w-full text-sm">
           <tbody>
             {g.map.map(([thing, ml]) => (
@@ -70,7 +70,7 @@ function ConceptCard({ gameId, levelId, concept }: { gameId: string; levelId: st
   const sep = concept.href.includes("?") ? "&" : "?";
   return (
     <div className="space-y-3 rounded-2xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-500/30 dark:bg-violet-500/10">
-      <p className="font-mono text-xs uppercase tracking-wider text-violet-700 dark:text-violet-300">🎓 The ML concept behind this level</p>
+      <p className="font-mono text-xs uppercase tracking-wider text-violet-700 dark:text-violet-300">The ML concept behind this level</p>
       <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">{concept.title}</h3>
       <div className="space-y-2 text-sm leading-relaxed">
         <p className="text-slate-700 dark:text-slate-300"><b className="text-slate-900 dark:text-white">What you just did: </b>{concept.played}</p>
@@ -177,7 +177,7 @@ export function ArcadePlayer({ game }: { game: GameDef }) {
             <p className={`font-mono text-xs uppercase tracking-wider ${accent.text}`}>Level {level.number} of {game.levels.length}</p>
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">{level.name}</h2>
             <p className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800 dark:bg-violet-500/15 dark:text-violet-200">
-              🎓 Teaches: {level.concept.title}
+               Teaches: {level.concept.title}
             </p>
             <p className="text-slate-700 dark:text-slate-300">{level.brief}</p>
             <dl className="space-y-2 text-sm">

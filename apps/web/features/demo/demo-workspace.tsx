@@ -133,7 +133,6 @@ export function DemoWorkspace() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-md bg-teal-600 text-[10px] font-bold text-white">
-                ⚡
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-teal-800">
                 MLingo Interactive Tour
@@ -399,7 +398,6 @@ export function DemoWorkspace() {
             <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/70 to-slate-50 p-6 space-y-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-600 text-xl text-white shadow-xs">
-                  💡
                 </span>
                 <div>
                   <div className="text-sm font-bold text-slate-900">
@@ -417,14 +415,14 @@ export function DemoWorkspace() {
                   onClick={() => openTutor("Why did the loss decrease in early steps?")}
                   className="rounded-xl border border-teal-300 bg-white px-3.5 py-2 text-xs font-semibold text-teal-900 shadow-xs hover:bg-teal-50 transition-colors cursor-pointer"
                 >
-                  💬 &quot;Why did the loss decrease in early steps?&quot;
+                   &quot;Why did the loss decrease in early steps?&quot;
                 </button>
                 <button
                   type="button"
                   onClick={() => openTutor("What is the mathematical reason for this gradient?")}
                   className="rounded-xl border border-teal-300 bg-white px-3.5 py-2 text-xs font-semibold text-teal-900 shadow-xs hover:bg-teal-50 transition-colors cursor-pointer"
                 >
-                  💬 &quot;What does this gradient mean mathematically?&quot;
+                   &quot;What does this gradient mean mathematically?&quot;
                 </button>
                 <button
                   type="button"

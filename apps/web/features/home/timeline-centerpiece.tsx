@@ -267,7 +267,6 @@ export function TimelineCenterpiece() {
 
         {/* Mathematical Intuition Callout */}
         <div className="rounded-xl border border-teal-200 dark:border-teal-800/80 bg-teal-50/60 dark:bg-teal-950/40 p-4 flex items-start gap-3">
-          <span className="text-lg">💡</span>
           <div className="space-y-0.5">
             <span className="text-xs font-mono font-bold text-teal-900 dark:text-teal-200 uppercase tracking-wider">
               WHAT HAPPENS AT FRAME {selectedStep} ({frame.phaseLabel}):

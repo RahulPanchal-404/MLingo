@@ -332,7 +332,7 @@ export function ExperimentExplorer({ onInspectRun, inspectedRunId }: ExperimentE
 
           {!validation.isValid && (
             <p className="sweep-validation-error" role="alert">
-              ⚠️ {validation.error}
+               {validation.error}
             </p>
           )}
         </div>
@@ -344,7 +344,7 @@ export function ExperimentExplorer({ onInspectRun, inspectedRunId }: ExperimentE
             type="submit"
             disabled={!validation.isValid || isSweeping}
           >
-            {isSweeping ? "Running parameter sweep..." : "⚡ Run Parameter Sweep"}
+            {isSweeping ? "Running parameter sweep...": "Run Parameter Sweep"}
           </button>
 
           {isSweeping && sweepProgress && (
@@ -403,7 +403,6 @@ export function ExperimentExplorer({ onInspectRun, inspectedRunId }: ExperimentE
           {sweepInsights.length > 0 && (
             <div className="sweep-insights-box">
               <div className="insights-header">
-                <span className="insights-icon">💡</span>
                 <h4>Sweep Observations</h4>
               </div>
               <ul className="sweep-insights-list">

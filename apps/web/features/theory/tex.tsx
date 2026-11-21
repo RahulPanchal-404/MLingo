@@ -31,11 +31,11 @@ export function TexText({ text }: { text: string }) {
 }
 
 /** A Python snippet, with a copy button. */
-export function CodeBlock({ code }: { code: string }) {
+export function CodeBlock({ code, lang = "python" }: { code: string; lang?: "python" | "terminal" | "text" }) {
   return (
     <div className="overflow-hidden rounded-2xl border-2 border-slate-950 bg-slate-950 dark:border-slate-700">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2 text-xs font-semibold text-[#b4b8c1]">
-        <span>Python</span>
+        <span>{lang === "terminal" ? "Terminal" : lang === "text" ? "Text" : "Python"}</span>
       </div>
       <pre className="overflow-x-auto px-4 py-3.5 text-[13.5px] leading-relaxed text-slate-100"><code className="font-mono">{code}</code></pre>
     </div>

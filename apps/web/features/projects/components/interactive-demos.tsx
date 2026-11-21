@@ -760,7 +760,7 @@ export function EmailSpamDetectionDemo() {
                 : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
             }`}
           >
-            {isSpam ? "🚨 CLASSIFIED: SPAM" : "✓ CLASSIFIED: HAM (LEGIT)"}
+            {isSpam ? "CLASSIFIED: SPAM": "✓ CLASSIFIED: HAM (LEGIT)"}
           </div>
 
           <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
@@ -1163,7 +1163,6 @@ export function StockPricePredictionDemo() {
           {/* CRITICAL FINANCIAL RISK NOTICE */}
           <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/60 p-3.5 text-xs text-amber-950 dark:text-amber-200 space-y-1">
             <div className="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
-              <span>⚠️</span>
               <span>Financial Reality & Risk Warning</span>
             </div>
             <p className="text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-300/80">
@@ -1295,7 +1294,7 @@ export function CreditCardFraudDemo() {
                 : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
             }`}
           >
-            {isFlaggedFraud ? "🚨 FRAUD ALERT — TRANSACTION BLOCKED" : "✓ TRANSACTION APPROVED"}
+            {isFlaggedFraud ? "FRAUD ALERT — TRANSACTION BLOCKED": "✓ TRANSACTION APPROVED"}
           </div>
 
           <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 space-y-1">

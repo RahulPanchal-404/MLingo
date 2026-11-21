@@ -56,14 +56,14 @@ export function ProjectCaseStudy({ project }: { project: ProjectDefinition }) {
             onClick={handlePrint}
             className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
           >
-            🖨️ Print / Save PDF
+             Print / Save PDF
           </button>
           <button
             type="button"
             onClick={() => downloadProjectMarkdown(project, state)}
             className="rounded-lg bg-teal-800 dark:bg-teal-700 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-teal-900 dark:hover:bg-teal-600 transition-colors cursor-pointer"
           >
-            ⬇️ Download Markdown
+            Download Markdown
           </button>
           <Link
             href={`/projects/${project.slug}`}
@@ -198,7 +198,7 @@ export function ProjectCaseStudy({ project }: { project: ProjectDefinition }) {
             </div>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 italic">
-            🛡️ <strong>Leakage defense:</strong> Preprocessing pipelines were fitted strictly on the training partition and transformed onto the test partition.
+             <strong>Leakage defense:</strong>Preprocessing pipelines were fitted strictly on the training partition and transformed onto the test partition.
           </p>
         </section>
 

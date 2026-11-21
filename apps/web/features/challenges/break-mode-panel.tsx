@@ -91,7 +91,7 @@ function getStatusLabel(result: BreakModeResult): string {
     case "incorrect-marker":
       return "Not quite — inspect neighboring frames";
     case "success":
-      return "Challenge complete! 🎉";
+      return "Challenge complete!";
   }
 }
 

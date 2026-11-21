@@ -163,7 +163,7 @@ export function TutorLauncher() {
       role="region"
       aria-label="AI Tutor Floating Dock"
     >
-      {/* Collapsed Pill: [ 💡 ] */}
+      {/* Collapsed Pill: [  ] */}
       {isCollapsed && !isOpen ? (
         <button
           type="button"
@@ -176,13 +176,12 @@ export function TutorLauncher() {
           aria-label="Open MLingo AI Tutor"
           className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-teal-500/40 bg-white/95 text-slate-800 shadow-xl backdrop-blur-md hover:scale-110 hover:border-teal-500 dark:border-teal-500/50 dark:bg-slate-900/95 dark:text-white transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-teal-400"
         >
-          <span className="text-base">💡</span>
           <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900">
             <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
           </span>
         </button>
       ) : (
-        /* Expanded Launcher: [ 💡 Ask MLingo Tutor ] */
+        /* Expanded Launcher: [  Ask MLingo Tutor ] */
         <div className="flex items-center gap-1.5 rounded-full border border-teal-500/30 dark:border-teal-500/40 bg-white/95 dark:bg-slate-900/95 p-1 pl-3 shadow-xl dark:shadow-2xl backdrop-blur-md">
           <button
             type="button"
@@ -192,7 +191,6 @@ export function TutorLauncher() {
             className="flex items-center gap-2 text-xs font-semibold text-slate-800 dark:text-white hover:text-teal-700 dark:hover:text-teal-300 transition-colors cursor-pointer"
           >
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-xs">
-              💡
             </span>
             <span className="tracking-wide">
               {isOpen ? "Close Tutor" : "Ask MLingo Tutor"}

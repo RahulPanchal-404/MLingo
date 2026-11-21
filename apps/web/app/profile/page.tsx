@@ -255,7 +255,6 @@ export function ProfileView() {
             className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500/50 hover:bg-teal-50/20 dark:hover:bg-teal-950/20 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-xl">📁</span>
               <div>
                 <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                   My Engineering Portfolio
@@ -273,7 +272,6 @@ export function ProfileView() {
             className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500/50 hover:bg-teal-50/20 dark:hover:bg-teal-950/20 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-xl">⚡</span>
               <div>
                 <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                   Interactive Platform Tour
@@ -316,7 +314,7 @@ export function ProfileView() {
               onClick={handleReplayOnboarding}
               className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
             >
-              🚀 Replay Onboarding
+               Replay Onboarding
             </button>
           </div>
 

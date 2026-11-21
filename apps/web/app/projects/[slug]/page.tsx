@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
+import { ProjectCodeLinks } from "@/features/code-track/project-code-links";
 import { ALL_PROJECTS, getProjectBySlug } from "@/features/projects/definitions";
 import { ProjectRunner } from "@/features/projects/project-runner";
 
@@ -34,6 +35,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
   return (
     <AppShell>
+      <ProjectCodeLinks project={project.slug} />
       <ProjectRunner key={project.id} project={project} />
     </AppShell>
   );

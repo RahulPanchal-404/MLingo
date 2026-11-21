@@ -42,7 +42,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
             {lesson.difficulty}
           </span>
           <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-slate-700">
-            ⏱️ {lesson.estimatedMinutes} min read & practice
+            {lesson.estimatedMinutes} min read & practice
           </span>
         </div>
 
@@ -64,7 +64,6 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
       {/* Key Idea Callout Box */}
       <section className="light-island rounded-2xl border-2 border-slate-950 p-6 space-y-2" style={{ background: color.fill }}>
         <div className="flex items-center gap-2">
-          <span className="text-lg">💡</span>
           <span className="text-sm font-bold text-slate-950">
             Key Idea
           </span>
@@ -77,7 +76,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
       {/* 1. What Am I Learning? */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
-          <span>🎯</span> What am I learning?
+          What am I learning?
         </h2>
         <ul className="space-y-2.5">
           {lesson.whatAmILearning.map((point, idx) => (
@@ -95,7 +94,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
-            <span>🔬</span> Concept Intuition: {lesson.visual.title}
+            Concept Intuition: {lesson.visual.title}
           </h2>
           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
             {lesson.visual.type}
@@ -126,7 +125,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
       {/* 3. Why Does It Matter? */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
-          <span>🌍</span> Why does it matter?
+          Why does it matter?
         </h2>
         <p className="text-xs text-slate-600 leading-relaxed">
           {lesson.whyItMatters}
@@ -136,7 +135,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
       {/* 4. Concrete Example */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
-          <span>📐</span> Concrete Example: {lesson.concreteExample.context}
+          Concrete Example: {lesson.concreteExample.context}
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs">
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-800 dark:bg-slate-900">
@@ -279,7 +278,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
 
       {levelsForLesson(lesson.slug).length ? (
         <section className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-6 shadow-xs space-y-3 dark:border-amber-800 dark:from-amber-950/40 dark:to-slate-900">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">🎮 Practice it: learn by playing</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Practice it: learn by playing</h2>
           <p className="text-sm text-slate-600">Put this lesson to work in a level that uses the real algorithm.</p>
           <ul className="space-y-2">
             {levelsForLesson(lesson.slug).map(({ game, level }) => (

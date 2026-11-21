@@ -265,7 +265,7 @@ export default function LabsPage() {
                 {/* Inspection Deep Dive */}
                 <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/60 p-3.5 space-y-1.5">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                    <span>🔬 What You&apos;ll Inspect</span>
+                    <span>What You&apos;ll Inspect</span>
                   </div>
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-normal">
                     {lab.inspectionDetails}
@@ -311,7 +311,7 @@ export default function LabsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
               <div className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>⏱️</span>
+                
                 <span>Frame-by-Frame Timeline</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -320,7 +320,6 @@ export default function LabsPage() {
             </div>
             <div className="space-y-1.5">
               <div className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>🩻</span>
                 <span>Model X-Ray</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -329,7 +328,6 @@ export default function LabsPage() {
             </div>
             <div className="space-y-1.5">
               <div className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>📐</span>
                 <span>Math &amp; Code Synchrony</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">

@@ -83,7 +83,6 @@ export function TutorDrawer() {
       <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-600 text-sm text-white shadow-xs">
-            💡
           </span>
           <div>
             <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -223,7 +222,6 @@ export function TutorDrawer() {
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center p-6 space-y-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-100 dark:bg-teal-950 text-2xl shadow-inner">
-              💡
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -247,7 +245,6 @@ export function TutorDrawer() {
                     onClick={() => void sendMessage(prompt)}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-2.5 text-xs font-medium text-teal-900 dark:text-teal-200 shadow-xs hover:border-teal-300 dark:hover:border-teal-600 hover:bg-teal-50/50 dark:hover:bg-teal-950/50 transition-all text-left flex items-start gap-2 cursor-pointer"
                   >
-                    <span className="text-teal-600 dark:text-teal-400 font-bold">💬</span>
                     <span>{prompt}</span>
                   </button>
                 ))}

@@ -79,7 +79,7 @@ export function WhyExplanationPanel({ explanation, onClose }: WhyExplanationPane
       <div className="why-section why-try-section">
         <h4 className="why-section-title">What To Try Next</h4>
         <p className="why-text-try">
-          💡 <em>{explanation.suggestedAction}</em>
+           <em>{explanation.suggestedAction}</em>
         </p>
       </div>
 
@@ -93,7 +93,7 @@ export function WhyExplanationPanel({ explanation, onClose }: WhyExplanationPane
               className="why-action-chip"
               onClick={() => scrollToAnchor(explanation.mathAnchorId)}
             >
-              📐 Connected to Math
+               Connected to Math
             </button>
           )}
           {explanation.codeAnchorId && (
@@ -102,7 +102,7 @@ export function WhyExplanationPanel({ explanation, onClose }: WhyExplanationPane
               className="why-action-chip"
               onClick={() => scrollToAnchor(explanation.codeAnchorId)}
             >
-              💻 See in Code
+               See in Code
             </button>
           )}
           {explanation.modelXRayAnchorId && (
@@ -111,7 +111,7 @@ export function WhyExplanationPanel({ explanation, onClose }: WhyExplanationPane
               className="why-action-chip"
               onClick={() => scrollToAnchor(explanation.modelXRayAnchorId)}
             >
-              🔬 Inspect model state
+               Inspect model state
             </button>
           )}
         </div>

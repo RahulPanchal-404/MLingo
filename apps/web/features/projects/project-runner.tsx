@@ -160,7 +160,7 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
-          <span>🎯 Guided Studio (11 Steps)</span>
+          <span>Guided Studio (11 Steps)</span>
         </button>
 
         <button
@@ -172,7 +172,7 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
-          <span>⚡ Live Interactive Demo</span>
+          <span>Live Interactive Demo</span>
         </button>
 
         <button
@@ -184,7 +184,7 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
-          <span>💻 Complete Python Code & Guide</span>
+          <span>Complete Python Code & Guide</span>
         </button>
       </div>
 

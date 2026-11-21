@@ -112,7 +112,6 @@ function WhatWhyBanner({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
         <div className="rounded-xl border border-teal-200/70 dark:border-teal-900/50 bg-teal-50/50 dark:bg-teal-950/30 p-3 space-y-1">
           <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300 text-[10px]">
-            <span>✨</span>
             <span>What Happened</span>
           </div>
           <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
@@ -122,7 +121,6 @@ function WhatWhyBanner({
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-3 space-y-1">
           <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 text-[10px]">
-            <span>💡</span>
             <span>Why</span>
           </div>
           <p className="text-slate-600 dark:text-slate-300 leading-relaxed">

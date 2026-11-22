@@ -1,3 +1,4 @@
+import type { Debrief } from "../framework/types";
 /**
  * Valley Runner: pure logic. A skier on a loss surface. Each jump is one gradient-descent update:
  * new position = position − learning rate × slope (with optional momentum).
@@ -152,35 +153,72 @@ export const maxStablePower = (land: Land) => (land.curv ? 2 / Math.max(...land.
  * Plain-language reason for a failed run, based on what actually happened
  * (one huge jump vs growing overshoots, uphill jumps in the manual level, and so on).
  */
-export function explainFail(land: Land, run: Sim, opts: { manual: boolean; lr: number; waxed?: boolean }): string {
+const GD_IDEA =
+  "This is gradient descent, the way almost every model learns. The mountain's height is the loss, how wrong the model is. Your position is the model's weights. The slope under your feet is the gradient. Each step moves against the slope by learning rate × slope, so steps are long where the ground is steep and short near the bottom.";
+const LR_IDEA =
+  "Jump power is the learning rate. Too small and training needs a huge number of steps (you run out of fuel). Too large and each step overshoots the bottom, lands on steeper ground on the other side, and overshoots even more, until the loss explodes. That is called divergence. The right learning rate depends on how steep the loss is.";
+
+/** Why a run failed, in plain words, with the fix. */
+export function explainFail(land: Land, run: Sim, opts: { manual: boolean; lr: number; waxed?: boolean }): Debrief {
   const { manual, lr } = opts;
   if (manual) {
     if (run.status === "lava")
-      return "You jumped uphill. Each jump's length is set by how steep the ground is, and going uphill puts you on steeper ground, so your jumps kept getting longer until you flew off. The slope reading points uphill: jump the other way.";
-    return "Out of jumps before the flag. Uphill jumps waste fuel and land you on steeper ground. Always jump against the slope reading.";
+      return {
+        happened: "You flew off the edge of the mountain into the lava.",
+        why: "Some of your jumps went uphill. The length of each jump depends on how steep the ground is, and uphill the ground gets steeper, so your jumps kept getting longer until one carried you off the edge.",
+        fix: "The slope reading points uphill. Always jump the opposite way.",
+        idea: GD_IDEA,
+      };
+    return {
+      happened: "You ran out of jumps before reaching the flag.",
+      why: "Uphill jumps waste fuel and land you on steeper ground, further from the flag.",
+      fix: "Always jump the opposite way to the slope reading.",
+      idea: GD_IDEA,
+    };
   }
-  if (run.status === "stuck") return "You stopped in a dip. The slope there is flat, so plain gradient descent stops moving. Momentum boots carry you over it.";
+  if (run.status === "stuck")
+    return {
+      happened: "You stopped in a small dip before the real bottom.",
+      why: "At the bottom of the dip the ground is flat, so the slope is zero and plain gradient descent has nothing to follow. It stops, even though the flag is lower down.",
+      fix: "Put on the momentum boots: they keep part of your previous speed, which carries you over the bump.",
+      idea: "This dip is a local minimum: lower than everything around it, but not the lowest point. Momentum is a common fix. Each step keeps a fraction of the previous step's movement, like a rolling ball, so the model can coast through flat spots and small bumps.",
+    };
   const limit = maxStablePower(land);
   const steep = land.curv ? Math.max(...land.curv) : undefined;
   const good = steep ? 1 / steep : undefined;
-  if (run.status === "fuel") {
-    return `Out of fuel before the flag: each jump was too short to get there in ${land.fuel} jumps. Raise the jump power.` + (good ? ` On this mountain about ${num(good)} gets there fastest.` : "");
-  }
-  // Lava.
-  const hint =
-    land.dim === 2 && !opts.waxed && land.curv
-      ? ` The canyon walls are ${num(land.curv[1] / land.curv[0])}× steeper than the floor, so any power above ${num(limit!)} hits a wall. Waxing the skis (standardizing) makes both directions equally steep.`
-      : limit
-        ? ` On this mountain any power above ${num(limit)} overshoots more every jump. Try about ${num(good!)}.`
-        : " Lower the jump power.";
+  if (run.status === "fuel")
+    return {
+      happened: `You ran out of fuel after ${land.fuel} jumps, still short of the flag.`,
+      why: `Jump power ${num(lr)} is too weak for this mountain: each jump covered only a small part of the way.`,
+      fix: "Raise the jump power." + (good ? ` About ${num(good)} gets there fastest on this mountain.` : ""),
+      idea: LR_IDEA,
+    };
+  const ravineHint = land.dim === 2 && !opts.waxed && land.curv;
+  const fix = ravineHint
+    ? `Wax the skis (standardize). The canyon walls are ${num(land.curv![1] / land.curv![0])}× steeper than the floor, so any power above ${num(limit!)} bounces off a wall, and a power that low barely moves along the floor. Waxing makes every direction equally steep, so one power works everywhere.`
+    : limit
+      ? `Lower the jump power. On this mountain any power above ${num(limit)} overshoots more every jump. Try about ${num(good!)}.`
+      : "Lower the jump power.";
+  const idea = ravineHint
+    ? "When one feature is on a much bigger scale than another, the loss becomes a narrow canyon: very steep across, nearly flat along. A learning rate small enough to stay inside the canyon is too small to make progress along it. Standardizing the features makes the loss round, so one learning rate suits every direction."
+    : LR_IDEA;
   if (run.jumps === 1) {
     const jumpLen = Math.hypot(...run.pos.map((p, i) => p - run.prev[i]));
     const dist = Math.hypot(...run.prev.map((p, i) => p - land.center[i]));
-    const g = land.grad(run.prev);
-    const slope = Math.hypot(...g);
-    return `Your first jump was ${num(jumpLen)} long but the flag was only ${num(dist)} away, so you flew straight off the mountain. Jump length = power × steepness = ${num(lr)} × ${num(slope)}.` + hint;
+    const slope = Math.hypot(...land.grad(run.prev));
+    return {
+      happened: `Your first jump was ${num(jumpLen)} long, but the flag was only ${num(dist)} away, so you flew straight off the mountain.`,
+      why: `Jump length = power × steepness = ${num(lr)} × ${num(slope)}. The ground where you started is steep, so that power sent you far too far.`,
+      fix,
+      idea,
+    };
   }
-  return `Every jump overshot the flag by more than the last, until you flew off the mountain after ${run.jumps} jumps. That's divergence: the jump power (${num(lr)}) is too big for how steep this mountain is.` + hint;
+  return {
+    happened: `You flew off the mountain after ${run.jumps} jumps.`,
+    why: `Every jump overshot the flag by more than the last. Each overshoot landed you on steeper ground on the other side, which made the next jump even longer. The jump power (${num(lr)}) is too big for how steep this mountain is.`,
+    fix,
+    idea,
+  };
 }
 
 export const LIVES = 3;

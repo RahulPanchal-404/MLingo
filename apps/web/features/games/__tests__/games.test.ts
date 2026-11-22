@@ -207,13 +207,15 @@ describe("guides", () => {
 });
 
 
+const said = (d: { happened: string; why?: string; fix?: string }) => [d.happened, d.why, d.fix].join(" ");
+
 describe("descent failure explanations", () => {
   it("says a single jump flew off when the first jump overshoots the map", () => {
     const land = valley(4);
     const run = stepSim(land, { ...initSim(land), status: "running" }, { lr: 1.5, momentum: false });
     expect(run.status).toBe("lava");
     expect(run.jumps).toBe(1);
-    const why = explainFail(land, run, { manual: false, lr: 1.5 });
+    const why = said(explainFail(land, run, { manual: false, lr: 1.5 }));
     expect(why).toMatch(/first jump/);
     expect(why).toMatch(/above 0\.5/);
   });
@@ -222,13 +224,13 @@ describe("descent failure explanations", () => {
     const run = simulate(land, { lr: 2.2, momentum: false });
     expect(run.status).toBe("lava");
     expect(run.jumps).toBeGreaterThan(1);
-    expect(explainFail(land, run, { manual: false, lr: 2.2 })).toMatch(/overshot the flag by more than the last/);
+    expect(said(explainFail(land, run, { manual: false, lr: 2.2 }))).toMatch(/overshot the flag by more than the last/);
   });
   it("blames uphill jumps, not the learning rate, in the manual level", () => {
     const course = COURSES.eyeball(false)[0];
     let sim: Sim = { ...initSim(course.land), status: "running" };
     while (sim.status === "running") sim = stepManual(course.land, sim, course.land.grad(sim.pos)[0] > 0 ? 1 : -1, course.lr!);
-    const why = explainFail(course.land, sim, { manual: true, lr: course.lr! });
+    const why = said(explainFail(course.land, sim, { manual: true, lr: course.lr! }));
     expect(why).toMatch(/uphill/);
     expect(why).not.toMatch(/learning rate/);
   });

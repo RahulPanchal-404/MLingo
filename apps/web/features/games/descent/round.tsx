@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useTicker } from "../framework/hooks";
 import { Banner, ControlDeck, Floaters, GameButton, GameScreen, Hearts, Stat, TopBar, type Floater } from "../framework/kit";
+import type { Debrief } from "../framework/types";
 import { fmt, logPosition, logValue } from "../framework/math";
 import type { RoundProps } from "../framework/types";
 import { COURSES, LIFE_PENALTY, LIVES, bestManualJumps, explainFail, initSim, stepManual, stepSim, type Land, type Sim } from "./logic";
@@ -18,7 +19,7 @@ const LR_RANGE: Record<string, [number, number, number]> = {
 };
 
 type Result = { score: number; jumps: number; won: boolean; livesLost: number };
-type Popup = null | { kind: "won" | "dead" | "out"; title: string; sub: string };
+type Popup = null | { kind: "won" | "dead" | "out"; title: string; score?: number; debrief: Debrief };
 
 export function DescentRound({ level, onDone }: RoundProps) {
   const id = level.id;
@@ -54,7 +55,7 @@ export function DescentRound({ level, onDone }: RoundProps) {
       const pts = manual ? Math.max(300, 1000 - 80 * (next.jumps - manualBest)) : land.points(next.jumps);
       const score = Math.max(0, pts - LIFE_PENALTY * (LIVES - lives));
       float(`+${score}`, "#fde047", next.pos);
-      setPopup({ kind: "won", title: "🚩 Flag reached!", sub: `${next.jumps} jumps, ${LIVES - lives} ${LIVES - lives === 1 ? "life" : "lives"} lost: +${score}` });
+      setPopup({ kind: "won", title: "🚩 Flag reached!", score, debrief: wonDebrief(id, next.jumps, LIVES - lives, manual ? manualBest : undefined) });
       return;
     }
     const why = explainFail(land, next, { manual, lr, waxed });
@@ -63,8 +64,8 @@ export function DescentRound({ level, onDone }: RoundProps) {
     setLives(left);
     setPopup(
       left > 0
-        ? { kind: "dead", title: next.status === "lava" ? "🔥 Into the lava!" : next.status === "stuck" ? "🕳️ Stuck in a dip" : "⛽ Out of fuel", sub: why }
-        : { kind: "out", title: "💀 Out of lives", sub: why },
+        ? { kind: "dead", title: next.status === "lava" ? "🔥 Into the lava!" : next.status === "stuck" ? "🕳️ Stuck in a dip" : "⛽ Out of fuel", debrief: why }
+        : { kind: "out", title: "💀 Out of lives", debrief: why },
     );
   }
 
@@ -148,7 +149,7 @@ export function DescentRound({ level, onDone }: RoundProps) {
         {land.dim === 1 ? <Slope land={land} sim={sim} t={t} fog={manual} floaters={floaters} /> : <Canyon land={land} sim={sim} t={t} floaters={floaters} waxed={waxed} />}
       </div>
       {popup ? (
-        <Banner title={popup.title} sub={popup.sub}>
+        <Banner title={popup.title} score={popup.score} debrief={popup.debrief}>
           {popup.kind === "dead" ? <GameButton onClick={retry}>Try again ↻</GameButton> : null}
           {popup.kind === "won" ? <GameButton onClick={() => nextCourse(true)}>{ci + 1 === courses.length ? "Finish" : "Next run →"}</GameButton> : null}
           {popup.kind === "out" ? <GameButton tone="ghost" onClick={() => nextCourse(false)}>{ci + 1 === courses.length ? "Finish" : "Skip to next run"}</GameButton> : null}
@@ -296,6 +297,24 @@ function Canyon({ land, sim, t, floaters, waxed }: { land: Land; sim: Sim; t: nu
       <Floaters items={floaters} />
     </svg>
   );
+}
+
+/** What a successful run shows, by level. */
+function wonDebrief(id: string, jumps: number, livesLost: number, manualBest?: number): Debrief {
+  const lost = livesLost ? ` You lost ${livesLost} ${livesLost === 1 ? "life" : "lives"} first, which costs points.` : "";
+  const ideas: Record<string, string> = {
+    eyeball: "In the fog you can only feel the slope under your feet, and a model is in the same position: it can't see the best weights, only the gradient (the slope of its error) where it stands. Stepping against the slope always goes downhill. That is gradient descent.",
+    "step-size": "Jump power is the learning rate. You found a value strong enough to make progress but weak enough not to overshoot. Notice how the jumps got shorter near the flag: the ground flattens, so the same power gives smaller steps.",
+    ravine: "Waxing the skis is standardizing the features. It turns a narrow canyon into a round bowl, so one learning rate works in every direction and the path goes straight to the bottom instead of zig-zagging.",
+    trap: "Momentum kept part of your speed from each jump, which carried you over the dip that would have stopped plain gradient descent. Most modern optimizers, such as Adam, use momentum.",
+  };
+  return {
+    happened:
+      manualBest !== undefined
+        ? `You reached the flag in ${jumps} jumps. The fewest possible was ${manualBest}.${lost}`
+        : `You reached the flag in ${jumps} jumps.${lost}`,
+    idea: ideas[id],
+  };
 }
 
 function summary(id: string, all: Result[]) {

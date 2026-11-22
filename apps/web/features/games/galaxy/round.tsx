@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 
 import { svgPoint } from "../framework/hooks";
-import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar } from "../framework/kit";
+import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar, type Debrief } from "../framework/kit";
 import { fmt, pct } from "../framework/math";
 import type { RoundProps, RoundResult } from "../framework/types";
 import {
@@ -115,7 +115,7 @@ function DendroRound({ onDone }: Pick<RoundProps, "onDone">) {
         <Dendrogram n={field.stars.length} merges={merges} cut={cut} onCut={(h) => locked === null && setCut(h)} />
       </div>
       {locked !== null ? (
-        <Banner title={locked >= 850 ? "🌌 Galaxies mapped!" : "🔭 Not quite"} sub={`You cut into ${k} galaxies. The sky really has ${trueK}. +${locked}${locked >= 850 ? (k > trueK ? `. The extra ${k - trueK === 1 ? "group is" : "groups are"} just a few stray stars, so the map still matches.` : "") : k > trueK ? ". Your cut was too low: it split real galaxies apart. Move it up into the biggest vertical gap of the tree." : k < trueK ? ". Your cut was too high: it merged separate galaxies. Move it down into the biggest vertical gap of the tree." : ""}`}>
+        <Banner title={locked >= 850 ? "🌌 Galaxies mapped!" : "🔭 Not quite"} score={locked} debrief={dendroDebrief(locked, k, trueK)}>
           <GameButton onClick={next}>{i + 1 === DENDRO_FIELDS.length ? "Finish" : "Next sky →"}</GameButton>
         </Banner>
       ) : null}
@@ -149,7 +149,7 @@ function LinkageRound({ onDone }: Pick<RoundProps, "onDone">) {
       <TopBar left={<span className="text-white/70">🔗 {field.name} · {i + 1}/{LINKAGE_FIELDS.length}</span>} right={<Stat icon="🌌" value={`${field.k} galaxies wanted`} />} />
       <Sky stars={field.stars} assign={pick?.assign ?? null} />
       {pick ? (
-        <Banner title={pick.score >= 850 ? "🌌 Right linkage!" : "💫 Galaxies tangled"} sub={`${pick.link === "single" ? "Single" : "Complete"} linkage: +${pick.score}. Best here: ${field.best}. ${field.best === "single" ? "These galaxies are long or ring-shaped, so their far ends are far apart; single linkage follows the chain of closest stars." : "A thin bridge of stars joins two galaxies; single linkage walks across it and merges them, while complete linkage keeps galaxies compact."}`}>
+        <Banner title={pick.score >= 850 ? "🌌 Right linkage!" : "💫 Galaxies tangled"} score={pick.score} debrief={linkageDebrief(pick.link, field.best)}>
           <GameButton onClick={next}>{i + 1 === LINKAGE_FIELDS.length ? "Finish" : "Next sky →"}</GameButton>
         </Banner>
       ) : null}
@@ -168,7 +168,7 @@ function EpsRound({ mode, onDone }: { mode: "eps" | "noise"; onDone: RoundProps[
   const field = fields[i];
   const [eps, setEps] = useState(0.3);
   const [minPts, setMinPts] = useState(mode === "eps" ? 4 : 2);
-  const [locked, setLocked] = useState<null | { score: number; note: string }>(null);
+  const [locked, setLocked] = useState<null | { score: number; debrief: Debrief }>(null);
   const [scores, setScores] = useState<number[]>([]);
   const mp = mode === "eps" ? (field as (typeof EPS_FIELDS)[number]).minPts : minPts;
   const assign = useMemo(() => dbscan(field.stars, eps, mp), [field, eps, mp]);
@@ -180,12 +180,25 @@ function EpsRound({ mode, onDone }: { mode: "eps" | "noise"; onDone: RoundProps[
       const f1 = pairF1(assign, field.stars.map((s) => s.label));
       const best = bestEpsF1(field.stars, mp);
       const trueK = new Set(field.stars.map((s) => s.label)).size;
-      const hint = f1 >= best - 0.01 ? "" : noise > field.stars.length * 0.15 || k > trueK ? " ε was too small: light didn't reach between neighbouring stars, so galaxies broke into pieces or into noise. Increase ε." : k < trueK ? " ε was too big: light reached across the gaps, so separate galaxies merged. Decrease ε." : "";
-      setLocked({ score: f1Score(f1 >= best - 0.01 ? Math.max(f1, 0.95) : f1), note: `Agreement with the true galaxies ${pct(f1)} (best possible ${pct(best)}).${hint}` });
+      const happened = `Your map agrees with the real galaxies on ${pct(f1)} of star pairs. The best possible light reach scores ${pct(best)}. You found ${k} ${k === 1 ? "galaxy" : "galaxies"} and ${noise} dust specks; the sky really has ${trueK} galaxies.`;
+      const tooSmall = noise > field.stars.length * 0.15 || k > trueK;
+      const debrief: Debrief =
+        f1 >= best - 0.01
+          ? { happened, why: "Your light reach links the stars inside each galaxy without jumping the gaps between galaxies.", idea: EPS_IDEA }
+          : tooSmall
+            ? { happened, why: "The light reach ε was too short to cross between neighbouring stars, so galaxies broke into pieces or into grey dust.", fix: "Increase ε a little at a time until each galaxy is one colour.", idea: EPS_IDEA }
+            : { happened, why: "The light reach ε was so long it jumped the empty gaps, so separate galaxies merged into one.", fix: "Decrease ε until the galaxies separate.", idea: EPS_IDEA };
+      setLocked({ score: f1Score(f1 >= best - 0.01 ? Math.max(f1, 0.95) : f1), debrief });
     } else {
       const q = noiseQuality(field.stars, assign);
-      const hint = q.score >= 850 ? "" : q.noiseF1 < 0.6 ? " Too much dust joined galaxies: raise minPts so a lone speck doesn't count as dense, or lower ε." : q.clusterF1 < 0.8 ? " The galaxies themselves broke up: minPts is too strict or ε too small for their density." : "";
-      setLocked({ score: q.score, note: `Galaxies ${pct(q.clusterF1)} right, dust spotted ${pct(q.noiseF1)}.${hint}` });
+      const happened = `${pct(q.clusterF1)} of the galaxy stars are in the right galaxy, and ${pct(q.noiseF1)} of the dust was correctly marked as dust (grey).`;
+      const debrief: Debrief =
+        q.score >= 850
+          ? { happened, why: "Your density rule is strict enough to reject lone dust specks but loose enough to keep the galaxies whole.", idea: NOISE_IDEA }
+          : q.noiseF1 < 0.6
+            ? { happened, why: "Dust specks were pulled into galaxies, because with so few neighbours required, even a lonely speck near a galaxy counts as part of it.", fix: "Raise minPts so a speck needs more neighbours to count, or lower ε.", idea: NOISE_IDEA }
+            : { happened, why: "The galaxies themselves broke up: the rule is too strict for how densely their stars are packed.", fix: "Lower minPts or raise ε a little.", idea: NOISE_IDEA };
+      setLocked({ score: q.score, debrief });
     }
   }
   function next() {
@@ -202,7 +215,7 @@ function EpsRound({ mode, onDone }: { mode: "eps" | "noise"; onDone: RoundProps[
       <TopBar left={<span className="text-white/70">✨ {field.name} · {i + 1}/{fields.length}</span>} right={<><Stat icon="🌌" value={`${k} galaxies`} /><Stat icon="🌫️" value={`${noise} noise`} /></>} />
       <Sky stars={field.stars} assign={assign} halo={eps} />
       {locked ? (
-        <Banner title={locked.score >= 850 ? "🌌 Perfect map!" : locked.score >= 450 ? "🔭 Close" : "💫 Messy map"} sub={`${locked.note} +${locked.score}`}>
+        <Banner title={locked.score >= 850 ? "🌌 Perfect map!" : locked.score >= 450 ? "🔭 Close" : "💫 Messy map"} score={locked.score} debrief={locked.debrief}>
           <GameButton onClick={next}>{i + 1 === fields.length ? "Finish" : "Next sky →"}</GameButton>
         </Banner>
       ) : null}
@@ -226,6 +239,35 @@ function EpsRound({ mode, onDone }: { mode: "eps" | "noise"; onDone: RoundProps[
     </GameScreen>
   );
 }
+
+const DENDRO_IDEA =
+  "This is hierarchical clustering. It starts with every star alone, then keeps merging the two closest groups. The family tree (a dendrogram) records how far apart each pair of groups was when they merged: the taller the line, the farther apart. Cutting the tree at a height turns it into groups. Cut in the biggest vertical gap: merges above that gap join groups that are genuinely far apart.";
+
+function dendroDebrief(score: number, k: number, trueK: number): Debrief {
+  const happened = `Your cut made ${k} ${k === 1 ? "galaxy" : "galaxies"}. The sky really has ${trueK}.`;
+  if (score >= 850)
+    return { happened, why: k > trueK ? `The extra ${k - trueK === 1 ? "group is" : "groups are"} just a few stray stars, so the map still matches.` : "Your cut sits in the big gap between merges inside galaxies and merges between galaxies.", idea: DENDRO_IDEA };
+  return k > trueK
+    ? { happened, why: "Your cut was too low on the tree, below merges that only join stars of the same galaxy, so real galaxies were split apart.", fix: "Move the cut up into the tallest stretch of the tree with no merges.", idea: DENDRO_IDEA }
+    : { happened, why: "Your cut was too high on the tree, above merges that join different galaxies, so separate galaxies were combined.", fix: "Move the cut down into the tallest stretch of the tree with no merges.", idea: DENDRO_IDEA };
+}
+
+function linkageDebrief(link: string, best: string): Debrief {
+  const name = (l: string) => (l === "single" ? "Single" : "Complete");
+  const happened = `You used ${name(link).toLowerCase()} linkage. On this sky, ${best} linkage works best.`;
+  const idea =
+    "To merge groups, hierarchical clustering needs a distance between two groups, not just two stars. Single linkage uses the closest pair of stars, so it follows long chains and rings, but one thin bridge of stars is enough to glue two galaxies together. Complete linkage uses the farthest pair, so it keeps groups compact and ignores thin bridges, but it cuts long shapes apart.";
+  const why =
+    best === "single"
+      ? "These galaxies are long or ring-shaped, so their far ends are far apart. Single linkage follows the chain of closest stars; complete linkage sees the far ends and refuses to merge them."
+      : "A thin bridge of stars joins two galaxies. Single linkage walks across it and merges them; complete linkage keeps each galaxy compact.";
+  return link === best ? { happened, why, idea } : { happened, why, fix: `Look for long shapes (use single) or thin bridges between blobs (use complete).`, idea };
+}
+
+const EPS_IDEA =
+  "This is DBSCAN, a clustering method based on density. A star is part of a galaxy if enough other stars are within its light reach (ε). Galaxies grow by chaining such stars together, so they can be any shape, and stars with too few neighbours are labelled noise. Too small an ε and everything becomes noise; too large and everything merges.";
+const NOISE_IDEA =
+  "minPts is how many neighbours within reach a star needs to count as part of a dense region. Raising it makes DBSCAN stricter, so isolated points are labelled noise instead of being forced into a cluster. That is how DBSCAN finds outliers, which K-Means can't do: K-Means puts every point in some group.";
 
 function summary(mode: string, all: number[]): RoundResult {
   const a = avg(all);

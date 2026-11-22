@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import type { Debrief } from "./types";
+
 /** Dark "game screen" frame with the shared keyframes used by every game. */
 export function GameScreen({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
@@ -87,13 +89,33 @@ export function GameButton({
 }
 
 /** Big centred message over the game (wave cleared, crashed, ...). */
-export function Banner({ title, sub, children }: { title: string; sub?: string; children?: ReactNode }) {
+export type { Debrief } from "./types";
+
+const DEBRIEF_ROWS: [keyof Debrief, string][] = [
+  ["happened", "What happened"],
+  ["why", "Why"],
+  ["fix", "Try this"],
+  ["idea", "The idea"],
+];
+
+export function Banner({ title, sub, score, debrief, children }: { title: string; sub?: string; score?: number; debrief?: Debrief; children?: ReactNode }) {
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-[2px]">
-      <div className="g-pop max-w-sm space-y-3 rounded-2xl border border-white/15 bg-slate-900 p-5 text-center shadow-2xl">
-        <p className="text-2xl font-black">{title}</p>
-        {sub ? <p className="text-sm text-white/80">{sub}</p> : null}
-        <div className="flex flex-wrap justify-center gap-2">{children}</div>
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/75 p-3 backdrop-blur-[2px]">
+      <div className={`g-pop max-h-full overflow-y-auto rounded-2xl border border-white/15 bg-slate-900 p-5 shadow-2xl ${debrief ? "w-full max-w-md text-left" : "max-w-sm text-center"}`}>
+        <p className={`text-2xl font-black ${debrief ? "text-center" : ""}`}>{title}</p>
+        {score !== undefined ? <p className="mt-1 text-center text-sm text-white/60">Score {score} out of 1000</p> : null}
+        {sub ? <p className="mt-3 text-sm text-white/80">{sub}</p> : null}
+        {debrief ? (
+          <dl className="mt-4 space-y-3">
+            {DEBRIEF_ROWS.filter(([k]) => debrief[k]).map(([k, label]) => (
+              <div key={k} className={k === "idea" ? "rounded-xl bg-white/[0.06] px-3 py-2.5" : ""}>
+                <dt className={`text-xs font-bold ${k === "fix" ? "text-amber-300" : k === "idea" ? "text-sky-300" : "text-white/55"}`}>{label}</dt>
+                <dd className="mt-0.5 text-[14px] leading-relaxed text-white/90">{debrief[k]}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+        <div className="mt-4 flex flex-wrap justify-center gap-2">{children}</div>
       </div>
     </div>
   );

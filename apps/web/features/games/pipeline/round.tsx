@@ -110,7 +110,17 @@ function SuspectBoard({ c, index, total, onClosed }: { c: SuspectCase; index: nu
         </div>
       </div>
       {solved || failed ? (
-        <Banner title={solved ? "🔒 Case closed!" : "📁 Case gone cold"} sub={`${c.verdict} ${solved ? `+${score}` : ""}`}>
+        <Banner
+          title={solved ? "🔒 Case closed!" : "📁 Case gone cold"}
+          score={solved ? score : undefined}
+          debrief={{
+            happened: solved
+              ? `You caught ${guilty.length === 1 ? "the culprit" : `all ${guilty.length} culprits`}${wrong ? `, after accusing ${wrong} innocent ${wrong === 1 ? "suspect" : "suspects"}` : " without accusing anyone innocent"}${clues.size ? `, using ${clues.size} ${clues.size === 1 ? "clue" : "clues"}` : ""}.`
+              : `You ran out of badges after accusing ${wrong} innocent suspects. The guilty ${guilty.length === 1 ? "one was" : "ones were"}: ${guilty.map((n) => c.suspects[n].name).join(", ")}.`,
+            why: c.verdict,
+            fix: solved ? undefined : "Interrogate a suspect before accusing: the clue tells you when or how that information becomes available.",
+          }}
+        >
           <GameButton onClick={() => onClosed({ score, solved })}>{index + 1 === total ? "File the report" : "Next case →"}</GameButton>
         </Banner>
       ) : null}
@@ -181,7 +191,17 @@ function Timeline({ c, index, total, onClosed }: { c: TimelineCase; index: numbe
         </div>
       </div>
       {solved || failed ? (
-        <Banner title={solved ? "🔒 Timeline rebuilt!" : "📁 Case gone cold"} sub={`${c.verdict} ${solved ? `+${score}` : ""}`}>
+        <Banner
+          title={solved ? "🔒 Timeline rebuilt!" : "📁 Case gone cold"}
+          score={solved ? score : undefined}
+          debrief={{
+            happened: solved
+              ? `You put all ${c.steps.length} steps in order${wrong ? ` with ${wrong} wrong ${wrong === 1 ? "pick" : "picks"} on the way` : " without a wrong pick"}.`
+              : `You ran out of badges with ${placed.length} of ${c.steps.length} steps placed. The correct order: ${c.steps.map((st, n) => `${n + 1}. ${st}`).join("  ")}`,
+            why: c.verdict,
+            fix: solved ? undefined : "For each step, ask: what does this step need to already exist? Anything that learns from data must come after the split, and only on the training part.",
+          }}
+        >
           <GameButton onClick={() => onClosed({ score, solved })}>{index + 1 === total ? "File the report" : "Next case →"}</GameButton>
         </Banner>
       ) : null}

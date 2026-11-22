@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { useTicker } from "../framework/hooks";
 import { Banner, ControlDeck, GameButton, GameScreen, Meter, Stat, TopBar } from "../framework/kit";
+import type { Debrief } from "../framework/types";
 import { fmt, logPosition, logValue, pct } from "../framework/math";
 import type { RoundProps } from "../framework/types";
 import { EPOCHS_PER_SECOND, GRID, SETUPS, TIME_LIMIT, makeTrainer, winScore, type Activation, type NetConfig, type Trainer } from "./logic";
@@ -121,7 +122,7 @@ export function NeuronsRound({ level, onDone }: RoundProps) {
         </div>
       </div>
       {result ? (
-        <Banner title={result.won ? "💥 Invaders trapped!" : hp <= 0 ? "☠️ Base destroyed" : "⌛ Out of time"} sub={result.won ? `Shield complete in ${time.toFixed(1)}s.` : shieldWhy(level.id, cfg, snap)} />
+        <Banner title={result.won ? "💥 Invaders trapped!" : hp <= 0 ? "☠️ Base destroyed" : "⌛ Out of time"} sub={result.won ? `Shield complete in ${time.toFixed(1)}s.` : "Opening the debrief: what went wrong and how to fix it."} />
       ) : null}
       <ControlDeck>
         {setup.controls.includes("activation")
@@ -201,28 +202,46 @@ function NetDiagram({ cfg }: { cfg: NetConfig }) {
 }
 
 /** Why the shield didn't form, from the settings the player ended with. */
-function shieldWhy(levelId: string, cfg: NetConfig, snap: Snap): string {
-  const loss = Number.isFinite(snap.loss) ? fmt(snap.loss, 3) : "∞";
+function shieldWhy(levelId: string, cfg: NetConfig, snap: Snap): Debrief {
+  const loss = Number.isFinite(snap.loss) ? fmt(snap.loss, 3) : "infinite";
+  const happened = `The shield trapped only ${pct(snap.acc)} of the invaders before ${snap.acc > 0 ? "time ran out or the base fell" : "the base fell"}.`;
   if (levelId === "xor")
     return cfg.activation === "linear"
-      ? "Your neurons were still linear, so however many there are, the shield is one straight wall, and invaders sit in opposite corners. Switch to a non-linear activation (tanh, sigmoid or ReLU)."
-      : "The shield ran out of time while still learning. Try another non-linear activation; tanh usually forms fastest.";
+      ? {
+          happened,
+          why: "Your neurons were linear: each one can only draw a straight wall, and stacking straight walls still gives one straight wall. The invaders sit in opposite corners, and no straight wall can separate opposite corners.",
+          fix: "Switch the activation to tanh, sigmoid or ReLU, which let the shield bend.",
+        }
+      : { happened, why: "The shield was still learning when time ran out.", fix: "Try another non-linear activation; tanh usually forms fastest here." };
   if (levelId === "capacity")
     return cfg.hidden < 3
-      ? `With ${cfg.hidden} hidden neuron${cfg.hidden === 1 ? "" : "s"} the shield has at most ${cfg.hidden} straight edge${cfg.hidden === 1 ? "" : "s"}, and enclosing a ring needs at least 3. Add neurons.`
-      : "The shield ran out of time. A few more neurons give it a rounder edge and it forms faster.";
+      ? {
+          happened,
+          why: `Each hidden neuron adds about one straight edge to the shield. With ${cfg.hidden} neuron${cfg.hidden === 1 ? "" : "s"} you get at most ${cfg.hidden} edge${cfg.hidden === 1 ? "" : "s"}, and enclosing a ring needs at least 3.`,
+          fix: "Add hidden neurons.",
+        }
+      : { happened, why: "The shield ran out of time.", fix: "Add a few more neurons: a rounder edge forms faster." };
   if (levelId === "saturate") {
-    if (!cfg.standardize) return `The inputs are in the thousands, so the sigmoid neurons sat in their flat ends with almost no gradient: the loss stayed stuck around ${loss}. Calibrate the signal (standardize) first.`;
-    if (cfg.lr < 0.05) return `Inputs are calibrated now, but the learning rate (${fmt(cfg.lr, 3)}) is too small to train in time. Raise it.`;
-    return `Inputs are calibrated, but the learning rate (${fmt(cfg.lr, 3)}) made training unstable (loss ${loss}). Try a value between 0.3 and 3.`;
+    if (!cfg.standardize)
+      return {
+        happened,
+        why: `The input signals are in the thousands. A sigmoid neuron squashes any big input to almost exactly 0 or 1, where its curve is flat, and a flat curve gives almost no signal to learn from. The error stayed stuck around ${loss}.`,
+        fix: "Turn on calibration (standardize the inputs) first.",
+      };
+    if (cfg.lr < 0.05) return { happened, why: `Inputs are calibrated now, but the learning rate (${fmt(cfg.lr, 3)}) makes each update so small the shield can't form in time.`, fix: "Raise the learning rate." };
+    return { happened, why: `Inputs are calibrated, but the learning rate (${fmt(cfg.lr, 3)}) makes updates so big that training jumps around (error ${loss}).`, fix: "Try a learning rate between 0.3 and 3." };
   }
   if (cfg.lr > 3)
-    return `The learning rate (${fmt(cfg.lr, 3)}) is far too high: big updates pushed ${snap.dead} ReLU neuron${snap.dead === 1 ? "" : "s"} permanently below zero (dead), so they stopped learning. Lower it, then release the slider to rebuild.`;
-  if (cfg.lr < 0.05) return `The learning rate (${fmt(cfg.lr, 3)}) is so low the shield crawled and ran out of time. Raise it.`;
-  return `Close. The learning rate (${fmt(cfg.lr, 3)}) is in a workable range, but ${snap.dead} neuron${snap.dead === 1 ? " is" : "s are"} dead. Try a value around 0.3 to 1.`;
+    return {
+      happened,
+      why: `The learning rate (${fmt(cfg.lr, 3)}) is far too high. Huge updates pushed ${snap.dead} ReLU neuron${snap.dead === 1 ? "" : "s"} so far below zero that ${snap.dead === 1 ? "it" : "they"} now always output 0 and never learn again (dead neurons).`,
+      fix: "Lower the learning rate, then release the slider to rebuild the network.",
+    };
+  if (cfg.lr < 0.05) return { happened, why: `The learning rate (${fmt(cfg.lr, 3)}) is so low the shield crawled and ran out of time.`, fix: "Raise the learning rate." };
+  return { happened, why: `The learning rate (${fmt(cfg.lr, 3)}) is workable, but ${snap.dead} neuron${snap.dead === 1 ? " is" : "s are"} dead.`, fix: "Try a learning rate around 0.3 to 1, then rebuild." };
 }
 
-function finish(levelId: string, score: number, seconds: number, acc: number, changes: number, hp: number, why?: string) {
+function finish(levelId: string, score: number, seconds: number, acc: number, changes: number, hp: number, why?: Debrief) {
   const text: Record<string, string> = {
     xor: "Invaders sit in opposite corners, so no single straight wall can trap them. With a linear activation the whole network collapses into one straight line, however many neurons it has. A non-linear activation (tanh, sigmoid or ReLU) is what lets it bend the shield.",
     capacity: "Each hidden neuron adds roughly one straight edge to the shield. Enclosing a circle needs at least three edges, so one or two neurons underfit no matter how long they train.",
@@ -232,7 +251,8 @@ function finish(levelId: string, score: number, seconds: number, acc: number, ch
   return {
     score,
     headline: score > 0 ? `Shield up in ${seconds.toFixed(1)}s.` : "The shield never formed.",
-    detail: why ? `What went wrong. ${why} ${text[levelId]}` : text[levelId],
+    detail: text[levelId],
+    debrief: why,
     stats: [
       { label: "Accuracy reached", value: pct(acc) },
       { label: "Time", value: `${seconds.toFixed(1)}s` },

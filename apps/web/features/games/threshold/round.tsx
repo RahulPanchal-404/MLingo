@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { useTicker } from "../framework/hooks";
 import { ControlDeck, Floaters, GameScreen, Stat, TopBar, type Floater } from "../framework/kit";
+import type { Debrief } from "../framework/types";
 import { pct } from "../framework/math";
 import type { RoundProps } from "../framework/types";
 import { CFGS, SPAWN_MS, TRAVEL_MS, costOf, fixedRange, judge, makeItems, runScore, type Outcome } from "./logic";
@@ -64,7 +65,8 @@ export function ThresholdRound({ level, onDone }: RoundProps) {
       onDone({
         score,
         headline: score >= 850 ? "The kingdom is safe and the gold is intact." : score >= 500 ? "You held, but it cost you." : "The gate was set wrong.",
-        detail: (score < 850 ? gateWhy(cfg, c("FN"), c("FP"), range.bestT) + " " : "") + explain(level.id, cfg.positive, accuracy, range.bestT),
+        detail: explain(level.id, cfg.positive, accuracy, range.bestT),
+        debrief: gateWhy(cfg, t, c("TP"), c("FN"), c("FP"), range.bestT, score),
         stats: [
           { label: "Damage taken", value: String(cost) },
           { label: "Best possible", value: `${range.best} (gate at ${pct(range.bestT)})` },
@@ -170,16 +172,24 @@ export function ThresholdRound({ level, onDone }: RoundProps) {
   );
 }
 
-/** What the gate setting did wrong, from the mistakes that actually happened. */
-function gateWhy(cfg: (typeof CFGS)[string], fn: number, fp: number, bestT: number): string {
+/** What the gate setting did, from the mistakes that actually happened. */
+function gateWhy(cfg: (typeof CFGS)[string], t: number, tp: number, fn: number, fp: number, bestT: number, score: number): Debrief {
   const missCost = fn * cfg.costFN;
   const alarmCost = fp * cfg.costFP;
-  const best = pct(bestT);
+  const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  const happened = `With the gate at ${pct(t)}, you stopped ${tp} of ${tp + fn} ${cfg.positive}s. ${plural(fn, cfg.positive)} got in, costing ${missCost}, and you refused ${fp} innocent ${cfg.noun}, costing ${alarmCost}.`;
+  if (score >= 850) return { happened, why: `Your gate was close to the best fixed level for this crowd (${pct(bestT)}), so the two kinds of mistake cost as little as possible together.` };
   if (missCost >= alarmCost && fn > 0)
-    return `What went wrong: your gate was too high. ${fn} ${cfg.positive}${fn === 1 ? "" : "s"} got in, costing ${missCost}, against ${alarmCost} for refusing innocents. Lower the gate (the best fixed level was ${best}).`;
-  if (fp > 0)
-    return `What went wrong: your gate was too low. You refused ${fp} innocent ${cfg.noun}, costing ${alarmCost}, more than the ${missCost} the ${cfg.positive}s cost. Raise the gate (the best fixed level was ${best}).`;
-  return "";
+    return {
+      happened,
+      why: `The gate was too high: a visitor is refused only if the oracle is at least ${pct(t)} sure, so ${cfg.positive}s the oracle was less sure about walked in. Each one costs ${cfg.costFN}${cfg.costFN > 1 ? `, against ${cfg.costFP} for refusing an innocent` : ""}.`,
+      fix: `Lower the gate. The best fixed level for this crowd was ${pct(bestT)}.`,
+    };
+  return {
+    happened,
+    why: `The gate was too low, so you refused innocents the oracle was only slightly suspicious of. Those refusals cost more than the ${cfg.positive}s you stopped with them.`,
+    fix: `Raise the gate. The best fixed level for this crowd was ${pct(bestT)}.`,
+  };
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -187,10 +197,10 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 function explain(id: string, positive: string, accuracy: number, bestT: number): string {
   const t = pct(bestT);
   if (id === "sigmoid")
-    return `The oracle is a classifier: it gives each visitor a probability. Your gate level is the threshold that turns that probability into a decision. With a sharp oracle and equal costs, a gate near the middle works (the best fixed gate was ${t}).`;
+    return `The oracle is a classifier: a model that, for each visitor, gives a probability of being a monster. A probability alone decides nothing. The gate level (the threshold) turns it into a yes or no: refuse everyone at or above it. When the oracle is sharp and both mistakes cost the same, a gate near the middle works; the best here was ${t}.`;
   if (id === "balanced")
-    return `When the oracle is unsure, monsters and villagers overlap in suspicion, so every gate level makes mistakes. Raising it lets more monsters in; lowering it refuses more villagers. With equal costs the best gate balances the two (${t} here).`;
+    return `When the oracle is unsure, monsters and villagers get similar suspicion scores, so every gate level makes some mistakes. Raising the gate lets more monsters in (missed cases, called false negatives). Lowering it refuses more villagers (false alarms, called false positives). With equal costs, the best gate balances the two; here it was ${t}.`;
   if (id === "screening")
-    return `A ${positive} getting in cost 25 times more than refusing a healthy traveller, so the best gate dropped to ${t}: refuse lots of innocents to stop the carriers. Accuracy went down but the damage went down too. Choose the threshold from the costs.`;
-  return `Only 1 merchant in 20 was a ${positive}, so letting everyone in is already 95% accurate and still lets every spy through. Your accuracy was ${pct(accuracy)}, which says almost nothing. With rare cases, count how many you caught and what the mistakes cost.`;
+    return `Letting a ${positive} in cost 25 times more than refusing a healthy traveller, so the best gate dropped to ${t}: refuse many innocents to stop nearly every carrier. Accuracy went down, but the damage went down too. In real systems you choose the threshold from what each mistake costs, not from accuracy.`;
+  return `Only 1 merchant in 20 was a ${positive}, so letting everyone in is already 95% accurate and still lets every spy through. Your accuracy was ${pct(accuracy)}, which says almost nothing here. When the case you care about is rare, count how many of them you caught (recall), how many of your refusals were right (precision), and what the mistakes cost.`;
 }

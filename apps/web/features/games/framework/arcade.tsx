@@ -255,7 +255,20 @@ export function ArcadePlayer({ game }: { game: GameDef }) {
                 </div>
               ))}
             </dl>
-            <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{phase.result.detail}</p>
+            {phase.result.debrief ? (
+              <dl className="mb-4 space-y-3 border-b border-slate-200 pb-4 dark:border-slate-800">
+                {([["happened", "What happened"], ["why", "Why"], ["fix", "Try this"]] as const)
+                  .filter(([k]) => phase.result.debrief?.[k])
+                  .map(([k, label]) => (
+                    <div key={k}>
+                      <dt className={`text-xs font-bold ${k === "fix" ? "text-amber-700 dark:text-amber-300" : "text-slate-500"}`}>{label}</dt>
+                      <dd className="mt-0.5 text-sm leading-relaxed text-slate-800 dark:text-slate-200">{phase.result.debrief?.[k]}</dd>
+                    </div>
+                  ))}
+              </dl>
+            ) : null}
+            <p className="text-xs font-bold text-sky-700 dark:text-sky-300">What this level teaches</p>
+            <p className="mt-0.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{phase.result.detail}</p>
           </div>
           <ConceptCard gameId={game.id} levelId={level.id} concept={level.concept} />
         </div>

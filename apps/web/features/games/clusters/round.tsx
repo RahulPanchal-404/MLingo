@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 
 import { svgPoint, useTicker } from "../framework/hooks";
-import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar } from "../framework/kit";
+import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar, type Debrief } from "../framework/kit";
 import { fmt, pct } from "../framework/math";
 import type { RoundProps } from "../framework/types";
 import {
@@ -176,7 +176,7 @@ function HireRound({ onDone }: Pick<RoundProps, "onDone">) {
         </div>
       </div>
       {popup ? (
-        <Banner title={popup.score === 1000 ? "🏆 Perfect hire!" : popup.score > 0 ? "🙂 Close" : "😬 Way off"} sub={`You hired ${k}. This farm really has ${task.trueK} flocks. +${popup.score}${k > task.trueK ? ". Too many dogs: after the elbow each extra dog saves only a little walking but costs a full wage. Hire where the walking bars stop dropping sharply." : k < task.trueK ? ". Too few dogs: some dogs had to herd two flocks at once, so walking stayed high. Add dogs until the walking bar stops dropping sharply (the elbow)." : ""}`}>
+        <Banner title={popup.score === 1000 ? "🏆 Perfect hire!" : popup.score > 0 ? "🙂 Close" : "😬 Way off"} score={popup.score} debrief={elbowDebrief(k, task.trueK)}>
           <GameButton onClick={next}>{i + 1 === ELBOW_TASKS.length ? "Finish" : "Next farm →"}</GameButton>
         </Banner>
       ) : null}
@@ -250,7 +250,7 @@ function DropRound({ onDone }: Pick<RoundProps, "onDone">) {
         caption={frames ? (ended ? "Herding finished" : `Whistle ${herd.at + 1}: sheep pick a dog, dogs walk to the middle`) : "Tap the field to drop 4 dogs"}
       />
       {ended ? (
-        <Banner title={good ? "🐑 Flocks herded!" : "🐕 Dogs got stuck"} sub={`Walking distance ${fmt(final!.inertia, 0)} vs best ${fmt(task.best, 0)}: +${score}${runs > 1 ? " (re-drop penalty applied)" : ""}${good ? "" : ". Two dogs started in the same flock, so they split it while another dog was left herding two flocks, and K-Means never fixes that. Drop one dog in each flock, or use Smart drop."}`}>
+        <Banner title={good ? "🐑 Flocks herded!" : "🐕 Dogs got stuck"} score={score} debrief={startDebrief(good, final!.inertia, task.best, runs)}>
           <GameButton tone="ghost" onClick={retry}>Re-drop dogs (−150)</GameButton>
           <GameButton onClick={next}>{i + 1 === START_TASKS.length ? "Finish" : "Next field →"}</GameButton>
         </Banner>
@@ -327,7 +327,7 @@ function UnitsRound({ onDone }: Pick<RoundProps, "onDone">) {
         caption="→ income (₹k / year)   ↑ visits per month"
       />
       {ended ? (
-        <Banner title={pur > 0.9 ? "🐑 Real segments found!" : "🌀 Flocks mixed up"} sub={`${pct(pur)} of sheep in the right flock: +${score}${pur > 0.9 ? "" : !fixed ? ". The map wasn't fixed: income is in big numbers and visits in tiny ones, so the dogs only saw income and merged flocks that differ in visits. Fix the map scale (standardize)." : k !== new Set(points.map((p) => p.label)).size ? `. The scale is fixed, but this farm has ${new Set(points.map((p) => p.label)).size} flocks and you sent ${k} dogs.` : ""}`}>
+        <Banner title={pur > 0.9 ? "🐑 Real segments found!" : "🌀 Flocks mixed up"} score={score} debrief={unitDebrief(pur, fixed, k, new Set(points.map((p) => p.label)).size)}>
           <GameButton tone="ghost" onClick={again}>Change settings (−150)</GameButton>
           <GameButton onClick={next}>{i + 1 === UNIT_TASKS.length ? "Finish" : "Next farm →"}</GameButton>
         </Banner>
@@ -384,7 +384,7 @@ function ToolRound({ onDone }: Pick<RoundProps, "onDone">) {
       <TopBar left={<span className="text-white/70">🌀 {task.name} · {i + 1}/{TOOL_TASKS.length}</span>} right={<Stat icon="🎯" value={pick ? pct(pick.pur) : "-"} tone={pick ? (good ? "good" : "bad") : undefined} />} />
       <Field points={task.points} dom={dom} assign={pick?.assign ?? null} dogs={pick?.dogs} links={pick?.links} caption={pick ? "" : "Look at the shapes. One try per field."} />
       {pick ? (
-        <Banner title={good ? "🐑 Every flock separated!" : pick.tool === "dogs" ? "✂️ Flocks sliced in half" : "🔗 Flocks mixed up"} sub={`${pct(pick.pur)} in the right flock: +${purityScore(pick.pur)}${good ? "" : pick.tool === "dogs" ? ". Sheepdogs (K-Means) guard round patches with straight borders, so they cut rings and moons in half. Follow-the-leader (DBSCAN) follows any dense shape." : ". Follow-the-leader linked flocks that touch, or left sheep out as strays. For round, well-separated flocks, sheepdogs (K-Means) work well."}`}>
+        <Banner title={good ? "🐑 Every flock separated!" : pick.tool === "dogs" ? "✂️ Flocks sliced in half" : "🔗 Flocks mixed up"} score={purityScore(pick.pur)} debrief={toolDebrief(!!good, pick.tool, pick.pur)}>
           <GameButton onClick={next}>{i + 1 === TOOL_TASKS.length ? "Finish" : "Next field →"}</GameButton>
         </Banner>
       ) : null}
@@ -395,6 +395,56 @@ function ToolRound({ onDone }: Pick<RoundProps, "onDone">) {
       </ControlDeck>
     </GameScreen>
   );
+}
+
+const KMEANS_IDEA =
+  "The sheepdogs are K-Means, a method that finds groups in data nobody has labelled. You choose K, the number of groups. Each sheep goes to its nearest dog, each dog walks to the middle of its sheep, and this repeats until nothing changes. The total walking distance (called inertia) measures how tight the groups are.";
+
+function elbowDebrief(k: number, trueK: number): Debrief {
+  const happened = `You hired ${k} ${k === 1 ? "dog" : "dogs"}. This farm really has ${trueK} flocks.`;
+  const idea =
+    "Choosing K is the hard part of K-Means: more groups always means less walking, so walking alone can't tell you when to stop. The elbow method plots walking against K and picks the point where the drop suddenly levels off. Past that point, extra groups only split real groups in two.";
+  if (k > trueK)
+    return { happened, why: "Past the right number, each extra dog saves only a little walking, because it just splits a flock one dog was already handling, but it still costs a full wage.", fix: "Find where the walking bars stop dropping sharply (the bend, or elbow) and hire that many.", idea };
+  if (k < trueK)
+    return { happened, why: "Some dogs had to herd two flocks at once, so walking stayed high. Adding a dog there still saves a lot.", fix: "Keep adding dogs while each one cuts the walking a lot. Stop where the drop flattens out (the elbow).", idea };
+  return { happened, why: "That's where the walking bars stop dropping sharply: the elbow.", idea };
+}
+
+function startDebrief(good: boolean, inertia: number, best: number, runs: number): Debrief {
+  const happened = `Total walking distance: ${fmt(inertia, 0)}. The best possible is ${fmt(best, 0)}.${runs > 1 ? " Re-dropping the dogs cost a penalty." : ""}`;
+  if (good) return { happened, why: "Each dog started near its own flock, so each ended up herding exactly one.", idea: KMEANS_IDEA };
+  return {
+    happened,
+    why: "Two dogs started in the same flock and split it between them, while another dog was left herding two flocks. K-Means only ever moves dogs a little towards their sheep, so it never fixes a bad start.",
+    fix: "Drop one dog in each flock, or press Smart drop, which spreads the dogs out by placing each new one far from the others (k-means++).",
+    idea: KMEANS_IDEA + " Because the result depends on where the dogs start, real code runs it several times from different starts and keeps the best.",
+  };
+}
+
+function unitDebrief(pur: number, fixed: boolean, k: number, trueK: number): Debrief {
+  const happened = `${pct(pur)} of the sheep ended up in the right flock.`;
+  const idea =
+    "K-Means groups points by distance, adding up the differences in every feature. Income is in big numbers and visits in single digits, so without rescaling, income decides everything. Standardizing puts every feature on the same scale (average 0, spread 1). Do it before any method that measures distance.";
+  if (pur > 0.9) return { happened, why: "With the map scale fixed, both income and visits count, so the real customer groups appear.", idea };
+  if (!fixed)
+    return {
+      happened,
+      why: "Income is in big numbers and visits in tiny ones, so to the dogs, two customers with very different visit counts looked almost identical. They merged groups that differ only in visits.",
+      fix: "Press 'Fix map scale' before sending the dogs.",
+      idea,
+    };
+  return { happened, why: `The scale is fixed, but this farm has ${trueK} flocks and you sent ${k} ${k === 1 ? "dog" : "dogs"}.`, fix: `Send ${trueK} dogs.`, idea };
+}
+
+function toolDebrief(good: boolean, tool: string, pur: number): Debrief {
+  const happened = `${pct(pur)} of the sheep ended up in the right flock.`;
+  const idea =
+    "Different clustering methods assume different shapes. K-Means (sheepdogs) splits the field with straight borders around round patches. DBSCAN (follow-the-leader) joins any sheep packed closely together, so it can trace rings, moons and long streams, and it leaves isolated sheep out as strays (noise). Look at the shape of your data first, then pick the method.";
+  if (good) return { happened, why: tool === "dogs" ? "These flocks are round and well apart, which is exactly what sheepdogs handle." : "These flocks have curved shapes, which follow-the-leader traces well.", idea };
+  return tool === "dogs"
+    ? { happened, why: "Sheepdogs guard round patches with straight borders between them, so they cut the rings and moons in half.", fix: "For curved or stretched flocks, use follow-the-leader.", idea }
+    : { happened, why: "Follow-the-leader linked flocks that touch each other, or left some sheep out as strays.", fix: "For round, well-separated flocks, use sheepdogs.", idea };
 }
 
 export function ClustersRound({ level, onDone }: RoundProps) {

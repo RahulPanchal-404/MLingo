@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 
 import { svgPoint, useTicker } from "../framework/hooks";
-import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar } from "../framework/kit";
+import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar, type Debrief } from "../framework/kit";
 import { fmt, logPosition, logValue, pct } from "../framework/math";
 import type { RoundProps, RoundResult } from "../framework/types";
 import {
@@ -173,11 +173,8 @@ function CurveRound({ mode, onDone }: { mode: Mode; onDone: RoundProps["onDone"]
       {result ? (
         <Banner
           title={result.score >= 850 ? "🏆 Rock-solid bridge!" : result.score >= 500 ? "🙂 Most trucks made it" : "💥 Trucks in the river"}
-          sub={
-            mode === "line"
-              ? `Your error ${fmt(result.err, 3)} vs least-squares ${fmt(result.best, 3)} (green dashed line): +${result.score}.${result.score < 850 ? " Your bridge misses the pillars more than it needs to: move its ends until it sits on the green line, where the red error lines are shortest overall." : ""}`
-              : `${pct(result.hit)} of test trucks crossed. Test error ${fmt(result.err, 3)} vs best possible ${fmt(result.best, 3)}: +${result.score}.${result.score < 850 ? " " + curveWhy(mode, task, degree, lambda, trainErr, result.err) : ""}`
-          }
+          score={result.score}
+          debrief={mode === "line" ? lineDebrief(result.score, result.err, result.best, left, right, line) : curveDebrief(mode, task, degree, lambda, trainErr, result.err, result.hit)}
         >
           <GameButton onClick={next}>{i + 1 === tasks.length ? "Finish" : "Next canyon →"}</GameButton>
         </Banner>
@@ -287,7 +284,8 @@ function LassoRound({ onDone }: Pick<RoundProps, "onDone">) {
       {result ? (
         <Banner
           title={result.score >= 850 ? "🏆 Lean, strong bridge!" : result.junkKept > 2 ? "🗑️ Too much junk left" : "🙂 Decent"}
-          sub={`Kept ${result.kept} beams (${result.junkKept} junk). Test error ${fmt(result.err, 2)} vs best ${fmt(result.best, 2)}: +${result.score}. ✅ = real beam, 🗑️ = junk.${result.score < 850 ? " " + lassoWhy(model.w, lambda, bestLassoLambda(task)) : ""}`}
+          score={result.score}
+          debrief={lassoDebrief(result.score, result.kept, result.junkKept, model.w, lambda, bestLassoLambda(task))}
         >
           <GameButton onClick={next}>{i + 1 === LASSO_TASKS.length ? "Finish" : "Next bridge →"}</GameButton>
         </Banner>
@@ -304,29 +302,96 @@ function LassoRound({ onDone }: Pick<RoundProps, "onDone">) {
   );
 }
 
-/** Why a bendy/stiff bridge did badly, compared with the best setting for this canyon. */
-function curveWhy(mode: Mode, task: CurveTask, degree: number, lambda: number, trainErr: number, testErr: number): string {
+const LINE_IDEA =
+  "A straight bridge is the simplest prediction model there is: a line, ŷ = w·x + b, where w is the tilt and b the height. To score a line we take each miss (each red line), square it and average them. Squaring makes big misses count much more than small ones. The line with the smallest possible score is called the least-squares line, and finding it is linear regression.";
+
+/** Feedback for a hand-placed line, including which end is off and by how much. */
+function lineDebrief(score: number, err: number, best: number, left: number, right: number, m: { w: number[]; b: number }): Debrief {
+  const bestL = m.b - m.w[0];
+  const bestR = m.b + m.w[0];
+  const ends = ([["left", left - bestL], ["right", right - bestR]] as const).filter(([, d]) => Math.abs(d) >= 0.15);
+  const endText = ends.map(([side, d]) => `the ${side} end is about ${fmt(Math.abs(d), 1)} too ${d > 0 ? "high" : "low"}`).join(" and ");
+  if (score >= 850)
+    return {
+      happened: `Your bridge runs almost exactly along the best line (the green dashed line). Your error is ${fmt(err, 3)}; the best possible is ${fmt(best, 3)}.`,
+      idea: LINE_IDEA,
+    };
+  return {
+    happened: `Your bridge misses the pillars by more than it needs to. Its error (each red line's length squared, then averaged) is ${fmt(err, 3)}. The best straight bridge for these pillars, drawn as the green dashed line, gets ${fmt(best, 3)}.`,
+    why: endText
+      ? `Compared with the green line, ${endText}, so the bridge tilts away from where most pillars are. Each red line is squared before averaging, so a pillar missed by 2 costs four times as much as one missed by 1.`
+      : "The bridge is close, but slightly off the green line along its length. Because each red line is squared, even small shifts add up.",
+    fix: "Move the ends until the bridge runs through the middle of the pillars, with about as many pillars above it as below. Line it up with the green dashed line and watch the red lines shrink.",
+    idea: LINE_IDEA,
+  };
+}
+
+const OVERFIT_IDEA =
+  "The pillars are training data: what the model learns from. The test trucks are new data it never saw. A model that copies the training data too closely, including its random noise, does badly on new data. That is called overfitting. A model too simple to follow the real pattern is underfitting. The aim is always the lowest error on new data, not on the training data.";
+const RIDGE_IDEA =
+  "Stiffness is regularization. The bridge is allowed to be very bendy (degree 12), but every bend costs extra: ridge regression adds λ × (sum of the squared weights) to the error, so the model only bends where the pillars really demand it. Instead of picking a simpler model, you keep the flexible one and hold it back. λ is chosen by checking which value does best on new data.";
+
+/** Feedback for the bendy (degree) and stiff (ridge) bridges, compared with the best setting for this canyon. */
+function curveDebrief(mode: Mode, task: CurveTask, degree: number, lambda: number, trainErr: number, testErr: number, hit: number): Debrief {
+  const happened = `${pct(hit)} of the test trucks made it across. Test trucks are new trucks that played no part in shaping the bridge, so they show how it handles real traffic. Error on the pillars: ${fmt(trainErr, 2)}. Error on the test trucks: ${fmt(testErr, 2)}.`;
   if (mode === "degree") {
     const best = bestDegree(task);
-    if (degree === best) return "That's the best degree for this canyon.";
+    if (degree === best)
+      return { happened, why: `Bendiness ${degree} was the best choice for this canyon. The trucks that still fell were thrown off by random noise that no bridge can predict.`, idea: OVERFIT_IDEA };
     return degree > best
-      ? `Too bendy: degree ${degree} hugs the pillars (train error ${fmt(trainErr, 2)}) but wiggles between them, so test trucks fall off (test error ${fmt(testErr, 2)}). That's overfitting. Degree ${best} was best here.`
-      : `Too stiff: degree ${degree} can't follow the shape of the canyon, so it misses pillars and test trucks alike. That's underfitting. Degree ${best} was best here.`;
+      ? {
+          happened,
+          why: `Bendiness ${degree} lets the bridge bend to touch every pillar, even pillars that sit a little off because of random noise. To do that it swings up and down between them, exactly where the trucks drive. Notice the error on the pillars is lower than on the trucks.`,
+          fix: `Lower the bendiness. On this canyon, bendiness ${best} did best on the test trucks.`,
+          idea: OVERFIT_IDEA,
+        }
+      : {
+          happened,
+          why: `Bendiness ${degree} is too stiff to follow the curve of the canyon. It misses pillars and trucks alike, which is why both errors are high.`,
+          fix: `Raise the bendiness. On this canyon, bendiness ${best} did best on the test trucks.`,
+          idea: OVERFIT_IDEA,
+        };
   }
   const best = bestLambda(task);
   const ratio = lambda / best;
-  if (ratio > 1 / 3.2 && ratio < 3.2) return "That's about the best stiffness for this canyon.";
+  if (ratio > 1 / 3.2 && ratio < 3.2)
+    return { happened, why: "That was about the best stiffness for this canyon. The remaining misses come from random noise in the data.", idea: RIDGE_IDEA };
   return lambda < best
-    ? `Not stiff enough: with λ = ${lambda.toExponential(0)} the degree-12 bridge still wiggles through every pillar (train error ${fmt(trainErr, 2)}) and the test trucks fall off between them. Raise λ; about ${best.toExponential(0)} was best here.`
-    : `Too stiff: λ = ${lambda.toExponential(0)} flattens the bridge so it can't follow the canyon. Lower λ; about ${best.toExponential(0)} was best here.`;
+    ? {
+        happened,
+        why: `With stiffness λ = ${lambda.toExponential(0)} there is almost no cost to bending, so the degree-12 bridge still wiggles through every pillar and throws trucks off between them.`,
+        fix: `Raise the stiffness. About λ = ${best.toExponential(0)} worked best here.`,
+        idea: RIDGE_IDEA,
+      }
+    : {
+        happened,
+        why: `Stiffness λ = ${lambda.toExponential(0)} makes bending so costly that the bridge goes nearly flat and can't follow the canyon.`,
+        fix: `Lower the stiffness. About λ = ${best.toExponential(0)} worked best here.`,
+        idea: RIDGE_IDEA,
+      };
 }
 
-function lassoWhy(w: number[], lambda: number, best: number): string {
+const LASSO_IDEA =
+  "Each beam is a feature: a piece of information the model can use. Only Steel, Height and Span really matter; the others are junk that happens to line up with the data by chance. Lasso adds λ × (sum of the sizes of the weights) to the error. Unlike ridge, this pushes weak weights all the way to zero, cutting those features out. So Lasso picks the useful features for you, and λ sets how strict it is.";
+
+function lassoDebrief(score: number, kept: number, junk: number, w: number[], lambda: number, best: number): Debrief {
   const realCut = REAL_BEAMS.filter((j) => Math.abs(w[j]) < 1e-6).map((j) => BEAMS[j]);
-  const junk = w.filter((x, j) => Math.abs(x) > 1e-6 && !REAL_BEAMS.includes(j)).length;
-  if (realCut.length) return `λ was too big: it cut real beams (${realCut.join(", ")}), so the bridge can't carry the load. Lower λ (about ${fmt(best, 2)} was best).`;
-  if (junk > 0 && lambda < best) return `λ was too small: ${junk} junk ${junk === 1 ? "beam" : "beams"} stayed in and fit noise. Raise λ until they're cut (about ${fmt(best, 2)} was best).`;
-  return "";
+  const happened = `You kept ${kept} of the 8 beams, and ${junk} of the ones you kept ${junk === 1 ? "is" : "are"} junk (marked 🗑️). Real beams are marked ✅.`;
+  if (realCut.length)
+    return {
+      happened,
+      why: `λ was so strict that it cut real beams (${realCut.join(", ")}). Without them the bridge can't carry the load, so predictions on new data got worse.`,
+      fix: `Lower λ. About ${fmt(best, 2)} was best here.`,
+      idea: LASSO_IDEA,
+    };
+  if (junk > 0 && lambda < best)
+    return {
+      happened,
+      why: `λ was too lenient, so ${junk} junk ${junk === 1 ? "beam" : "beams"} stayed in. With only 13 training examples, junk features can match the noise by luck, and that luck does not repeat on new data.`,
+      fix: `Raise λ until the junk beams are cut. About ${fmt(best, 2)} was best here.`,
+      idea: LASSO_IDEA,
+    };
+  return { happened, why: score >= 850 ? "You kept the real beams and cut the junk." : "Close to the best setting.", idea: LASSO_IDEA };
 }
 
 function summary(mode: string, all: number[]): RoundResult {

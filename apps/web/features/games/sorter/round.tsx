@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar } from "../framework/kit";
+import { Banner, ControlDeck, GameButton, GameScreen, Stat, TopBar, type Debrief } from "../framework/kit";
 import { fmt, pct } from "../framework/math";
 import type { RoundProps, RoundResult } from "../framework/types";
 import {
@@ -114,7 +114,8 @@ function MapRound({ mode, onDone }: { mode: Mode; onDone: RoundProps["onDone"] }
       {tested ? (
         <Banner
           title={tested.score >= 850 ? "🏆 Sorted like a pro!" : tested.score >= 450 ? "🙂 Mostly right" : "😵 Creatures in the wrong pens"}
-          sub={`${pct(tested.acc)} of new creatures sorted correctly (best possible ${pct(tested.best)}). Training accuracy was ${pct(trainAcc)}. +${tested.score}. ${tested.score < 850 ? sorterWhy(mode, task, k, std, depth, trainAcc, tested.acc) : ""}`}
+          score={tested.score}
+          debrief={sorterDebrief(mode, task, k, std, depth, trainAcc, tested.acc, tested.best)}
         >
           <GameButton onClick={next}>{i + 1 === tasks.length ? "Finish" : "Next field →"}</GameButton>
         </Banner>
@@ -210,7 +211,7 @@ function TreeRound({ onDone }: Pick<RoundProps, "onDone">) {
           {!done ? (
             <>
               <p className="text-xs font-black uppercase tracking-wider text-amber-300">{node === "root" ? "First question (everyone)" : node === "L" ? "Question for the YES group" : "Question for the NO group"}</p>
-              <p className="text-xs text-white/70">This group: {count(data)} · Gini {fmt(gini(data), 2)}. Pick the question that splits it into the purest groups.</p>
+              <p className="text-xs text-white/70">This group: {count(data)}. Mixing score (Gini) {fmt(gini(data), 2)}: 0 means one species only, 0.5 is a half-and-half mix. Pick the question that leaves both sides least mixed.</p>
               {options.map((s, n) => {
                 const yes = data.filter((c) => go(c, s));
                 const no = data.filter((c) => !go(c, s));
@@ -227,13 +228,24 @@ function TreeRound({ onDone }: Pick<RoundProps, "onDone">) {
           )}
           {last ? (
             <p className="g-pop rounded-lg bg-black/40 p-2 text-xs text-white/80">
-              Impurity dropped by <b>{fmt(last.drop, 3)}</b> (best available {fmt(last.best, 3)}): <b className="text-amber-300">+{last.pts}</b>
+              Your question lowered the mixing score by <b>{fmt(last.drop, 3)}</b>. The best question available would have lowered it by {fmt(last.best, 3)}. <b className="text-amber-300">{last.pts} / 1000</b>
             </p>
           ) : null}
         </div>
       </div>
       {done ? (
-        <Banner title={points.every((p) => p >= 900) ? "🌳 Perfect questions!" : "🌳 Tree built"} sub={`Question scores: ${points.join(", ")}. The tree sorts ${pct(testAcc)} of new creatures correctly.`}>
+        <Banner
+          title={points.every((p) => p >= 900) ? "🌳 Perfect questions!" : "🌳 Tree built"}
+          score={Math.round(points.reduce((a, b) => a + b, 0) / points.length)}
+          debrief={{
+            happened: `Your tree sorts ${pct(testAcc)} of new creatures into the right pen. Each question scored: ${points.join(", ")} out of 1000.`,
+            why: points.every((p) => p >= 900)
+              ? "Every time, you picked the question that left the two groups as unmixed as possible."
+              : "Some questions left the groups more mixed than the best question available would have. A good question sends mostly one species to Yes and mostly the other to No.",
+            fix: points.every((p) => p >= 900) ? undefined : "For each option, look at the Yes and No counts and pick the one where each side is closest to a single species.",
+            idea: TREE_IDEA,
+          }}
+        >
           <GameButton onClick={next}>{i + 1 === TREE_TASKS.length ? "Finish" : "Next habitat →"}</GameButton>
         </Banner>
       ) : null}
@@ -242,20 +254,56 @@ function TreeRound({ onDone }: Pick<RoundProps, "onDone">) {
   );
 }
 
-/** Why the sorting map did badly on new creatures. */
-function sorterWhy(mode: Mode, task: Task, k: number, std: boolean, depth: number, trainAcc: number, testAcc: number): string {
+const KNN_IDEA =
+  "This sorting rule is K-nearest neighbours: to sort a new creature, look at the K creatures closest to it that you have already sorted, and go with the majority. Small K copies individual creatures, mistakes and all, so the map turns jagged (overfitting). Large K averages over so many neighbours that the real border gets blurred (underfitting). The right K is found by testing on creatures the rule has not seen.";
+const SCALE_IDEA =
+  "Methods that measure distance, like K-nearest neighbours, add up the differences in every feature. If one feature is measured in hundreds and another in single digits, the big one swamps the small one. Standardizing rescales every feature to the same range (average 0, spread 1), so each one counts fairly.";
+const TREE_IDEA =
+  "This is how a decision tree is built. At each step it tries every possible yes/no question and keeps the one that splits the group into the least-mixed halves. Mixing is measured with the Gini impurity: 0 for a pure group, higher the more mixed it is. The tree repeats this on each half until the groups are pure enough.";
+const DEPTH_IDEA =
+  "Depth is how many questions in a row the tree may ask. A deep tree keeps going until every training creature has its own little box, which makes it perfect on creatures it has seen and poor on new ones (overfitting). A shallow tree asks too few questions to follow the border (underfitting). Limiting depth is the main way to control a tree.";
+
+/** Feedback for the sorting map, compared with the best setting for this habitat. */
+function sorterDebrief(mode: Mode, task: Task, k: number, std: boolean, depth: number, trainAcc: number, testAcc: number, best: number): Debrief {
+  const happened = `${pct(testAcc)} of the new creatures went to the right pen; the best possible rule here gets ${pct(best)}. On the creatures you had already sorted, your rule was right ${pct(trainAcc)} of the time.`;
   if (mode === "scale")
-    return std ? "" : "Weight is in hundreds of grams and wing length is under 6 cm, so distance was almost all weight, which doesn't tell the species apart. Putting features in the same units lets wing length count.";
+    return std
+      ? { happened, why: "With both features in the same units, wing length counts as much as weight, and wing length is what tells the species apart.", idea: SCALE_IDEA }
+      : {
+          happened,
+          why: "Weight is in hundreds of grams, wing length under 6 cm. When the rule measures how close two creatures are, a weight difference of 50 swamps a wing difference of 2, so it was effectively looking at weight only. Weight doesn't tell these species apart.",
+          fix: "Press 'Put features in same units' before releasing the creatures.",
+          idea: SCALE_IDEA,
+        };
   if (mode === "knn") {
-    const best = bestK(task);
-    if (k < best) return `K = ${k} was too small: each new creature copied its single nearest neighbour, including the mislabelled ones (training ${pct(trainAcc)}, new ${pct(testAcc)}). That's overfitting. K = ${best} was best here.`;
-    if (k > best) return `K = ${k} was too big: asking that many neighbours blurs the border, so creatures near it get the majority species. That's underfitting. K = ${best} was best here.`;
-    return "";
+    const bk = bestK(task);
+    if (k < bk)
+      return {
+        happened,
+        why: `With K = ${k}, each new creature copied the closest one or two creatures, including those that were mislabelled. That's why the rule looks great on creatures it has seen and worse on new ones.`,
+        fix: `Ask more neighbours. K = ${bk} was best here.`,
+        idea: KNN_IDEA,
+      };
+    if (k > bk)
+      return {
+        happened,
+        why: `With K = ${k}, so many neighbours vote that creatures near the border get swept along with the majority species.`,
+        fix: `Ask fewer neighbours. K = ${bk} was best here.`,
+        idea: KNN_IDEA,
+      };
+    return { happened, why: `K = ${k} was the best choice for this habitat. The creatures it still got wrong sit right on the border, mixed in with the other species.`, idea: KNN_IDEA };
   }
-  const best = bestDepth(task);
-  if (depth > best) return `Depth ${depth} was too deep: the tree kept asking questions until it memorised the noisy training creatures (training ${pct(trainAcc)}, new ${pct(testAcc)}). Depth ${best} was best here.`;
-  if (depth < best) return `Depth ${depth} was too shallow: too few questions to separate the species. Depth ${best} was best here.`;
-  return "";
+  const bd = bestDepth(task);
+  if (depth > bd)
+    return {
+      happened,
+      why: `At depth ${depth} the tree kept asking questions until it had memorised the training creatures, mislabelled ones included. The map breaks into tiny boxes that don't help with new creatures.`,
+      fix: `Allow fewer questions. Depth ${bd} was best here.`,
+      idea: DEPTH_IDEA,
+    };
+  if (depth < bd)
+    return { happened, why: `Depth ${depth} is too few questions to trace the border between the species.`, fix: `Allow more questions. Depth ${bd} was best here.`, idea: DEPTH_IDEA };
+  return { happened, why: `Depth ${depth} was the best choice here.`, idea: DEPTH_IDEA };
 }
 
 function summary(mode: string, all: number[]): RoundResult {

@@ -39,6 +39,8 @@ export type RoundResult = {
   headline: string;
   /** What happened and why, in terms of the concept being taught. */
   detail: string;
+  /** For a failed run that ends without a popup to read: what went wrong and how to fix it. */
+  debrief?: Debrief;
   stats: { label: string; value: string }[];
 };
 
@@ -77,3 +79,19 @@ export type Guide = {
   /** Game element → the ML idea it stands for. */
   map: [string, string][];
 };
+
+/**
+ * What a player reads after each try. Written for someone who may not have read the
+ * theory yet: plain words first, the ML name last.
+ */
+export type Debrief = {
+  /** What happened, in plain words. No scores. */
+  happened: string;
+  /** Why it happened. */
+  why?: string;
+  /** One concrete thing to change next time. */
+  fix?: string;
+  /** The ML idea behind it, explained, then named. */
+  idea?: string;
+};
+

@@ -22,11 +22,31 @@ export type Frame = {
   surface?: { n: number; values: number[] };
   curves?: Curve[];
   segments?: Segment[];
+  /** A tree's structure, drawn as a diagram next to the map (decision trees only). */
+  tree?: TreeView;
   /** One or two sentences: what changed in this frame and what it means. */
   caption: string;
   /** Values for the metric chart, keyed by series key. */
   metrics: Record<string, number>;
 };
+
+export type TreeViewNode = {
+  id: number;
+  /** "feature 1 ≤ 0.42" for a question; omitted for a leaf. */
+  question?: string;
+  /** Class counts of the training points that reach this node. */
+  n0: number;
+  n1: number;
+  gini: number;
+  /** Predicted class at a leaf. */
+  pred: number;
+  /** The question added in this frame. */
+  newest?: boolean;
+  /** Children: yes branch (≤) first, then no. */
+  yes?: TreeViewNode;
+  no?: TreeViewNode;
+};
+export type TreeView = { root: TreeViewNode };
 
 export type MetricSeries = { key: string; label: string; color: string; format?: "pct" | "num" };
 

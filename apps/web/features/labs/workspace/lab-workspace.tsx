@@ -130,7 +130,8 @@ export function LabSettings({
             step={f.step}
             value={f.value}
             onChange={(e) => f.onChange(Number(e.target.value))}
-            className="w-full accent-teal-600 dark:accent-teal-400"
+            className="lab-range"
+            style={{ ["--fill" as string]: `${Math.min(100, Math.max(0, ((f.value - f.min) / (f.max - f.min || 1)) * 100))}%` }}
           />
           {f.hint ? <p className="text-[11px] leading-snug text-slate-500 dark:text-slate-400">{f.hint}</p> : null}
         </div>

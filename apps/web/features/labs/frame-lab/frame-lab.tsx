@@ -8,7 +8,7 @@ import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun } from "@/types/training-run";
 
-import { MetricChart, PlanePlot } from "./plots";
+import { MetricChart, PlanePlot, TreeDiagram } from "./plots";
 import { getFrameLab } from "./registry";
 import type { FrameLabDef } from "./types";
 
@@ -63,7 +63,7 @@ export function FrameLab<C extends Record<string, number>>({ def }: { def: Frame
           footer={<LabLinks theory={def.theory} code={def.code} />}
         />
       }
-      visuals={run && frame ? <><PlanePlot run={run} frame={frame} title="What the model sees" label={run.frameLabel(index)} /><MetricChart run={run} current={index} /></> : undefined}
+      visuals={run && frame ? <><PlanePlot run={run} frame={frame} title="What the model sees" label={run.frameLabel(index)} /><MetricChart run={run} current={index} />{frame.tree ? <TreeDiagram tree={frame.tree} label={run.frameLabel(index)} /> : null}</> : undefined}
       timeline={
         run && frame ? (
           <PersistentTimelineDock

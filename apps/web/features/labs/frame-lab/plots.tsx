@@ -1,6 +1,8 @@
 "use client";
 
-import type { Frame, FrameRun } from "./types";
+import { useEffect, useRef } from "react";
+
+import type { Frame, FrameRun, TreeView, TreeViewNode } from "./types";
 
 const CLASS = ["#14b8a6", "#f59e0b"];
 const W = 560;
@@ -148,6 +150,87 @@ export function MetricChart({ run, current }: { run: FrameRun; current: number }
           </span>
         ))}
       </p>
+    </figure>
+  );
+}
+
+const SLOT = 92;
+const LEVEL = 74;
+const QW = 118;
+const LW = 70;
+const BH = 38;
+
+type Placed = { node: TreeViewNode; x: number; y: number; depth: number; kids: Placed[] };
+
+function place(node: TreeViewNode, depth: number, next: { leaf: number }): Placed {
+  if (!node.yes || !node.no) {
+    const x = next.leaf * SLOT + SLOT / 2;
+    next.leaf += 1;
+    return { node, x, y: depth * LEVEL, depth, kids: [] };
+  }
+  const yes = place(node.yes, depth + 1, next);
+  const no = place(node.no, depth + 1, next);
+  return { node, x: (yes.x + no.x) / 2, y: depth * LEVEL, depth, kids: [yes, no] };
+}
+const flatten = (p: Placed): Placed[] => [p, ...p.kids.flatMap(flatten)];
+
+/** The tree itself: each question in a box, yes to the left, no to the right, leaves coloured by the class they predict. */
+export function TreeDiagram({ tree, label }: { tree: TreeView; label: string }) {
+  const counter = { leaf: 0 };
+  const root = place(tree.root, 0, counter);
+  const all = flatten(root);
+  const width = Math.max(counter.leaf * SLOT, QW + 20);
+  const height = Math.max(...all.map((p) => p.y)) + BH + 16;
+  const scroller = useRef<HTMLDivElement>(null);
+  const newest = all.find((p) => p.node.newest);
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || !newest) return;
+    el.scrollTo({ left: Math.max(0, newest.x - el.clientWidth / 2), top: Math.max(0, newest.y - el.clientHeight / 3), behavior: "smooth" });
+  }, [newest]);
+  return (
+    <figure className="lab-chart md:col-span-2">
+      <figcaption>
+        The tree <span>{label}</span>
+      </figcaption>
+      <div ref={scroller} className="mt-2 max-h-[26rem] overflow-auto">
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Decision tree diagram" style={{ width, maxWidth: "none", margin: "0 auto", display: "block" }}>
+          {all.flatMap((p) =>
+            p.kids.map((k, i) => (
+              <g key={`${p.node.id}-${k.node.id}`}>
+                <line x1={p.x} y1={p.y + BH + 8} x2={k.x} y2={k.y + 8} stroke="var(--muted)" strokeWidth={1.2} />
+                <text x={(p.x + k.x) / 2 + (i === 0 ? -8 : 8)} y={(p.y + BH + k.y) / 2 + 12} textAnchor={i === 0 ? "end" : "start"} fontSize="10" fill="var(--muted)">
+                  {i === 0 ? "yes" : "no"}
+                </text>
+              </g>
+            )),
+          )}
+          {all.map((p) => {
+            const n = p.node;
+            const total = n.n0 + n.n1;
+            if (n.question) {
+              return (
+                <g key={n.id} transform={`translate(${p.x - QW / 2} ${p.y + 8})`}>
+                  <rect width={QW} height={BH} rx={7} fill="var(--surface-elevated, var(--surface))" stroke={n.newest ? "var(--foreground)" : "var(--border)"} strokeWidth={n.newest ? 2.5 : 1} />
+                  <text x={QW / 2} y={15} textAnchor="middle" fontSize="11" fontWeight="700" fill="var(--foreground)">{n.question}?</text>
+                  <text x={QW / 2} y={30} textAnchor="middle" fontSize="9.5" fill="var(--muted)">{total} points · Gini {n.gini.toFixed(2)}</text>
+                </g>
+              );
+            }
+            return (
+              <g key={n.id} transform={`translate(${p.x - LW / 2} ${p.y + 8})`}>
+                <rect width={LW} height={BH} rx={7} fill={CLASS[n.pred]} fillOpacity={0.18} stroke={CLASS[n.pred]} strokeWidth={1.3} />
+                <circle cx={13} cy={14} r={3.5} fill={CLASS[0]} />
+                <text x={20} y={17.5} fontSize="10" fill="var(--foreground)">{n.n0}</text>
+                <circle cx={43} cy={14} r={3.5} fill={CLASS[1]} />
+                <text x={50} y={17.5} fontSize="10" fill="var(--foreground)">{n.n1}</text>
+                <text x={LW / 2} y={31} textAnchor="middle" fontSize="9.5" fontWeight="700" fill="var(--foreground)">→ class {n.pred}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <p>Boxes are questions; a training point goes left if the answer is yes. Coloured boxes are leaves: the dots count the training points that end there, and the leaf predicts the majority class. The outlined box is the question added in this frame.</p>
     </figure>
   );
 }

@@ -1,5 +1,5 @@
 import { acc, bounds, grid, moons, num, pct, split, toPlot, type Labelled } from "../data";
-import type { Frame, FrameRun, Segment } from "../types";
+import type { Frame, FrameRun, Segment, TreeViewNode } from "../types";
 
 type Box = { x0: number; x1: number; y0: number; y1: number };
 export type TreeNode = { box: Box; pts: Labelled[]; depth: number; pred: number; split?: { f: "x" | "y"; t: number }; left?: TreeNode; right?: TreeNode };
@@ -46,6 +46,20 @@ function segmentOf(n: TreeNode, kind: Segment["kind"]): Segment {
   return s!.f === "x" ? { a: [s!.t, box.y0], b: [s!.t, box.y1], kind } : { a: [box.x0, s!.t], b: [box.x1, s!.t], kind };
 }
 
+let viewId = 0;
+function toView(n: TreeNode, newest?: TreeNode): TreeViewNode {
+  const n1 = n.pts.filter((p) => p.c === 1).length;
+  const base = { id: viewId++, n0: n.pts.length - n1, n1, gini: gini(n.pts), pred: n.pred };
+  if (!n.split || !n.left || !n.right) return base;
+  return {
+    ...base,
+    question: `${n.split.f === "x" ? "feature 1" : "feature 2"} ≤ ${num(n.split.t, 2)}`,
+    newest: n === newest,
+    yes: toView(n.left, newest),
+    no: toView(n.right, newest),
+  };
+}
+
 export type TreeConfig = { maxSplits: number; maxDepth: number; minLeaf: number; samples: number; noise: number; seed: number };
 
 export function runTree(c: TreeConfig): FrameRun {
@@ -62,6 +76,7 @@ export function runTree(c: TreeConfig): FrameRun {
       points: toPlot(train, test),
       surface: grid(domain, 48, (x, y) => f({ x, y })),
       segments: splits(root).map((n) => segmentOf(n, n === newest ? "split-new" : "split")),
+      tree: { root: ((viewId = 0), toView(root, newest)) },
       caption: `${caption} Training accuracy ${pct(trainAcc)}, test accuracy ${pct(testAcc)}.`,
       metrics: { train: trainAcc, test: testAcc, leaves: leaves(root).length },
     });

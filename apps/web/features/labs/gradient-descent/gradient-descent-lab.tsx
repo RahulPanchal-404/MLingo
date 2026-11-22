@@ -13,7 +13,6 @@ import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
 import { CodeMode } from "@/features/labs/gradient-descent/code-mode";
 import { MathMode } from "@/features/labs/gradient-descent/math-mode";
 import { getRunYDomain, RegressionPlot } from "@/features/labs/gradient-descent/regression-plot";
-import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import { MarkerForm } from "@/features/timeline/marker-form";
 import { generateTrainingInsights } from "@/features/insights/engine";
@@ -27,7 +26,7 @@ import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 import { recordLabVisit } from "@/features/progress/activity";
 import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
-import { ExperimentControlPanel } from "./experiment-control-panel";
+import { LabLinks, LabSettings, LabWorkspace } from "@/features/labs/workspace/lab-workspace";
 
 const defaultRequest: TrainingRunRequest = {
       algorithm: "linear_regression",
@@ -133,80 +132,63 @@ export function GradientDescentLab({ breakMode }: GradientDescentLabProps = {}) 
             setIsMarkerFormOpen(false);
       };
 
+      const setTraining = (key: "learning_rate" | "epochs", value: number) => setConfiguration((c) => ({ ...c, training: { ...c.training, [key]: key === "epochs" ? Math.round(value) : value } }));
+      const setDataset = (key: "samples" | "noise", value: number) => setConfiguration((c) => ({ ...c, dataset: { ...c.dataset, [key]: key === "samples" ? Math.round(value) : value } }));
+
       return (
-            <div className="lab-layout space-y-6">
-                  {/* Top Intro & Responsive Experiment Console */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                        <div className="lg:col-span-7 space-y-4">
-                              <div className="lab-intro-copy">
-                                    <p className="eyebrow">Lab 01 / recorded training</p>
-                                    <h1 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
-                                          Gradient descent, frame by frame.
-                                    </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-                                          Run one real linear model, then scrub its recorded states to see the fit, gradients, and loss change together.
-                                    </p>
-                              </div>
-
-                              <div className="lab-secondary-action flex flex-wrap items-center gap-3 pt-2">
-                                    <SaveExperimentButton run={run} />
-                                    <Link className="secondary-button" href="/labs/gradient-descent/compare">Compare training runs</Link>
-                              </div>
-
-                              {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
-                              {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
-                              {isLoading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the training run</strong><p>Generating the dataset and capturing every update.</p></div></section>}
-                        </div>
-
-                        {/* Right: Professional Experiment Control Panel */}
-                        <div className="lg:col-span-5">
-                              <ExperimentControlPanel
-                                    configuration={configuration}
-                                    onConfigurationChange={setConfiguration}
-                                    onSubmit={submit}
-                                    isLoading={isLoading}
-                                    isReady={Boolean(run)}
-                                    learningRateConfig={learningRateInput}
-                              />
-                        </div>
-                  </div>
-
-                  {!isLoading && !error && run && (
-                        <>
-                              {/* Visualizations Grid */}
-                              <section className="visual-grid" aria-label="Training visualizations">
-                                    <RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} />
-                                    <LossChart currentStep={timeline.currentStep} history={run.history} />
-                              </section>
-
-                              {/* Persistent Sticky Training Timeline Dock */}
-                              <PersistentTimelineDock
-                                    currentStep={timeline.currentStep}
-                                    totalSteps={timeline.totalSteps}
-                                    isPlaying={timeline.isPlaying}
-                                    onPlayToggle={timeline.togglePlay}
-                                    onBackward={timeline.stepBackward}
-                                    onForward={timeline.stepForward}
-                                    onJump={timeline.jumpToStep}
-                                    onReset={timeline.reset}
-                                    playbackSpeed={timeline.playbackSpeed}
-                                    onSpeed={timeline.setPlaybackSpeed}
-                                    markers={markers}
-                                    lossValue={state?.loss}
-                                    metricLabel="MSE"
-                              />
-
-                              <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
-                              <section className="learning-modes-grid" aria-label="Selected frame learning modes">
-                                    <MathMode learningRate={run.training.learning_rate} state={state} />
-                                    <CodeMode learningRate={run.training.learning_rate} state={state} />
-                              </section>
-                              {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />}
-                              {!breakMode && <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />}
-                              {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
-                              <TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} />
-                        </>
-                  )}
-            </div>
+            <LabWorkspace
+                  title="Linear regression and gradient descent"
+                  summary="A straight line learns to fit the points one update at a time. Scrub the timeline to watch the line, its gradients and the loss change together."
+                  actions={<><SaveExperimentButton run={run} /><Link className="secondary-button" href="/labs/gradient-descent/compare">Compare runs</Link></>}
+                  notices={breakMode ? <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} /> : null}
+                  status={{ loading: isLoading, error, loadingText: "Training the line…" }}
+                  settings={
+                        <LabSettings
+                              onSubmit={submit}
+                              loading={isLoading}
+                              fields={[
+                                    { label: "Learning rate (α)", value: configuration.training.learning_rate, min: Number(learningRateInput.min), max: Number(learningRateInput.max), step: Number(learningRateInput.step), onChange: (v) => setTraining("learning_rate", v), hint: "How big each update step is." },
+                                    { label: "Epochs", value: configuration.training.epochs, min: 1, max: 300, step: 1, onChange: (v) => setTraining("epochs", v), hint: "How many updates to record." },
+                                    { label: "Samples", value: configuration.dataset.samples, min: 10, max: 100, step: 1, onChange: (v) => setDataset("samples", v), hint: "Points along y = 2x + 1." },
+                                    { label: "Noise (σ)", value: configuration.dataset.noise, min: 0, max: 2, step: 0.05, onChange: (v) => setDataset("noise", v), hint: "Random scatter added to each point." },
+                              ]}
+                              footer={<LabLinks theory="gradient-descent" code="linear-regression" />}
+                        />
+                  }
+                  visuals={run ? <>
+                        <RegressionPlot points={run.dataset_points} state={state} yDomain={regressionYDomain} />
+                        <LossChart currentStep={timeline.currentStep} history={run.history} />
+                  </> : undefined}
+                  timeline={
+                        <PersistentTimelineDock
+                              currentStep={timeline.currentStep}
+                              totalSteps={timeline.totalSteps}
+                              isPlaying={timeline.isPlaying}
+                              onPlayToggle={timeline.togglePlay}
+                              onBackward={timeline.stepBackward}
+                              onForward={timeline.stepForward}
+                              onJump={timeline.jumpToStep}
+                              onReset={timeline.reset}
+                              playbackSpeed={timeline.playbackSpeed}
+                              onSpeed={timeline.setPlaybackSpeed}
+                              markers={markers}
+                              lossValue={state?.loss}
+                              metricLabel="MSE"
+                              onAddMarker={() => setIsMarkerFormOpen(true)}
+                              onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))}
+                        />
+                  }
+            >
+                  {run && <>
+                        {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
+                        <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
+                        <section className="learning-modes-grid" aria-label="Selected frame learning modes">
+                              <MathMode learningRate={run.training.learning_rate} state={state} />
+                              <CodeMode learningRate={run.training.learning_rate} state={state} />
+                        </section>
+                        {!breakMode && <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />}
+                        {!breakMode && <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />}
+                  </>}
+            </LabWorkspace>
       );
 }

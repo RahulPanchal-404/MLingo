@@ -1,0 +1,21 @@
+/** Which lab lets a learner watch each theory topic train. */
+export const LAB_FOR_TOPIC: Record<string, string> = {
+  "linear-regression": "/labs/gradient-descent",
+  "gradient-descent": "/labs/gradient-descent",
+  "learning-rate": "/labs/gradient-descent",
+  "logistic-regression": "/labs/logistic-regression",
+  "k-means": "/labs/k-means",
+  "neural-networks": "/labs/neural-network",
+  "training-neural-networks": "/labs/neural-network",
+  "polynomial-regression": "/labs/polynomial-regularization",
+  regularization: "/labs/polynomial-regularization",
+  "bias-variance": "/labs/polynomial-regularization",
+  "k-nearest-neighbors": "/labs/k-nearest-neighbours",
+  "support-vector-machines": "/labs/support-vector-machine",
+  "decision-trees": "/labs/decision-tree",
+  "random-forests": "/labs/decision-tree",
+  "gradient-boosting": "/labs/gradient-boosting",
+  "adaboost-xgboost": "/labs/gradient-boosting",
+  "ensemble-methods": "/labs/gradient-boosting",
+  pca: "/labs/pca",
+};

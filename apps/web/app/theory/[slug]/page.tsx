@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { LAB_FOR_TOPIC } from "@/features/labs/lab-links";
 import { WatchRow } from "@/features/learning/components/watch-row";
 import { BlockView } from "@/features/theory/blocks";
 import { HOW_TO_CODE } from "@/features/theory/easy/apply";
@@ -51,6 +52,11 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
             {topic.learnHref ? (
               <Link href={topic.learnHref} className="rounded-xl bg-teal-700 px-4 py-2 text-sm font-bold text-white hover:bg-teal-600">
                 The intuition (lesson)
+              </Link>
+            ) : null}
+            {LAB_FOR_TOPIC[topic.slug] && LAB_FOR_TOPIC[topic.slug] !== topic.learnHref ? (
+              <Link href={LAB_FOR_TOPIC[topic.slug]} className="rounded-xl border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-teal-50 dark:border-teal-400 dark:text-teal-200 dark:hover:bg-teal-500/10">
+                Open the lab
               </Link>
             ) : null}
             {topic.playHref ? (

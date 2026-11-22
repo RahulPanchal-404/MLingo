@@ -18,6 +18,10 @@ export type PersistentTimelineDockProps = {
   lossValue?: number;
   metricLabel?: string;
   className?: string;
+  /** Opens the form to pin a note on the current frame. */
+  onAddMarker?: () => void;
+  /** Removes a note the learner added. */
+  onRemoveMarker?: (id: string) => void;
 };
 
 export function PersistentTimelineDock({
@@ -35,14 +39,17 @@ export function PersistentTimelineDock({
   lossValue,
   metricLabel = "Loss",
   className = "",
+  onAddMarker,
+  onRemoveMarker,
 }: PersistentTimelineDockProps) {
+  const userMarkers = markers.filter((m) => m.type === "user");
   const maxStep = Math.max(0, totalSteps - 1);
 
   return (
     <div
-      className={`sticky bottom-4 z-20 mx-auto w-full max-w-5xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 p-3.5 sm:px-5 shadow-xl dark:shadow-2xl backdrop-blur-xl text-slate-900 dark:text-slate-100 transition-all ${className}`}
+      className={`w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 sm:px-4 text-slate-900 dark:text-slate-100 ${className}`}
       role="region"
-      aria-label="Persistent Training Timeline Scrubber"
+      aria-label="Training timeline"
     >
       <div className="flex flex-col gap-2.5">
         {/* Top line: Active state readout & playback controls */}
@@ -171,6 +178,25 @@ export function PersistentTimelineDock({
             </div>
           )}
         </div>
+
+        {onAddMarker || userMarkers.length ? (
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            {onAddMarker ? (
+              <button type="button" onClick={onAddMarker} className="rounded-md border border-slate-200 px-2 py-0.5 font-semibold text-slate-700 hover:border-teal-500 dark:border-slate-700 dark:text-slate-300">
+                + Note on this frame
+              </button>
+            ) : null}
+            {userMarkers.map((m) => (
+              <span key={m.id} className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
+                <button type="button" onClick={() => onJump(m.step)} className="font-semibold">{m.title}</button>
+                <span className="text-amber-700/70 dark:text-amber-300/60">step {m.step + 1}</span>
+                {onRemoveMarker ? (
+                  <button type="button" aria-label={`Remove note ${m.title}`} onClick={() => onRemoveMarker(m.id)} className="ml-0.5 text-amber-700 hover:text-amber-950 dark:text-amber-300">×</button>
+                ) : null}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );

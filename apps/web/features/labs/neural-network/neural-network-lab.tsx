@@ -5,7 +5,6 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
-import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { recordLabVisit } from "@/features/progress/activity";
@@ -23,6 +22,7 @@ import { SaveExperimentButton } from "@/features/experiments/save-experiment-but
 import { consumeLabHandoffRun } from "@/features/experiments/experiment-storage";
 import type { TimelineMarker } from "@/features/timeline/types";
 import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
+import { LabLinks, LabSettings, LabWorkspace } from "@/features/labs/workspace/lab-workspace";
 import { useTutor } from "@/features/tutor/tutor-provider";
 import { buildDiagnosticTutorContext, buildTrainingTutorContext } from "@/features/tutor/tutor-context-builder";
 import { BreakModePanel } from "@/features/challenges/break-mode-panel";
@@ -152,198 +152,37 @@ export function NeuralNetworkLab({ breakMode }: NeuralNetworkLabProps = {}) {
   };
 
   return (
-    <div className="lab-layout">
-      <section className="lab-intro" data-chapter style={{ ["--chapter-fill" as string]: "#ffd166" }}>
-        <div className="lab-intro-copy">
-          <p className="eyebrow">Lab 04 / Deep Learning Foundations</p>
-          <h1>Neural network & backprop, frame by frame.</h1>
-          <p>
-            Scrub through hidden activations, chain-rule analytical gradients, and nonlinear probability surfaces as a 2-layer network trains on XOR-style classification.
-          </p>
-        </div>
-
-        <form className="training-form" onSubmit={submit}>
-          <div className="form-heading">
-            <div>
-              <p className="eyebrow">Architecture & Hyperparameters</p>
-              <h2>Configure network run</h2>
-            </div>
-            <span className="run-status">{loading ? "Recording" : run ? "Ready" : "Waiting"}</span>
-          </div>
-
-          <div className="form-controls-grid">
-            <NumberControl
-              label="Learning rate (α)"
-              max="2"
-              min="0.01"
-              step="0.01"
-              value={request.training.learning_rate}
-              onChange={(value) => updateTraining("learning_rate", value)}
-            />
-            <NumberControl
-              label="Epochs"
-              max="200"
-              min="10"
-              step="5"
-              value={request.training.epochs}
-              onChange={(value) => updateTraining("epochs", value)}
-            />
-            <NumberControl
-              label="Hidden neurons (h)"
-              max="4"
-              min="2"
-              step="1"
-              value={request.training.hidden_neurons ?? 3}
-              onChange={(value) => updateTraining("hidden_neurons", value)}
-            />
-            <NumberControl
-              label="Dataset samples"
-              max="160"
-              min="20"
-              step="10"
-              value={request.dataset.samples}
-              onChange={(value) => updateDataset("samples", value)}
-            />
-            <NumberControl
-              label="Dataset noise"
-              max="0.5"
-              min="0.02"
-              step="0.01"
-              value={request.dataset.noise}
-              onChange={(value) => updateDataset("noise", value)}
-            />
-          </div>
-
-          <button className="primary-button run-button" disabled={loading} type="submit">
-            {loading ? "Recording network..." : "Run training"}
-          </button>
-        </form>
-      </section>
-
-      <div className="lab-secondary-action">
-        <span>Want to save or compare neural architectures?</span>
-        <div className="lab-action-group">
-          <SaveExperimentButton run={run} />
-          <Link className="secondary-button" href="/labs/neural-network/compare">
-            Compare neural runs
-          </Link>
-        </div>
-      </div>
-
-      {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
-
-      {error && (
-        <section className="lab-alert" role="alert">
-          <strong>Training could not be recorded.</strong>
-          <span>{error}</span>
+    <LabWorkspace
+      title="Neural network and backpropagation"
+      summary="A small network with one hidden layer learns to classify two groups. Each frame is one backpropagation update: watch the hidden neurons, the gradients and the decision surface change."
+      actions={<><SaveExperimentButton run={run} /><Link className="secondary-button" href="/labs/neural-network/compare">Compare runs</Link></>}
+      notices={breakMode ? <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} /> : null}
+      status={{ loading, error, loadingText: "Training the network…" }}
+      settings={
+        <LabSettings onSubmit={submit} loading={loading} footer={<LabLinks theory="neural-networks" code="neural-networks" />} fields={[
+          { label: "Learning rate (α)", value: request.training.learning_rate, min: 0.01, max: 2, step: 0.01, onChange: (v) => updateTraining("learning_rate", v) },
+          { label: "Epochs", value: request.training.epochs, min: 10, max: 200, step: 5, onChange: (v) => updateTraining("epochs", v) },
+          { label: "Hidden neurons", value: request.training.hidden_neurons ?? 3, min: 2, max: 4, step: 1, onChange: (v) => updateTraining("hidden_neurons", v), hint: "Neurons in the hidden layer." },
+          { label: "Samples", value: request.dataset.samples, min: 20, max: 160, step: 10, onChange: (v) => updateDataset("samples", v) },
+          { label: "Class spread", value: request.dataset.noise, min: 0.02, max: 0.5, step: 0.01, onChange: (v) => updateDataset("noise", v) },
+        ]} />
+      }
+      visuals={run ? <><DecisionSurfacePlot points={run.dataset_points} state={state} /><LossChart currentStep={timeline.currentStep} history={run.history} label="Binary Cross-Entropy" /></> : undefined}
+                  timeline={
+                        <PersistentTimelineDock currentStep={timeline.currentStep} totalSteps={timeline.totalSteps} isPlaying={timeline.isPlaying} onPlayToggle={timeline.togglePlay} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onReset={timeline.reset} playbackSpeed={timeline.playbackSpeed} onSpeed={timeline.setPlaybackSpeed} markers={markers} lossValue={state?.loss} metricLabel="Log loss" onAddMarker={() => setIsMarkerFormOpen(true)} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} />
+                  }
+    >
+      {run && <>
+        {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
+        <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
+        <section className="learning-modes-grid" aria-label="Selected neural frame learning modes">
+          <NeuralMathMode learningRate={run.training.learning_rate} state={state} />
+          <NeuralCodeMode learningRate={run.training.learning_rate} state={state} />
         </section>
-      )}
-
-      {loading && (
-        <section className="lab-loading" aria-live="polite">
-          <span className="loading-mark" aria-hidden="true" />
-          <div>
-            <strong>Recording neural network training</strong>
-            <p>Initializing Xavier weights and recording step-0 baseline plus backpropagation updates...</p>
-          </div>
-        </section>
-      )}
-
-      {!loading && !error && run && (
-        <>
-          <section className="visual-grid" aria-label="Neural network visualizations">
-            <DecisionSurfacePlot points={run.dataset_points} state={state} />
-            <LossChart currentStep={timeline.currentStep} history={run.history} label="Binary Cross-Entropy" />
-          </section>
-
-          <PersistentTimelineDock
-            currentStep={timeline.currentStep}
-            totalSteps={timeline.totalSteps}
-            isPlaying={timeline.isPlaying}
-            onPlayToggle={timeline.togglePlay}
-            onBackward={timeline.stepBackward}
-            onForward={timeline.stepForward}
-            onJump={timeline.jumpToStep}
-            onReset={timeline.reset}
-            playbackSpeed={timeline.playbackSpeed}
-            onSpeed={timeline.setPlaybackSpeed}
-            markers={markers}
-            lossValue={state?.loss}
-            metricLabel="Cross-Entropy"
-          />
-
-          <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
-
-          <section className="learning-modes-grid" aria-label="Selected neural frame learning modes">
-            <NeuralMathMode learningRate={run.training.learning_rate} state={state} />
-            <NeuralCodeMode learningRate={run.training.learning_rate} state={state} />
-          </section>
-
-          <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />
-          <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />
-
-          {isMarkerFormOpen && (
-            <MarkerForm
-              description={markerDescription}
-              onCancel={() => setIsMarkerFormOpen(false)}
-              onDescriptionChange={setMarkerDescription}
-              onSave={saveMarker}
-              title={markerTitle}
-              onTitleChange={setMarkerTitle}
-              step={timeline.currentStep + 1}
-            />
-          )}
-
-          <TimelineControls
-            currentStep={timeline.currentStep}
-            isPlaying={timeline.isPlaying}
-            markers={markers}
-            onAddMarker={() => setIsMarkerFormOpen(true)}
-            onBackward={timeline.stepBackward}
-            onForward={timeline.stepForward}
-            onJump={timeline.jumpToStep}
-            onPlayToggle={timeline.togglePlay}
-            onRemoveMarker={(id) => setUserMarkers((current) => current.filter((m) => m.id !== id))}
-            onReset={timeline.reset}
-            onSpeed={timeline.setPlaybackSpeed}
-            playbackSpeed={timeline.playbackSpeed}
-            reducedMotion={timeline.reducedMotion}
-            totalSteps={timeline.totalSteps}
-          />
-        </>
-      )}
-    </div>
+        <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />
+        <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />
+      </>}
+    </LabWorkspace>
   );
 }
 
-function NumberControl({
-  label,
-  min,
-  max,
-  step,
-  value,
-  onChange,
-}: {
-  label: string;
-  min: string;
-  max: string;
-  step: string;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="number-control">
-      <span>{label}</span>
-      <input
-        aria-label={label}
-        max={max}
-        min={min}
-        onChange={(event) => onChange(Number(event.target.value))}
-        required
-        step={step}
-        type="number"
-        value={value}
-      />
-    </label>
-  );
-}

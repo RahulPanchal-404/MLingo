@@ -5,7 +5,6 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 
 import { createTrainingRun } from "@/features/labs/gradient-descent/api";
 import { LossChart } from "@/features/labs/gradient-descent/loss-chart";
-import { TimelineControls } from "@/features/labs/gradient-descent/timeline-controls";
 import { TrainingSignals } from "@/features/diagnostics/training-signals";
 import { analyzeTrainingRun } from "@/features/diagnostics/engine";
 import { recordLabVisit } from "@/features/progress/activity";
@@ -13,6 +12,7 @@ import { useTrainingTimeline } from "@/features/timeline/use-training-timeline";
 import type { TrainingRun, TrainingRunRequest } from "@/types/training-run";
 import { ClassificationPlot } from "@/features/labs/logistic-regression/classification-plot";
 import { PersistentTimelineDock } from "@/features/timeline/persistent-timeline-dock";
+import { LabLinks, LabSettings, LabWorkspace } from "@/features/labs/workspace/lab-workspace";
 import { LogisticCodeMode } from "@/features/labs/logistic-regression/code-mode";
 import { LogisticMathMode } from "@/features/labs/logistic-regression/math-mode";
 import { MarkerForm } from "@/features/timeline/marker-form";
@@ -91,20 +91,37 @@ export function LogisticRegressionLab({ breakMode }: LogisticRegressionLabProps 
       const markers = [...eventMarkers, ...userMarkers];
       const saveMarker = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const title = markerTitle.trim(); if (!title || !run) return; setUserMarkers((current) => [...current, { id: `user-${crypto.randomUUID()}`, step: timeline.currentStep, title, description: markerDescription.trim() || undefined, type: "user" }]); setMarkerTitle(""); setMarkerDescription(""); setIsMarkerFormOpen(false); };
 
-      return <div className="lab-layout">
-            <section className="lab-intro" data-chapter style={{ ["--chapter-fill" as string]: "#ff9a8a" }}><div className="lab-intro-copy"><p className="eyebrow">Lab 02 / classification</p><h1>Logistic regression, frame by frame.</h1><p>Watch probabilities become a decision boundary as a real classifier learns from two classes.</p></div><form className="training-form" onSubmit={submit}><div className="form-heading"><div><p className="eyebrow">Experiment setup</p><h2>Record a classification run</h2></div><span className="run-status">{loading ? "Recording" : run ? "Ready" : "Waiting"}</span></div><NumberControl label="Learning rate" max="2" min="0.001" step="0.001" value={request.training.learning_rate} onChange={(value) => updateTraining("learning_rate", value)} /><NumberControl label="Epochs" max="300" min="1" step="1" value={request.training.epochs} onChange={(value) => updateTraining("epochs", value)} /><NumberControl label="Samples" max="200" min="2" step="2" value={request.dataset.samples} onChange={(value) => updateDataset("samples", value)} /><NumberControl label="Noise" max="1" min="0.01" step="0.01" value={request.dataset.noise} onChange={(value) => updateDataset("noise", value)} /><button className="primary-button run-button" disabled={loading} type="submit">{loading ? "Recording run..." : "Run training"}</button></form></section>
-            <div className="lab-secondary-action">
-                  <span>Want to save or compare classifiers?</span>
-                  <div className="lab-action-group">
-                        <SaveExperimentButton run={run} />
-                        <Link className="secondary-button" href="/labs/logistic-regression/compare">Compare logistic runs</Link>
-                  </div>
-            </div>
-            {breakMode && <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} />}
-            {error && <section className="lab-alert" role="alert"><strong>Training could not be recorded.</strong><span>{error}</span></section>}
-            {loading && <section className="lab-loading" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><div><strong>Recording the classification run</strong><p>Generating two classes and capturing every update.</p></div></section>}
-            {!loading && !error && run && <><section className="visual-grid" aria-label="Logistic regression visualizations"><ClassificationPlot points={run.dataset_points} state={state} /><LossChart currentStep={timeline.currentStep} history={run.history} label="Binary Cross-Entropy" /></section><PersistentTimelineDock currentStep={timeline.currentStep} totalSteps={timeline.totalSteps} isPlaying={timeline.isPlaying} onPlayToggle={timeline.togglePlay} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onReset={timeline.reset} playbackSpeed={timeline.playbackSpeed} onSpeed={timeline.setPlaybackSpeed} markers={markers} lossValue={state?.loss} metricLabel="Log-Loss" /><ModelXRay currentStep={timeline.currentStep} run={run} state={state} /><section className="learning-modes-grid" aria-label="Selected logistic frame learning modes"><LogisticMathMode learningRate={run.training.learning_rate} state={state} /><LogisticCodeMode learningRate={run.training.learning_rate} state={state} /></section><TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} /><TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />{isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}<TimelineControls currentStep={timeline.currentStep} isPlaying={timeline.isPlaying} markers={markers} onAddMarker={() => setIsMarkerFormOpen(true)} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onPlayToggle={timeline.togglePlay} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} onReset={timeline.reset} onSpeed={timeline.setPlaybackSpeed} playbackSpeed={timeline.playbackSpeed} reducedMotion={timeline.reducedMotion} totalSteps={timeline.totalSteps} /></>}
-      </div>;
+      return (
+            <LabWorkspace
+                  title="Logistic regression"
+                  summary="A classifier learns to turn two features into a probability. Watch the decision boundary move and the log loss fall as it trains."
+                  actions={<><SaveExperimentButton run={run} /><Link className="secondary-button" href="/labs/logistic-regression/compare">Compare runs</Link></>}
+                  notices={breakMode ? <BreakModePanel challenge={breakMode} diagnostics={run ? diagnostics : null} markers={markers} run={run} /> : null}
+                  status={{ loading, error, loadingText: "Training the classifier…" }}
+                  settings={
+                        <LabSettings onSubmit={submit} loading={loading} footer={<LabLinks theory="logistic-regression" code="logistic-regression" />} fields={[
+                              { label: "Learning rate (α)", value: request.training.learning_rate, min: 0.001, max: 2, step: 0.001, onChange: (v) => updateTraining("learning_rate", v) },
+                              { label: "Epochs", value: request.training.epochs, min: 1, max: 300, step: 1, onChange: (v) => updateTraining("epochs", v) },
+                              { label: "Samples", value: request.dataset.samples, min: 2, max: 200, step: 2, onChange: (v) => updateDataset("samples", v) },
+                              { label: "Class spread", value: request.dataset.noise, min: 0.01, max: 1, step: 0.01, onChange: (v) => updateDataset("noise", v), hint: "Larger spread makes the two classes overlap." },
+                        ]} />
+                  }
+                  visuals={run ? <><ClassificationPlot points={run.dataset_points} state={state} /><LossChart currentStep={timeline.currentStep} history={run.history} label="Binary Cross-Entropy" /></> : undefined}
+                  timeline={
+                        <PersistentTimelineDock currentStep={timeline.currentStep} totalSteps={timeline.totalSteps} isPlaying={timeline.isPlaying} onPlayToggle={timeline.togglePlay} onBackward={timeline.stepBackward} onForward={timeline.stepForward} onJump={timeline.jumpToStep} onReset={timeline.reset} playbackSpeed={timeline.playbackSpeed} onSpeed={timeline.setPlaybackSpeed} markers={markers} lossValue={state?.loss} metricLabel="Log loss" onAddMarker={() => setIsMarkerFormOpen(true)} onRemoveMarker={(id) => setUserMarkers((current) => current.filter((marker) => marker.id !== id))} />
+                  }
+            >
+                  {run && <>
+                        {isMarkerFormOpen && <MarkerForm description={markerDescription} onCancel={() => setIsMarkerFormOpen(false)} onDescriptionChange={setMarkerDescription} onSave={saveMarker} title={markerTitle} onTitleChange={setMarkerTitle} step={timeline.currentStep + 1} />}
+                        <ModelXRay currentStep={timeline.currentStep} run={run} state={state} />
+                        <section className="learning-modes-grid" aria-label="Selected logistic frame learning modes">
+                              <LogisticMathMode learningRate={run.training.learning_rate} state={state} />
+                              <LogisticCodeMode learningRate={run.training.learning_rate} state={state} />
+                        </section>
+                        <TrainingSignals events={diagnostics} onSelect={timeline.jumpToStep} run={run} state={state} />
+                        <TrainingInsights insights={insights} onSelectStep={timeline.jumpToStep} />
+                  </>}
+            </LabWorkspace>
+      );
 }
 
-function NumberControl({ label, min, max, step, value, onChange }: { label: string; min: string; max: string; step: string; value: number; onChange: (value: number) => void }) { return <label className="number-control"><span>{label}</span><input aria-label={label} max={max} min={min} onChange={(event) => onChange(Number(event.target.value))} required step={step} type="number" value={value} /></label>; }

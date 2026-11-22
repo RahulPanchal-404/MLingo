@@ -2367,139 +2367,321 @@ export const LESSONS: Record<string, Lesson> = {
  },
  "python-numpy-pandas": {
   "title": "NumPy and pandas for machine learning",
-  "summary": "The two libraries you use before any model: arrays for fast maths, tables for loading and cleaning data.",
+  "summary": "The two libraries you use before any model, one small idea at a time: arrays for fast maths, tables for loading and cleaning data.",
   "sections": [
    {
     "heading": "Why these two libraries",
     "blocks": [
      {
-      "p": "Models in scikit-learn take numbers in rows and columns. NumPy gives you those numbers as fast arrays. pandas wraps arrays in tables with column names, which is how real data arrives: a CSV export with columns like `age`, `city` and `signup_date`. You load and clean with pandas, and the libraries convert to NumPy underneath when a model needs it."
+      "p": "Models take numbers arranged in rows and columns."
+     },
+     {
+      "list": [
+       "**NumPy** holds those numbers as fast arrays.",
+       "**pandas** wraps arrays in tables with column names, which is how real data arrives (a CSV file with columns like `age` and `city`)."
+      ]
+     },
+     {
+      "p": "You load and clean with pandas. When a model needs numbers, the conversion to NumPy happens for you."
+     },
+     {
+      "p": "This module goes one small step at a time. Each step is a few lines of code, its real output, and what it means."
      }
     ]
    },
    {
-    "heading": "NumPy: arrays and their shape",
-    "blocks": [
-     {
-      "p": "An array is a grid of numbers of one type. Its **shape** says how many rows and columns it has, and almost every error you will meet in ML is a shape mismatch, so check shapes constantly."
-     },
-     {
-      "cell": {
-       "code": "import numpy as np\n\nX = np.array([[170, 65], [160, 52], [180, 80], [175, 72]], dtype=float)\nprint(X)\nprint(\"shape:\", X.shape)",
-       "lang": "python",
-       "output": "[[170.  65.]\n [160.  52.]\n [180.  80.]\n [175.  72.]]\nshape: (4, 2)"
-      }
-     },
-     {
-      "p": "Each row is a person, each column a feature (height in cm, weight in kg). Shape `(4, 2)` means 4 rows and 2 columns. This \"rows are examples, columns are features\" layout is the convention every scikit-learn model expects."
-     }
-    ]
-   },
-   {
-    "heading": "Vectorised maths: no loops",
-    "blocks": [
-     {
-      "p": "NumPy applies an operation to a whole array at once. This is both shorter and much faster than a Python loop."
-     },
-     {
-      "cell": {
-       "code": "heights_m = X[:, 0] / 100\nbmi = X[:, 1] / heights_m ** 2\nprint(\"BMI:\", bmi.round(1))",
-       "lang": "python",
-       "output": "BMI: [22.5 20.3 24.7 23.5]"
-      }
-     },
-     {
-      "p": "`X[:, 0]` means \"all rows, column 0\". Dividing by 100 divides every element; `**2` squares every element; dividing one array by another works element by element. Three operations, no loop, and the same code would work for a million people."
-     }
-    ]
-   },
-   {
-    "heading": "Statistics along an axis",
-    "blocks": [
-     {
-      "p": "The `axis` argument chooses the direction: `axis=0` goes down the rows (one result per column), `axis=1` goes across the columns (one result per row)."
-     },
-     {
-      "cell": {
-       "code": "print(\"mean of each column:\", X.mean(axis=0))\nprint(\"std of each column: \", X.std(axis=0).round(2))\nstandardised = (X - X.mean(axis=0)) / X.std(axis=0)\nprint(standardised.round(2))",
-       "lang": "python",
-       "output": "mean of each column: [171.25  67.25]\nstd of each column:  [ 7.4  10.28]\n[[-0.17 -0.22]\n [-1.52 -1.48]\n [ 1.18  1.24]\n [ 0.51  0.46]]"
-      }
-     },
-     {
-      "p": "The last line is exactly what `StandardScaler` does. `X.mean(axis=0)` has shape `(2,)`, yet we subtract it from an array of shape `(4, 2)`: NumPy **broadcasts** the smaller array across every row. Broadcasting is powerful and occasionally surprising; when a result has an unexpected shape, broadcasting is usually why."
-     }
-    ]
-   },
-   {
-    "heading": "pandas: tables with names",
-    "blocks": [
-     {
-      "p": "A `DataFrame` is a table where each column has a name and its own type. Here we build one directly; with real data you would use `pd.read_csv(\"file.csv\")`."
-     },
-     {
-      "cell": {
-       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"city\": [\"Pune\", \"Mysuru\", \"Pune\", \"Delhi\", \"Mysuru\"],\n    \"age\": [34, 28, np.nan, 45, 39],\n    \"spend\": [1200, 450, 980, 2100, 610],\n    \"joined\": pd.to_datetime([\"2024-01-05\", \"2024-03-12\", \"2024-03-30\", \"2024-06-01\", \"2024-07-19\"]),\n})\nprint(df)\nprint(df.dtypes)",
-       "lang": "python",
-       "output": "     city   age  spend     joined\n0    Pune  34.0   1200 2024-01-05\n1  Mysuru  28.0    450 2024-03-12\n2    Pune   NaN    980 2024-03-30\n3   Delhi  45.0   2100 2024-06-01\n4  Mysuru  39.0    610 2024-07-19\ncity                 str\nage              float64\nspend              int64\njoined    datetime64[us]\ndtype: object"
-      }
-     },
-     {
-      "p": "Each column has its own type: text (`object` or `str`), numbers with a missing value (`float64`, because NaN is a float), whole numbers, and real dates. Check `dtypes` after every load: a number column read as text is one of the most common silent problems."
-     }
-    ]
-   },
-   {
-    "heading": "Select, filter and create columns",
+    "heading": "NumPy step 1: make an array",
     "blocks": [
      {
       "cell": {
-       "code": "print(df[[\"city\", \"spend\"]].head(2))\nprint(df[df[\"spend\"] > 900])\ndf[\"spend_per_year_of_age\"] = df[\"spend\"] / df[\"age\"]\ndf[\"joined_month\"] = df[\"joined\"].dt.month\nprint(df[[\"spend_per_year_of_age\", \"joined_month\"]].round(1))",
+       "code": "import numpy as np\n\nX = np.array([[170, 65], [160, 52], [180, 80], [175, 72]], dtype=float)\nprint(X)",
        "lang": "python",
-       "output": "     city  spend\n0    Pune   1200\n1  Mysuru    450\n    city   age  spend     joined\n0   Pune  34.0   1200 2024-01-05\n2   Pune   NaN    980 2024-03-30\n3  Delhi  45.0   2100 2024-06-01\n   spend_per_year_of_age  joined_month\n0                   35.3             1\n1                   16.1             3\n2                    NaN             3\n3                   46.7             6\n4                   15.6             7"
+       "output": "[[170.  65.]\n [160.  52.]\n [180.  80.]\n [175.  72.]]"
       }
      },
      {
-      "p": "Double brackets select several columns. A condition inside brackets keeps only matching rows. New columns are computed from existing ones in one line, and `.dt` gives access to parts of a date. Notice that the row with a missing age produced a missing ratio: pandas carries NaN through calculations instead of failing, so missing values spread quietly unless you handle them."
+      "p": "This is a small table of 4 people. Each row is one person. Column 0 is height in cm, column 1 is weight in kg. `dtype=float` stores them as decimal numbers."
      }
     ]
    },
    {
-    "heading": "Group and summarise",
+    "heading": "NumPy step 2: check the shape",
     "blocks": [
      {
       "cell": {
-       "code": "summary = df.groupby(\"city\").agg(customers=(\"spend\", \"size\"), avg_spend=(\"spend\", \"mean\"), avg_age=(\"age\", \"mean\"))\nprint(summary.round(1))",
+       "code": "print(X.shape)",
        "lang": "python",
-       "output": "        customers  avg_spend  avg_age\ncity                                 \nDelhi           1     2100.0     45.0\nMysuru          2      530.0     33.5\nPune            2     1090.0     34.0"
+       "output": "(4, 2)"
       }
      },
      {
-      "p": "`groupby` splits the table by city, and `agg` computes one value per group. The `name=(column, function)` form names each result column. Group summaries like this are how you explore data before modelling, and also how you build features such as \"average spend in the customer's city\"."
+      "p": "`(4, 2)` means 4 rows and 2 columns. In ML, rows are always examples and columns are always features. Most errors you will meet are shape mismatches, so print the shape whenever something breaks."
      }
     ]
    },
    {
-    "heading": "Missing values",
+    "heading": "NumPy step 3: pick a column",
     "blocks": [
      {
       "cell": {
-       "code": "print(df.isna().sum())\nfilled = df.assign(age=df[\"age\"].fillna(df[\"age\"].median()))\nprint(filled[\"age\"].tolist())",
+       "code": "print(X[:, 0])",
        "lang": "python",
-       "output": "city                     0\nage                      1\nspend                    0\njoined                   0\nspend_per_year_of_age    1\njoined_month             0\ndtype: int64\n[34.0, 28.0, 36.5, 45.0, 39.0]"
+       "output": "[170. 160. 180. 175.]"
       }
      },
      {
-      "p": "`isna().sum()` counts gaps per column. `fillna` replaces them. In a modelling project, do **not** fill with a statistic computed on the whole dataset like this; use `SimpleImputer` inside a pipeline, so the median comes from training rows only. pandas filling is fine for exploration and for fixes that do not depend on the data, such as replacing a missing city with \"unknown\"."
+      "p": "Read `X[:, 0]` as \"all rows, column 0\". The `:` means \"everything\". This gives the 4 heights. `X[0, :]` would give the first person's row instead."
      }
     ]
    },
    {
-    "heading": "From pandas to a model",
+    "heading": "NumPy step 4: maths on a whole column at once",
     "blocks": [
      {
-      "p": "scikit-learn accepts DataFrames directly, and keeping them as DataFrames preserves column names all the way through."
+      "cell": {
+       "code": "heights_m = X[:, 0] / 100\nprint(heights_m)",
+       "lang": "python",
+       "output": "[1.7  1.6  1.8  1.75]"
+      }
      },
+     {
+      "p": "Dividing the array by 100 divides **every** number in it. No loop needed. This is called vectorised maths, and it is much faster than a Python loop."
+     }
+    ]
+   },
+   {
+    "heading": "NumPy step 5: combine two columns",
+    "blocks": [
+     {
+      "cell": {
+       "code": "bmi = X[:, 1] / heights_m ** 2\nprint(bmi.round(1))",
+       "lang": "python",
+       "output": "[22.5 20.3 24.7 23.5]"
+      }
+     },
+     {
+      "p": "`** 2` squares every height. Dividing one array by another goes element by element: person 1's weight by person 1's height, and so on. The same line would work for a million people."
+     }
+    ]
+   },
+   {
+    "heading": "NumPy step 6: one result per column",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(X.mean(axis=0))",
+       "lang": "python",
+       "output": "[171.25  67.25]"
+      }
+     },
+     {
+      "p": "`axis=0` means \"go down the rows\", so you get one average per column: the average height and the average weight."
+     }
+    ]
+   },
+   {
+    "heading": "NumPy step 7: one result per row",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(X.mean(axis=1))",
+       "lang": "python",
+       "output": "[117.5 106.  130.  123.5]"
+      }
+     },
+     {
+      "p": "`axis=1` means \"go across the columns\", one result per row. Averaging height and weight makes no sense here, but this shows the difference. Rule of thumb: `axis=0` gives one value per feature, which is what you usually want."
+     }
+    ]
+   },
+   {
+    "heading": "NumPy step 8: standardise, the way StandardScaler does",
+    "blocks": [
+     {
+      "cell": {
+       "code": "standardised = (X - X.mean(axis=0)) / X.std(axis=0)\nprint(standardised.round(2))",
+       "lang": "python",
+       "output": "[[-0.17 -0.22]\n [-1.52 -1.48]\n [ 1.18  1.24]\n [ 0.51  0.46]]"
+      }
+     },
+     {
+      "p": "Each column now has average 0 and spread 1. This is exactly what scikit-learn's `StandardScaler` does."
+     },
+     {
+      "p": "Look at the shapes: `X` is `(4, 2)` but `X.mean(axis=0)` is `(2,)`. NumPy repeats the smaller array for every row before subtracting. This is called **broadcasting**. When a result has an unexpected shape, broadcasting is usually the reason."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 1: make a table",
+    "blocks": [
+     {
+      "cell": {
+       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"city\": [\"Pune\", \"Mysuru\", \"Pune\", \"Delhi\", \"Mysuru\"],\n    \"age\": [34, 28, np.nan, 45, 39],\n    \"spend\": [1200, 450, 980, 2100, 610],\n})\nprint(df)",
+       "lang": "python",
+       "output": "     city   age  spend\n0    Pune  34.0   1200\n1  Mysuru  28.0    450\n2    Pune   NaN    980\n3   Delhi  45.0   2100\n4  Mysuru  39.0    610"
+      }
+     },
+     {
+      "p": "A `DataFrame` is a table where every column has a name. `np.nan` marks a missing value: we do not know the third customer's age. With real data you would write `df = pd.read_csv(\"customers.csv\")` instead."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 2: add a date column",
+    "blocks": [
+     {
+      "cell": {
+       "code": "df[\"joined\"] = pd.to_datetime([\"2024-01-05\", \"2024-03-12\", \"2024-03-30\", \"2024-06-01\", \"2024-07-19\"])\nprint(df.head(2))",
+       "lang": "python",
+       "output": "     city   age  spend     joined\n0    Pune  34.0   1200 2024-01-05\n1  Mysuru  28.0    450 2024-03-12"
+      }
+     },
+     {
+      "p": "`df[\"joined\"] = ...` adds a column. `pd.to_datetime` turns text into real dates, so pandas can do date maths with them. `head(2)` shows only the first 2 rows, handy for big tables."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 3: check the column types",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(df.dtypes)",
+       "lang": "python",
+       "output": "city                 str\nage              float64\nspend              int64\njoined    datetime64[us]\ndtype: object"
+      }
+     },
+     {
+      "p": "Every column has its own type:"
+     },
+     {
+      "list": [
+       "`city` is text.",
+       "`age` is `float64` (decimal) even though ages are whole numbers, because NaN only exists for decimal numbers.",
+       "`spend` is `int64` (whole numbers).",
+       "`joined` is a date."
+      ]
+     },
+     {
+      "p": "Check `dtypes` after every load. A number column that was read as text is one of the most common silent problems."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 4: pick columns",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(df[[\"city\", \"spend\"]])",
+       "lang": "python",
+       "output": "     city  spend\n0    Pune   1200\n1  Mysuru    450\n2    Pune    980\n3   Delhi   2100\n4  Mysuru    610"
+      }
+     },
+     {
+      "p": "Double brackets, with a list of names inside, select several columns. Single brackets with one name, `df[\"spend\"]`, give just that one column."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 5: keep only some rows",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(df[df[\"spend\"] > 900])",
+       "lang": "python",
+       "output": "    city   age  spend     joined\n0   Pune  34.0   1200 2024-01-05\n2   Pune   NaN    980 2024-03-30\n3  Delhi  45.0   2100 2024-06-01"
+      }
+     },
+     {
+      "p": "Work from the inside out. `df[\"spend\"] > 900` gives True or False for each row. Putting that inside `df[...]` keeps only the True rows: the customers who spent more than 900."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 6: make a new column from others",
+    "blocks": [
+     {
+      "cell": {
+       "code": "df[\"spend_per_year_of_age\"] = df[\"spend\"] / df[\"age\"]\nprint(df[[\"age\", \"spend\", \"spend_per_year_of_age\"]].round(1))",
+       "lang": "python",
+       "output": "    age  spend  spend_per_year_of_age\n0  34.0   1200                   35.3\n1  28.0    450                   16.1\n2   NaN    980                    NaN\n3  45.0   2100                   46.7\n4  39.0    610                   15.6"
+      }
+     },
+     {
+      "p": "One line computes the new column for every row. Look at the third row: its age is missing, so the result is missing too. pandas carries NaN through calculations instead of failing. That is convenient, but it means missing values spread quietly unless you deal with them."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 7: take part of a date",
+    "blocks": [
+     {
+      "cell": {
+       "code": "df[\"joined_month\"] = df[\"joined\"].dt.month\nprint(df[[\"joined\", \"joined_month\"]])",
+       "lang": "python",
+       "output": "      joined  joined_month\n0 2024-01-05             1\n1 2024-03-12             3\n2 2024-03-30             3\n3 2024-06-01             6\n4 2024-07-19             7"
+      }
+     },
+     {
+      "p": "`.dt` gives access to the parts of a date: `.dt.month`, `.dt.year`, `.dt.dayofweek` and more. These often make useful features."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 8: summarise by group",
+    "blocks": [
+     {
+      "cell": {
+       "code": "summary = df.groupby(\"city\").agg(customers=(\"spend\", \"size\"), avg_spend=(\"spend\", \"mean\"))\nprint(summary.round(1))",
+       "lang": "python",
+       "output": "        customers  avg_spend\ncity                        \nDelhi           1     2100.0\nMysuru          2      530.0\nPune            2     1090.0"
+      }
+     },
+     {
+      "p": "`groupby(\"city\")` splits the table into one group per city. `agg` computes one value per group. Each item reads as `new_name=(column, function)`: `customers` counts the rows, `avg_spend` averages the spend."
+     },
+     {
+      "p": "You use this to explore data, and to build features such as \"average spend in this customer's city\"."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 9: count missing values",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(df.isna().sum())",
+       "lang": "python",
+       "output": "city                     0\nage                      1\nspend                    0\njoined                   0\nspend_per_year_of_age    1\njoined_month             0\ndtype: int64"
+      }
+     },
+     {
+      "p": "`isna()` marks every missing cell as True. `.sum()` counts the Trues per column. Here only `age` has a gap, and so does the column we built from it."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 10: fill missing values",
+    "blocks": [
+     {
+      "cell": {
+       "code": "filled = df.assign(age=df[\"age\"].fillna(df[\"age\"].median()))\nprint(filled[\"age\"].tolist())",
+       "lang": "python",
+       "output": "[34.0, 28.0, 36.5, 45.0, 39.0]"
+      }
+     },
+     {
+      "p": "`fillna` replaces the gaps, here with the median of the known ages, 36.5. `assign` returns a new table with the column replaced, leaving `df` unchanged."
+     },
+     {
+      "p": "One warning. In a real model, do **not** fill with a number computed from the whole dataset like this. Use `SimpleImputer` inside a pipeline, so the median comes from training rows only (the Missing values module shows why). Filling with pandas is fine for exploring, and for fixes that do not depend on the data, such as replacing a missing city with \"unknown\"."
+     }
+    ]
+   },
+   {
+    "heading": "pandas step 11: hand the table to a model",
+    "blocks": [
      {
       "cell": {
        "code": "features = filled[[\"age\", \"spend\"]]\nprint(type(features.to_numpy()), features.to_numpy().shape)",
@@ -2508,7 +2690,7 @@ export const LESSONS: Record<string, Lesson> = {
       }
      },
      {
-      "p": "You rarely need `to_numpy()` yourself, but it shows what the model receives: a plain array of shape (rows, features)."
+      "p": "scikit-learn accepts DataFrames directly, and keeping them as DataFrames keeps the column names. Underneath, the model receives a plain NumPy array of shape (rows, features), which is what `to_numpy()` shows. You rarely need to call it yourself."
      }
     ]
    },
@@ -2517,9 +2699,9 @@ export const LESSONS: Record<string, Lesson> = {
     "blocks": [
      {
       "list": [
-       "Look at `df.shape`, `df.dtypes`, `df.head()` and `df.isna().sum()` after every load.",
-       "Prefer vectorised operations to loops and to `df.apply` with Python functions; on large tables the difference is huge.",
-       "When joining tables, use `merge(..., validate=\"one_to_one\")` or `\"many_to_one\"` so pandas raises an error if duplicate keys would multiply your rows.",
+       "After every load, look at `df.shape`, `df.dtypes`, `df.head()` and `df.isna().sum()`.",
+       "Prefer vectorised operations to loops and to `df.apply` with your own function; on large tables the difference is huge.",
+       "When joining tables, use `merge(..., validate=\"one_to_one\")` or `\"many_to_one\"`, so pandas raises an error if duplicate keys would multiply your rows.",
        "Convert repetitive text columns to `category` with `astype(\"category\")` to save memory on large data."
       ]
      }
@@ -2529,7 +2711,7 @@ export const LESSONS: Record<string, Lesson> = {
  },
  "python-plotting-sklearn": {
   "title": "Plotting and the scikit-learn workflow",
-  "summary": "Look at your data with a few plots, then learn the four methods every scikit-learn object shares.",
+  "summary": "Look at your data with two plots, then learn the few methods every scikit-learn object shares, one small step at a time.",
   "sections": [
    {
     "heading": "Look before you model",
@@ -2539,49 +2721,109 @@ export const LESSONS: Record<string, Lesson> = {
      },
      {
       "p": "We use the wine dataset: chemical measurements of 178 wines from three growers."
-     },
-     {
-      "cell": {
-       "code": "from sklearn.datasets import load_wine\n\nX, y = load_wine(return_X_y=True, as_frame=True)\nprint(X.shape, \"| classes:\", y.value_counts().sort_index().to_dict())\nprint(X.columns[:6].tolist())",
-       "lang": "python",
-       "output": "(178, 13) | classes: {0: 59, 1: 71, 2: 48}\n['alcohol', 'malic_acid', 'ash', 'alcalinity_of_ash', 'magnesium', 'total_phenols']"
-      }
      }
     ]
    },
    {
-    "heading": "Plot 1: the distribution of one feature",
+    "heading": "Step 1: load the data",
     "blocks": [
      {
       "cell": {
-       "code": "import matplotlib.pyplot as plt\n\nfig, ax = plt.subplots(figsize=(6, 3))\nax.hist(X[\"proline\"], bins=30)\nax.set(xlabel=\"proline\", ylabel=\"number of wines\", title=\"Distribution of proline\")\nfig.tight_layout()\nprint(\"proline ranges from\", X[\"proline\"].min(), \"to\", X[\"proline\"].max())",
+       "code": "from sklearn.datasets import load_wine\n\nX, y = load_wine(return_X_y=True, as_frame=True)\nprint(X.shape)",
+       "lang": "python",
+       "output": "(178, 13)"
+      }
+     },
+     {
+      "p": "`return_X_y=True` gives the features `X` and the answers `y` separately. `as_frame=True` makes them a pandas table instead of a bare array. 178 wines, 13 measurements each."
+     }
+    ]
+   },
+   {
+    "heading": "Step 2: look at the classes and columns",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(y.value_counts().sort_index().to_dict())\nprint(X.columns[:6].tolist())",
+       "lang": "python",
+       "output": "{0: 59, 1: 71, 2: 48}\n['alcohol', 'malic_acid', 'ash', 'alcalinity_of_ash', 'magnesium', 'total_phenols']"
+      }
+     },
+     {
+      "p": "The three growers have 59, 71 and 48 wines, a reasonably even split. The column names are chemical measurements such as alcohol and malic acid."
+     }
+    ]
+   },
+   {
+    "heading": "Plot 1, step 1: a histogram of one feature",
+    "blocks": [
+     {
+      "cell": {
+       "code": "import matplotlib.pyplot as plt\n\nfig, ax = plt.subplots(figsize=(6, 3))\nax.hist(X[\"proline\"], bins=30)\nax.set(xlabel=\"proline\", ylabel=\"number of wines\")",
        "lang": "python",
        "figures": [
         "/code/figures/python-plotting-sklearn-1.svg"
-       ],
+       ]
+      }
+     },
+     {
+      "p": "`plt.subplots` creates a figure (`fig`) and an area to draw on (`ax`). `ax.hist` counts how many wines fall into each of 30 ranges of proline. `ax.set` labels both axes in one call."
+     },
+     {
+      "p": "A histogram shows the range of a feature, its shape (balanced or with a long tail) and odd values."
+     }
+    ]
+   },
+   {
+    "heading": "Plot 1, step 2: read the range",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(\"proline ranges from\", X[\"proline\"].min(), \"to\", X[\"proline\"].max())",
+       "lang": "python",
        "output": "proline ranges from 278.0 to 1680.0"
       }
      },
      {
-      "p": "`plt.subplots` creates a figure and a set of axes to draw on; `ax.set` sets the labels in one call. A histogram shows the range, the shape (symmetric or long-tailed) and odd values. Proline runs into the hundreds and thousands while many other features are below 10: a strong hint that scaling will matter for distance-based models."
+      "p": "Proline runs into the hundreds and thousands, while many other features are below 10. That is a strong hint that scaling will matter for models that measure distances, such as k-nearest neighbours."
      }
     ]
    },
    {
-    "heading": "Plot 2: does a feature separate the classes?",
+    "heading": "Plot 2, step 1: two features, coloured by grower",
     "blocks": [
      {
       "cell": {
-       "code": "fig, ax = plt.subplots(figsize=(6, 4))\nfor label in sorted(y.unique()):\n    rows = y == label\n    ax.scatter(X.loc[rows, \"proline\"], X.loc[rows, \"flavanoids\"], label=f\"grower {label}\", s=15)\nax.set(xlabel=\"proline\", ylabel=\"flavanoids\")\nax.legend()\nfig.tight_layout()\nprint(X.groupby(y)[[\"proline\", \"flavanoids\"]].mean().round(1))",
+       "code": "fig, ax = plt.subplots(figsize=(6, 4))\nfor label in sorted(y.unique()):\n    rows = y == label\n    ax.scatter(X.loc[rows, \"proline\"], X.loc[rows, \"flavanoids\"], label=f\"grower {label}\", s=15)\nax.legend()",
        "lang": "python",
        "figures": [
         "/code/figures/python-plotting-sklearn-2.svg"
-       ],
+       ]
+      }
+     },
+     {
+      "p": "The loop draws one grower at a time. `rows = y == label` is True for that grower's wines, and `X.loc[rows, \"proline\"]` picks their proline values. `s=15` sets the dot size and `legend()` adds the key."
+     },
+     {
+      "p": "If the three colours form separate groups, these two features alone can tell the growers apart."
+     }
+    ]
+   },
+   {
+    "heading": "Plot 2, step 2: the same story in numbers",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(X.groupby(y)[[\"proline\", \"flavanoids\"]].mean().round(1))",
+       "lang": "python",
        "output": "        proline  flavanoids\ntarget                     \n0        1115.7         3.0\n1         519.5         2.1\n2         629.9         0.8"
       }
      },
      {
-      "p": "Plotting two features coloured by class shows whether the classes form separate groups. Here grower 0 has high proline, and grower 2 has low flavanoids, so even two features separate the growers well. The group means printed underneath tell the same story in numbers. In a notebook, `plt.show()` displays the figure; in a script, save it with `fig.savefig(\"plot.png\")`."
+      "p": "Grower 0 has much higher proline, and grower 2 much lower flavanoids. So even two features separate the growers well."
+     },
+     {
+      "p": "To display a figure: in a notebook, `plt.show()`; in a script, save it with `fig.savefig(\"plot.png\")`."
      }
     ]
    },
@@ -2589,7 +2831,7 @@ export const LESSONS: Record<string, Lesson> = {
     "heading": "The scikit-learn interface",
     "blocks": [
      {
-      "p": "Every scikit-learn object follows the same small set of methods, which is why you can swap one model for another by changing a single line."
+      "p": "Every scikit-learn object uses the same few methods. That is why you can swap one model for another by changing a single line."
      },
      {
       "table": {
@@ -2626,49 +2868,154 @@ export const LESSONS: Record<string, Lesson> = {
         ]
        ]
       }
-     },
-     {
-      "p": "Learned values are stored as attributes ending in an underscore, such as `coef_` or `mean_`. The underscore means \"this exists only after `fit`\"."
-     },
-     {
-      "cell": {
-       "code": "from sklearn.preprocessing import StandardScaler\n\nscaler = StandardScaler().fit(X)\nprint(\"learned means (first 3):\", scaler.mean_[:3].round(2))\nprint(\"scaled first row (first 3):\", scaler.transform(X.head(1))[0, :3].round(2))",
-       "lang": "python",
-       "output": "learned means (first 3): [13.    2.34  2.37]\nscaled first row (first 3): [ 1.52 -0.56  0.23]"
-      }
      }
     ]
    },
    {
-    "heading": "Swap models without changing anything else",
+    "heading": "Interface step 1: fit learns",
     "blocks": [
      {
       "cell": {
-       "code": "from sklearn.ensemble import RandomForestClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.pipeline import make_pipeline\n\nmodels = {\n    \"logistic regression\": make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000)),\n    \"k nearest neighbours\": make_pipeline(StandardScaler(), KNeighborsClassifier()),\n    \"random forest\": RandomForestClassifier(random_state=0),\n}\nfor name, model in models.items():\n    print(f\"{name:21s} CV accuracy {cross_val_score(model, X, y, cv=5).mean():.3f}\")",
+       "code": "from sklearn.preprocessing import StandardScaler\n\nscaler = StandardScaler().fit(X)\nprint(scaler.mean_[:3].round(2))",
+       "lang": "python",
+       "output": "[13.    2.34  2.37]"
+      }
+     },
+     {
+      "p": "`fit` makes the scaler learn the average of each column. Learned values are stored in attributes ending in an underscore, such as `mean_` here or `coef_` on a linear model. The underscore means \"this only exists after `fit`\"."
+     }
+    ]
+   },
+   {
+    "heading": "Interface step 2: transform applies",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(scaler.transform(X.head(1))[0, :3].round(2))",
+       "lang": "python",
+       "output": "[ 1.52 -0.56  0.23]"
+      }
+     },
+     {
+      "p": "`transform` uses what was learned to scale new rows, here the first wine. It does not learn anything new. Keeping learning (`fit`) and applying (`transform`) separate is what lets you learn on training data only and apply the same thing to test data."
+     }
+    ]
+   },
+   {
+    "heading": "Compare models, step 1: put them in a dictionary",
+    "blocks": [
+     {
+      "cell": {
+       "code": "from sklearn.ensemble import RandomForestClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.pipeline import make_pipeline\n\nmodels = {\n    \"logistic regression\": make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000)),\n    \"k nearest neighbours\": make_pipeline(StandardScaler(), KNeighborsClassifier()),\n    \"random forest\": RandomForestClassifier(random_state=0),\n}",
+       "lang": "python"
+      }
+     },
+     {
+      "p": "`make_pipeline` chains a scaler and a model into one object, so scaling happens automatically inside `fit` and `predict`."
+     },
+     {
+      "p": "The forest has no scaler on purpose. A tree only asks questions like \"is proline above 755?\", so the scale of the numbers makes no difference to it."
+     }
+    ]
+   },
+   {
+    "heading": "Compare models, step 2: score each one",
+    "blocks": [
+     {
+      "cell": {
+       "code": "from sklearn.model_selection import cross_val_score\n\nfor name, model in models.items():\n    print(f\"{name:21s} CV accuracy {cross_val_score(model, X, y, cv=5).mean():.3f}\")",
        "lang": "python",
        "output": "logistic regression   CV accuracy 0.983\nk nearest neighbours  CV accuracy 0.949\nrandom forest         CV accuracy 0.983"
       }
      },
      {
-      "p": "Three different algorithms, one loop. The forest has no scaler because tree models only compare a feature with a threshold, so the scale of the numbers makes no difference to them. On this small, clean dataset all three are close to perfect; on harder data the differences are larger, and this loop is the fastest way to find a good starting model."
+      "p": "Because every model has the same methods, one loop scores all three. `cross_val_score` trains and tests each model 5 times on different parts of the data and we print the average."
+     },
+     {
+      "p": "On this small, clean dataset all three are close to perfect. On harder data the gaps are larger, and this loop is the fastest way to find a good starting model."
      }
     ]
    },
    {
-    "heading": "Search over models and settings together",
+    "heading": "Tune, step 1: hold out a test set",
     "blocks": [
      {
-      "p": "A pipeline with named steps lets one search compare model families and tune each one."
-     },
-     {
       "cell": {
-       "code": "from sklearn.model_selection import GridSearchCV, train_test_split\nfrom sklearn.pipeline import Pipeline\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)\npipe = Pipeline([(\"scale\", StandardScaler()), (\"model\", LogisticRegression(max_iter=5000))])\ngrid = [\n    {\"model\": [LogisticRegression(max_iter=5000)], \"model__C\": [0.1, 1, 10]},\n    {\"model\": [RandomForestClassifier(random_state=0)], \"scale\": [\"passthrough\"], \"model__n_estimators\": [100, 300]},\n]\nsearch = GridSearchCV(pipe, grid, cv=5).fit(X_train, y_train)\nprint(\"best:\", type(search.best_params_[\"model\"]).__name__, \"| CV\", round(search.best_score_, 3), \"| test\", round(search.score(X_test, y_test), 3))",
+       "code": "from sklearn.model_selection import train_test_split\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)\nprint(len(X_train), \"training wines,\", len(X_test), \"test wines\")",
        "lang": "python",
-       "output": "best: RandomForestClassifier | CV 0.979 | test 1.0"
+       "output": "142 training wines, 36 test wines"
       }
      },
      {
-      "p": "The grid is a list of two dictionaries, one per model family. `\"model\": [...]` swaps the whole step; `\"scale\": [\"passthrough\"]` switches scaling off for the forest; `model__C` reaches the `C` setting of whatever sits in the `model` step. When the search finishes, `search` itself behaves like the best pipeline refitted on all training data, so `search.score` and `search.predict` use it directly."
+      "p": "We keep 20% of the wines aside to check the final model once. `stratify=y` keeps the same mix of growers in both parts."
+     }
+    ]
+   },
+   {
+    "heading": "Tune, step 2: a pipeline with named steps",
+    "blocks": [
+     {
+      "cell": {
+       "code": "from sklearn.pipeline import Pipeline\n\npipe = Pipeline([(\"scale\", StandardScaler()), (\"model\", LogisticRegression(max_iter=5000))])",
+       "lang": "python"
+      }
+     },
+     {
+      "p": "This is the same as `make_pipeline`, but we choose the step names ourselves: `\"scale\"` and `\"model\"`. The names let us change each step from the outside in the next step."
+     }
+    ]
+   },
+   {
+    "heading": "Tune, step 3: describe what to try",
+    "blocks": [
+     {
+      "cell": {
+       "code": "grid = [\n    {\"model\": [LogisticRegression(max_iter=5000)], \"model__C\": [0.1, 1, 10]},\n    {\"model\": [RandomForestClassifier(random_state=0)], \"scale\": [\"passthrough\"], \"model__n_estimators\": [100, 300]},\n]",
+       "lang": "python"
+      }
+     },
+     {
+      "p": "The grid is a list of two dictionaries, one per kind of model."
+     },
+     {
+      "list": [
+       "`\"model\": [...]` puts a different model in the `model` step.",
+       "`\"model__C\"` (two underscores) means \"the `C` setting of whatever is in the `model` step\".",
+       "`\"scale\": [\"passthrough\"]` switches scaling off for the forest."
+      ]
+     },
+     {
+      "p": "In total that is 3 logistic regressions plus 2 forests to try."
+     }
+    ]
+   },
+   {
+    "heading": "Tune, step 4: run the search",
+    "blocks": [
+     {
+      "cell": {
+       "code": "from sklearn.model_selection import GridSearchCV\n\nsearch = GridSearchCV(pipe, grid, cv=5).fit(X_train, y_train)\nprint(\"best:\", type(search.best_params_[\"model\"]).__name__, \"| CV\", round(search.best_score_, 3))",
+       "lang": "python",
+       "output": "best: RandomForestClassifier | CV 0.979"
+      }
+     },
+     {
+      "p": "`GridSearchCV` scores every option with 5-fold cross-validation on the training wines and keeps the best. When it finishes, it refits the best pipeline on all training data."
+     }
+    ]
+   },
+   {
+    "heading": "Tune, step 5: test once",
+    "blocks": [
+     {
+      "cell": {
+       "code": "print(\"test accuracy:\", round(search.score(X_test, y_test), 3))",
+       "lang": "python",
+       "output": "test accuracy: 1.0"
+      }
+     },
+     {
+      "p": "`search` itself now behaves like the best pipeline, so `search.score` and `search.predict` use it directly. The test set is used once, at the very end."
      }
     ]
    },

@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { LAB_FOR_TOPIC } from "@/features/labs/lab-links";
 import { WatchRow } from "@/features/learning/components/watch-row";
+import { StoryView } from "@/features/learning/components/story-view";
+import { THEORY_STORIES } from "@/features/theory/stories";
 import { BlockView } from "@/features/theory/blocks";
 import { HOW_TO_CODE } from "@/features/theory/easy/apply";
 import { THEORY, getTheory } from "@/features/theory/topics";
@@ -67,6 +69,14 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
           </div>
           {hasCode ? <TopicTabs slug={topic.slug} active="theory" /> : null}
         </header>
+        {THEORY_STORIES[topic.slug] ? (
+          <section aria-label="The idea in plain words" className="space-y-5 border-b border-slate-200 pb-8 dark:border-slate-800">
+            <StoryView source={THEORY_STORIES[topic.slug]} />
+            <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+              That&apos;s the intuition. The sections below go through the same idea carefully, with the maths, worked examples and code.
+            </p>
+          </section>
+        ) : null}
         <nav aria-label="On this page" className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500">On this page</p>
           <ol className="list-decimal space-y-0.5 pl-5">

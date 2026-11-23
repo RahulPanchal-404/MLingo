@@ -12,13 +12,13 @@ export function MilestoneModelView({ project, onComplete, onBack }: MilestoneMod
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-500/40 dark:bg-teal-500/10">
         <div className="flex items-start gap-3">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300">
               Educational Goal — Model Selection & Mathematical Formulation
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Select an algorithm whose hypothesis function and optimization objective match the task type.
               Review how parameters are mathematically defined and updated during optimization.
             </p>
@@ -27,17 +27,17 @@ export function MilestoneModelView({ project, onComplete, onBack }: MilestoneMod
       </div>
 
       {/* Selected Model Card */}
-      <div className="rounded-xl border-2 border-teal-600 bg-white p-6 shadow-sm space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="rounded-xl border-2 border-teal-600 bg-white p-6 shadow-sm space-y-5 dark:bg-slate-900">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 dark:border-slate-700">
           <div>
-            <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-bold text-teal-800 uppercase tracking-wider">
+            <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-bold text-teal-800 uppercase tracking-wider dark:bg-teal-500/10 dark:text-teal-300">
               Selected Model
             </span>
-            <h2 className="mt-1.5 text-2xl font-bold text-slate-900">
+            <h2 className="mt-1.5 text-2xl font-bold text-slate-900 dark:text-slate-100">
               {project.modelName}
             </h2>
           </div>
-          <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200">
+          <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 dark:text-teal-300 dark:bg-teal-500/10 dark:border-teal-500/40">
             Task: {project.type}
           </span>
         </div>
@@ -45,9 +45,9 @@ export function MilestoneModelView({ project, onComplete, onBack }: MilestoneMod
         {/* Math & Mechanics Formulation */}
         {project.type === "regression" && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 font-mono text-xs">
-              <p className="font-bold text-slate-800 text-sm mb-1">Linear Regression Formulation:</p>
-              <p className="text-teal-900 text-sm">ŷ = w₁ · x₁ + w₂ · x₂ + ... + w_d · x_d + b = wᵀ x + b</p>
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 font-mono text-xs dark:bg-slate-800/60 dark:border-slate-700">
+              <p className="font-bold text-slate-800 text-sm mb-1 dark:text-slate-100">Linear Regression Formulation:</p>
+              <p className="text-teal-900 text-sm dark:text-teal-300">ŷ = w₁ · x₁ + w₂ · x₂ + ... + w_d · x_d + b = wᵀ x + b</p>
               <div className="mt-2 text-slate-600 font-sans space-y-1">
                 <p><strong>Loss Function:</strong> Mean Squared Error: J(w, b) = 1/n Σ (yᵢ - ŷᵢ)²</p>
                 <p><strong>Gradient:</strong> ∂J/∂w = -2/n Σ (yᵢ - ŷᵢ) · xᵢ</p>
@@ -64,9 +64,9 @@ export function MilestoneModelView({ project, onComplete, onBack }: MilestoneMod
 
         {project.type === "classification" && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 font-mono text-xs">
-              <p className="font-bold text-slate-800 text-sm mb-1">Logistic Regression Formulation:</p>
-              <p className="text-teal-900 text-sm">P(y=1 | x) = σ(wᵀ x + b) = 1 / (1 + e^-(wᵀ x + b))</p>
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 font-mono text-xs dark:bg-slate-800/60 dark:border-slate-700">
+              <p className="font-bold text-slate-800 text-sm mb-1 dark:text-slate-100">Logistic Regression Formulation:</p>
+              <p className="text-teal-900 text-sm dark:text-teal-300">P(y=1 | x) = σ(wᵀ x + b) = 1 / (1 + e^-(wᵀ x + b))</p>
               <div className="mt-2 text-slate-600 font-sans space-y-1">
                 <p><strong>Loss Function:</strong> Binary Cross-Entropy: J = -1/n Σ [yᵢ log(pᵢ) + (1 - yᵢ) log(1 - pᵢ)]</p>
                 <p><strong>Decision Boundary:</strong> Predict Class 1 if P(y=1 | x) ≥ θ (default θ = 0.50)</p>
@@ -83,9 +83,9 @@ export function MilestoneModelView({ project, onComplete, onBack }: MilestoneMod
 
         {project.type === "clustering" && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 font-mono text-xs">
-              <p className="font-bold text-slate-800 text-sm mb-1">K-Means Clustering Formulation:</p>
-              <p className="text-teal-900 text-sm">{"Objective (Inertia): WCSS = Σ_k Σ_{x ∈ C_k} ||x - μ_k||²"}</p>
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 font-mono text-xs dark:bg-slate-800/60 dark:border-slate-700">
+              <p className="font-bold text-slate-800 text-sm mb-1 dark:text-slate-100">K-Means Clustering Formulation:</p>
+              <p className="text-teal-900 text-sm dark:text-teal-300">{"Objective (Inertia): WCSS = Σ_k Σ_{x ∈ C_k} ||x - μ_k||²"}</p>
               <div className="mt-2 text-slate-600 font-sans space-y-1">
                 <p><strong>Step 1 (Assignment):</strong> {"c_i = argmin_k ||x_i - μ_k||²"}</p>
                 <p><strong>Step 2 (Update):</strong> {"μ_k = 1/|C_k| Σ_{i ∈ C_k} x_i"}</p>
@@ -106,7 +106,7 @@ export function MilestoneModelView({ project, onComplete, onBack }: MilestoneMod
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
         >
           ← Back to Split
         </button>

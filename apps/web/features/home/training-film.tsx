@@ -253,8 +253,7 @@ function Stage({ values, pos, children }: { values: FilmValues | null; pos: numb
                 {["Watch", "a", "model", "learn."].map((word, i) => (
                   <span
                     key={word}
-                    className="mx-[0.12em] inline-block rounded-2xl px-[0.18em] pb-[0.08em]"
-                    style={{ background: i === 2 ? "#ffd166" : "transparent" }}
+                    className={`mx-[0.12em] inline-block rounded-2xl px-[0.18em] pb-[0.08em] ${i === 2 ? "bg-[#ffd166]" : ""}`}
                   >
                     {word}
                   </span>

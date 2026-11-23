@@ -177,7 +177,7 @@ export function TutorLauncher() {
           className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-teal-500/40 bg-white/95 text-slate-800 shadow-xl backdrop-blur-md hover:scale-110 hover:border-teal-500 dark:border-teal-500/50 dark:bg-slate-900/95 dark:text-white transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-teal-400"
         >
           <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse dark:bg-slate-900" />
           </span>
         </button>
       ) : (

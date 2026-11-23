@@ -135,10 +135,10 @@ export function ProjectRunner({ project }: ProjectRunnerProps) {
   if (!isMounted) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-32 bg-slate-100 rounded-xl" />
+        <div className="h-32 bg-slate-100 rounded-xl dark:bg-slate-800/60" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-          <div className="h-96 bg-slate-100 rounded-xl lg:col-span-1" />
-          <div className="h-96 bg-slate-100 rounded-xl lg:col-span-3" />
+          <div className="h-96 bg-slate-100 rounded-xl lg:col-span-1 dark:bg-slate-800/60" />
+          <div className="h-96 bg-slate-100 rounded-xl lg:col-span-3 dark:bg-slate-800/60" />
         </div>
       </div>
     );

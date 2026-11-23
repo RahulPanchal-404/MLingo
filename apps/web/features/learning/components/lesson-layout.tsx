@@ -5,11 +5,12 @@ import { useState } from "react";
 import { levelsForLesson } from "@/features/games/registry";
 import type { LessonDefinition } from "../lessons-data";
 import { ChapterMotif } from "../chapter-motif";
+import { StoryView } from "./story-view";
 import { WatchRow } from "./watch-row";
 import { chapterForLabel, chapterStyle } from "../chapter-style";
 
 /** `children` is the server-rendered step-by-step walkthrough, placed before the hands-on card. */
-export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: LessonDefinition; hasTheory?: boolean; children?: React.ReactNode }) {
+export function LessonLayout({ lesson, story, hasTheory = false, children }: { lesson: LessonDefinition; story?: string; hasTheory?: boolean; children?: React.ReactNode }) {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
 
   const selectedOption = selectedOptionIndex !== null && lesson.thinkPrompt
@@ -25,70 +26,55 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
       <nav aria-label="Curriculum breadcrumb" className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
         <Link
           href="/learn"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors dark:text-slate-300 dark:hover:text-white"
         >
           <span>← Back to Curriculum</span>
         </Link>
-        <span className="rounded-full border-2 border-slate-950 px-3 py-0.5 text-xs font-semibold text-slate-950" style={{ background: color.fill }}>
+        <span className="rounded-full border-2 border-slate-950 bg-[var(--c-fill)] px-3 py-0.5 text-xs font-semibold text-slate-950 dark:border-[var(--c-fill)] dark:bg-transparent dark:text-[var(--c-fill)]" style={{ ["--c-fill" as string]: color.fill }}>
           {lesson.tag}
         </span>
       </nav>
 
-      {/* Header */}
-      <header className="light-island relative space-y-4 overflow-hidden rounded-3xl border-2 border-slate-950 p-6 sm:p-8" style={{ background: color.fill }}>
+      {/* Header: chapter colour in light mode; a dark panel with a chapter-coloured edge in dark mode */}
+      <header
+        className="relative space-y-4 overflow-hidden rounded-3xl border-2 border-slate-950 bg-[var(--c-fill)] p-6 sm:p-8 dark:border-[var(--c-fill)] dark:bg-slate-900"
+        style={{ ["--c-fill" as string]: color.fill }}
+      >
         <ChapterMotif id={chapterId} className="pointer-events-none absolute right-5 top-5 hidden h-24 w-40 sm:block" />
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-full bg-white/80 px-2.5 py-0.5 font-semibold text-slate-800">
-            {lesson.difficulty}
-          </span>
-          <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-slate-700">
-            {lesson.estimatedMinutes} min read & practice
-          </span>
+          <span className="rounded-full bg-white/80 px-2.5 py-0.5 font-semibold text-slate-800 dark:bg-slate-800 dark:text-slate-200">{lesson.difficulty}</span>
+          <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300">{lesson.estimatedMinutes + (story ? Math.round(story.split(/\s+/).length / 200) : 0)} min read & practice</span>
         </div>
-
-        <h1 className="max-w-[16ch] text-slate-950">
-          {lesson.title}
-        </h1>
-        <p className="max-w-[52ch] text-lg leading-relaxed text-slate-800">
-          {lesson.subtitle}
-        </p>
-
+        <h1 className="max-w-[18ch] text-slate-950 dark:text-white">{lesson.title}</h1>
+        <p className="max-w-[52ch] text-lg leading-relaxed text-slate-800 dark:text-slate-300">{lesson.subtitle}</p>
         {lesson.prerequisites && (
-          <div className="rounded-xl bg-white/70 p-3 text-sm text-slate-700">
-            <span className="font-semibold text-slate-700">Prerequisites: </span>
+          <p className="text-sm text-slate-700 dark:text-slate-400">
+            <span className="font-semibold">You need: </span>
             {lesson.prerequisites}
-          </div>
+          </p>
         )}
       </header>
 
-      {/* Key Idea Callout Box */}
-      <section className="light-island rounded-2xl border-2 border-slate-950 p-6 space-y-2" style={{ background: color.fill }}>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-slate-950">
-            Key Idea
-          </span>
-        </div>
-        <p className="text-sm font-semibold text-slate-900 leading-relaxed dark:text-white">
-          {lesson.keyIdea}
-        </p>
+      {story ? (
+        <section aria-label="The idea, step by step" className="space-y-5">
+          <StoryView source={story} />
+        </section>
+      ) : null}
+
+      {/* The whole lesson in one sentence, after the story has built it up */}
+      <section className="rounded-2xl border-2 border-slate-950 bg-[var(--c-fill)] p-6 space-y-2 dark:border-[var(--c-fill)] dark:bg-slate-900" style={{ ["--c-fill" as string]: color.fill }}>
+        <h2 className="text-sm font-bold text-slate-950 dark:text-[var(--c-fill)]">{story ? "The whole idea in one sentence" : "Key idea"}</h2>
+        <p className="text-base font-semibold leading-relaxed text-slate-900 dark:text-slate-100">{lesson.keyIdea}</p>
       </section>
 
-      {/* 1. What Am I Learning? */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
-          What am I learning?
-        </h2>
-        <ul className="space-y-2.5">
-          {lesson.whatAmILearning.map((point, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-700 leading-relaxed dark:text-slate-200">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold dark:bg-teal-950/40 dark:border-teal-800 dark:text-teal-200">
-                {idx + 1}
-              </span>
-              <span>{point}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {!story ? (
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">What am I learning?</h2>
+          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+            {lesson.whatAmILearning.map((point) => <li key={point}>{point}</li>)}
+          </ul>
+        </section>
+      ) : null}
 
       {/* 2. Visual / Concept Intuition */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
@@ -122,15 +108,15 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
         </div>
       </section>
 
-      {/* 3. Why Does It Matter? */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3 dark:border-slate-800 dark:bg-slate-900">
+      {/* 3. Why Does It Matter? (the story covers this when there is one) */}
+      {!story ? <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 dark:text-white">
           Why does it matter?
         </h2>
         <p className="text-xs text-slate-600 leading-relaxed">
           {lesson.whyItMatters}
         </p>
-      </section>
+      </section> : null}
 
       {/* 4. Concrete Example */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
@@ -186,7 +172,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
                       ? opt.correct
                         ? "border-emerald-500 bg-emerald-50/80 text-emerald-950 font-medium dark:bg-emerald-950/40 dark:text-emerald-200"
                         : "border-amber-400 bg-amber-50/80 text-amber-950 font-medium dark:bg-amber-950/40 dark:text-amber-200"
-                      : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                      : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -306,7 +292,7 @@ export function LessonLayout({ lesson, hasTheory = false, children }: { lesson: 
         {lesson.prevLesson ? (
           <Link
             href={`/learn/${lesson.prevLesson.slug}`}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60"
           >
             ← Previous: {lesson.prevLesson.title}
           </Link>

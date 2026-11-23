@@ -75,14 +75,14 @@ export function OnboardingModal() {
       aria-label="Welcome to MLingo Onboarding"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="keep-light relative w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
         {/* Header Bar */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-3.5">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-3.5 dark:border-slate-700 dark:bg-slate-800/60">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-teal-600 text-xs font-bold text-white shadow-xs">
               M
             </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
               Welcome to MLingo
             </span>
           </div>
@@ -93,7 +93,7 @@ export function OnboardingModal() {
             <button
               type="button"
               onClick={handleSkip}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer dark:hover:text-slate-100"
             >
               Skip
             </button>
@@ -104,10 +104,10 @@ export function OnboardingModal() {
         <div className="px-6 py-6 min-h-[320px] flex flex-col justify-between">
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in-50 duration-200">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                  Core Philosophy
               </div>
-              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
                 “Machine Learning, Frame by Frame.”
               </h2>
               <p className="text-sm text-slate-600 leading-relaxed">
@@ -121,10 +121,10 @@ export function OnboardingModal() {
 
           {step === 2 && (
             <div className="space-y-4 animate-in fade-in-50 duration-200">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                  The MLingo Learning Loop
               </div>
-              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                 How you learn in MLingo
               </h2>
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 pt-1">
@@ -138,9 +138,9 @@ export function OnboardingModal() {
                 ].map((item, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-left space-y-1"
+                    className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-left space-y-1 dark:border-slate-700 dark:bg-slate-800/60"
                   >
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-teal-700 block">
+                    <span className="text-[10px] font-mono font-bold tracking-wider text-teal-700 block dark:text-teal-300">
                       {item.tag}
                     </span>
                     <p className="text-xs text-slate-600 leading-tight">
@@ -154,10 +154,10 @@ export function OnboardingModal() {
 
           {step === 3 && (
             <div className="space-y-3 animate-in fade-in-50 duration-200">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                  Choose Your Starting Point
               </div>
-              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                 Where would you like to begin?
               </h2>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 pt-1">
@@ -195,12 +195,12 @@ export function OnboardingModal() {
                       onClick={() => setSelectedPath(option.id)}
                       className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all cursor-pointer ${
                         isSelected
-                          ? "border-teal-600 bg-teal-50/50 shadow-xs ring-1 ring-teal-600"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                          ? "border-teal-600 bg-teal-50/50 shadow-xs ring-1 ring-teal-600 dark:bg-teal-500/10"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/60"
                       }`}
                     >
                       <div>
-                        <div className="text-xs font-bold text-slate-900">
+                        <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
                           {option.title}
                         </div>
                         <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
@@ -216,16 +216,16 @@ export function OnboardingModal() {
 
           {step === 4 && (
             <div className="space-y-4 animate-in fade-in-50 duration-200">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-300">
                  Ready to Explore
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                 You are ready to begin.
               </h2>
               <p className="text-sm text-slate-600 leading-relaxed">
                 Remember: in MLingo, whenever you feel curious or uncertain about what a gradient, parameter, or evaluation metric means, click the floating <strong>Ask MLingo Tutor</strong> button at the bottom right.
               </p>
-              <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3.5 text-xs text-teal-950 flex items-center gap-3">
+              <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3.5 text-xs text-teal-950 flex items-center gap-3 dark:border-teal-500/40 dark:bg-teal-500/10 dark:text-teal-300">
                 <span>
                   The AI Tutor inspects your active training state in real-time and grounds every explanation in actual mathematical evidence.
                 </span>
@@ -234,7 +234,7 @@ export function OnboardingModal() {
           )}
 
           {/* Progress Indicators & Navigation Buttons */}
-          <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-4">
+          <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-4 dark:border-slate-700">
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4].map((i) => (
                 <span
@@ -242,7 +242,7 @@ export function OnboardingModal() {
                   className={`h-2 rounded-full transition-all ${
                     step === i
                       ? "w-6 bg-teal-700"
-                      : "w-2 bg-slate-200"
+                      : "w-2 bg-slate-200 dark:bg-slate-800/60"
                   }`}
                 />
               ))}
@@ -253,7 +253,7 @@ export function OnboardingModal() {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="rounded-lg border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="rounded-lg border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
                 >
                   Back
                 </button>

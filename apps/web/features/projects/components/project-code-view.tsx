@@ -148,7 +148,7 @@ export function ProjectCodeView({ project }: { project: ProjectDefinition }) {
             <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
               {project.realWorldApplications.map((app, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-teal-600 font-bold">✓</span>
+                  <span className="text-teal-600 font-bold dark:text-teal-300">✓</span>
                   <span>{app}</span>
                 </li>
               ))}
@@ -164,7 +164,7 @@ export function ProjectCodeView({ project }: { project: ProjectDefinition }) {
             <ul className="space-y-2 text-xs text-amber-950 dark:text-amber-200">
               {project.additionalExercises.map((ex, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">→</span>
+                  <span className="text-amber-600 font-bold dark:text-amber-300">→</span>
                   <span>{ex}</span>
                 </li>
               ))}

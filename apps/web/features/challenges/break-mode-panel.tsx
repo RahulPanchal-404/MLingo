@@ -43,7 +43,7 @@ export function BreakModePanel({ challenge, diagnostics, markers, run }: BreakMo
         <div>
           <div className="flex items-center gap-2">
             <p className="eyebrow">Break Mode</p>
-            <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+            <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
               {challenge.algorithmLabel}
             </span>
           </div>
@@ -113,24 +113,24 @@ function renderFeedback(result: BreakModeResult) {
       );
     case "not-detected":
       return (
-        <p className="text-xs text-amber-800">
+        <p className="text-xs text-amber-800 dark:text-amber-300">
           The target condition was not detected in this run. Try adjusting hyperparameters (like learning rate) or running for more epochs.
         </p>
       );
     case "awaiting-marker":
       return (
-        <p className="text-xs text-teal-800">
+        <p className="text-xs text-teal-800 dark:text-teal-300">
           The target signal occurred during this run! Scrub the timeline and click <strong>&quot;Add marker&quot;</strong> near the frame where this behavior began.
         </p>
       );
     case "incorrect-marker":
       return (
-        <div className="space-y-1.5 text-xs text-amber-900">
+        <div className="space-y-1.5 text-xs text-amber-900 dark:text-amber-300">
           <p className="font-semibold">
             Not quite. At this frame the target behavior has not happened yet.
           </p>
           <p className="text-slate-600">Look closely at:</p>
-          <ul className="list-disc pl-4 space-y-0.5 text-slate-700">
+          <ul className="list-disc pl-4 space-y-0.5 text-slate-700 dark:text-slate-300">
             <li><strong>Loss:</strong> Check whether it has started rising, flattening, or stabilized.</li>
             <li><strong>Gradient / parameter movement:</strong> Check how much weights, centroids, or boundaries shifted.</li>
             <li><strong>The diagnostic signal:</strong> Look for active diagnostic chips on the timeline.</li>
@@ -142,7 +142,7 @@ function renderFeedback(result: BreakModeResult) {
       );
     case "success":
       return (
-        <p className="text-xs text-emerald-900 font-medium">
+        <p className="text-xs text-emerald-900 font-medium dark:text-emerald-300">
           Spot on! You found the target frame (Step {result.targetStep + 1}). Your marker is within {result.distance} step{result.distance === 1 ? "" : "s"} of the exact event.
         </p>
       );

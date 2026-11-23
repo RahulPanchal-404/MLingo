@@ -3373,3 +3373,32 @@ main h1:not([class*="text-[clamp"]) { font-size: clamp(2.1rem, 4vw, 3.25rem); }
   outline: 2px solid #0d9488;
   outline-offset: 3px;
 }
+
+/* ==========================================================================
+   Dark mode: no pastel backgrounds. Pastel chips and panels become a dark tint
+   with the same hue as text and border, so colour still carries meaning.
+   ========================================================================== */
+.dark .bg-\[\#ffd166\] { background-color: rgb(251 191 36 / 0.12); color: #fcd34d; border-color: rgb(251 191 36 / 0.55); }
+.dark .bg-\[\#ff9a8a\] { background-color: rgb(248 113 113 / 0.12); color: #fca5a5; border-color: rgb(248 113 113 / 0.55); }
+.dark .bg-\[\#b9a6ff\] { background-color: rgb(167 139 250 / 0.12); color: #c4b5fd; border-color: rgb(167 139 250 / 0.55); }
+.dark .bg-\[\#a7f3d0\], .dark .bg-\[\#7be0c3\] { background-color: rgb(45 212 191 / 0.12); color: #5eead4; border-color: rgb(45 212 191 / 0.55); }
+.dark .bg-\[\#8fd3ff\] { background-color: rgb(56 189 248 / 0.12); color: #7dd3fc; border-color: rgb(56 189 248 / 0.55); }
+
+/* Chapter-coloured blocks: chapter colour in light mode; a dark panel with a chapter-coloured edge in dark mode.
+   Set --c-fill on the element (style={{ "--c-fill": color.fill }}). */
+.chapter-fill { background-color: var(--c-fill); }
+.dark .chapter-fill { background-color: var(--surface-elevated); border-color: var(--c-fill) !important; }
+.dark .chapter-fill, .dark .chapter-fill :where(p, span, h2, h3, a, strong) { color: var(--foreground); }
+.dark .lab-intro[data-chapter] { background: var(--surface-elevated); border-color: var(--chapter-fill); }
+.dark .lab-intro[data-chapter] .lab-intro-copy, .dark .lab-intro[data-chapter] .lab-intro-copy * { color: var(--foreground); }
+.dark .insight-step-badge { background: rgb(45 212 191 / 0.12); border-color: rgb(45 212 191 / 0.4); color: #5eead4; }
+/* Older lab, challenge and comparison components: light text equivalents in dark mode. */
+.dark .lab-alert { background: rgb(249 115 22 / 0.1); border-color: rgb(249 115 22 / 0.4); color: #fdba74; }
+.dark .lab-alert span { color: #fdba74; }
+.dark .break-mode-heading h2, .dark .break-mode-objective dd { color: #99f6e4; }
+.dark .break-mode-status { color: #5eead4; }
+.dark .break-mode-status.success, .dark .break-mode-feedback.success, .dark .concept-list li, .dark .comparison-context { color: #86efac; }
+.dark .break-mode-status.incorrect-marker, .dark .break-mode-feedback.incorrect-marker { color: #fdba74; }
+.dark .signal-icon { background: var(--surface-elevated); }
+.dark .signal-warning .signal-icon, .dark .difference-panel dd.difference-higher { color: #fdba74; }
+.dark .signal-success .signal-icon { color: #86efac; }

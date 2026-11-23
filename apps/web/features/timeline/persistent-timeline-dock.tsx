@@ -191,7 +191,7 @@ export function PersistentTimelineDock({
                 <button type="button" onClick={() => onJump(m.step)} className="font-semibold">{m.title}</button>
                 <span className="text-amber-700/70 dark:text-amber-300/60">step {m.step + 1}</span>
                 {onRemoveMarker ? (
-                  <button type="button" aria-label={`Remove note ${m.title}`} onClick={() => onRemoveMarker(m.id)} className="ml-0.5 text-amber-700 hover:text-amber-950 dark:text-amber-300">×</button>
+                  <button type="button" aria-label={`Remove note ${m.title}`} onClick={() => onRemoveMarker(m.id)} className="ml-0.5 text-amber-700 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-300">×</button>
                 ) : null}
               </span>
             ))}

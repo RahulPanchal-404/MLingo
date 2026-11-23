@@ -81,13 +81,13 @@ export function MilestoneInterpretView({
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-500/40 dark:bg-teal-500/10">
         <div className="flex items-start gap-3">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300">
               Educational Goal — Learning Intelligence: Why Did This Happen?
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Go beyond raw metric scores. Connect telemetry evidence to mathematical reasons:
               understand why the model produced these results and what parameter behavior caused them.
             </p>
@@ -103,7 +103,7 @@ export function MilestoneInterpretView({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
         >
           ← Back to Evaluation
         </button>

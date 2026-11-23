@@ -28,13 +28,13 @@ export function MilestoneEvaluateView({
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-500/40 dark:bg-teal-500/10">
         <div className="flex items-start gap-3">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300">
               Educational Goal — Multi-Metric Evaluation & Generalization Assessment
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Optimization loss is merely a mathematical surrogate. Operational evaluation assesses how
               the model satisfies real business requirements on unseen test candidates.
             </p>
@@ -45,29 +45,29 @@ export function MilestoneEvaluateView({
       {/* REGRESSION EVALUATION METRICS */}
       {project.type === "regression" && evalResult.regression && (
         <div className="space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3 dark:text-slate-300 dark:border-slate-700">
               {project.title}: evaluation on {testRaw.length} test rows (trained on {trainRaw.length})
             </h3>
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono dark:border-slate-700 dark:bg-slate-800/60">
                 <p className="text-[10px] uppercase font-sans text-slate-500">Train MSE</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900">{evalResult.regression.trainMse}</p>
+                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{evalResult.regression.trainMse}</p>
                 <p className="text-[10px] text-slate-400 font-sans mt-1">Training residual error</p>
               </div>
-              <div className="rounded-lg border border-teal-200 bg-teal-50/70 p-4 font-mono">
-                <p className="text-[10px] uppercase font-sans text-teal-800 font-bold">Test MSE</p>
-                <p className="mt-1 text-2xl font-black text-teal-950">{evalResult.regression.testMse}</p>
-                <p className="text-[10px] text-teal-700 font-sans mt-1">Generalization error</p>
+              <div className="rounded-lg border border-teal-200 bg-teal-50/70 p-4 font-mono dark:border-teal-500/40 dark:bg-teal-500/10">
+                <p className="text-[10px] uppercase font-sans text-teal-800 font-bold dark:text-teal-300">Test MSE</p>
+                <p className="mt-1 text-2xl font-black text-teal-950 dark:text-teal-300">{evalResult.regression.testMse}</p>
+                <p className="text-[10px] text-teal-700 font-sans mt-1 dark:text-teal-300">Generalization error</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono dark:border-slate-700 dark:bg-slate-800/60">
                 <p className="text-[10px] uppercase font-sans text-slate-500">Test MAE</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900">{evalResult.regression.testMae}</p>
+                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{evalResult.regression.testMae}</p>
                 <p className="text-[10px] text-slate-400 font-sans mt-1">Average error{units ? ` (${units})` : ""}</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono dark:border-slate-700 dark:bg-slate-800/60">
                 <p className="text-[10px] uppercase font-sans text-slate-500">R² Score</p>
-                <p className="mt-1 text-2xl font-bold text-indigo-700">{evalResult.regression.testR2}</p>
+                <p className="mt-1 text-2xl font-bold text-indigo-700 dark:text-indigo-300">{evalResult.regression.testR2}</p>
                 <p className="text-[10px] text-slate-400 font-sans mt-1">{evalResult.regression.testR2 < 0 ? "Worse than predicting the mean" : "Share of variance explained (1 = perfect)"}</p>
               </div>
             </div>
@@ -112,14 +112,14 @@ export function MilestoneEvaluateView({
       {/* CLUSTERING EVALUATION METRICS */}
       {project.type === "clustering" && evalResult.clustering && (
         <div className="space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3 dark:text-slate-300 dark:border-slate-700">
               Retail Customer Segmentation Metrics
             </h3>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono dark:border-slate-700 dark:bg-slate-800/60">
                 <p className="text-xs uppercase font-sans text-slate-500">Total Inertia (WCSS)</p>
-                <p className="mt-1 text-3xl font-bold text-teal-900">
+                <p className="mt-1 text-3xl font-bold text-teal-900 dark:text-teal-300">
                   {evalResult.clustering.inertia}
                 </p>
                 <p className="text-xs text-slate-500 font-sans mt-1">
@@ -127,12 +127,12 @@ export function MilestoneEvaluateView({
                 </p>
               </div>
 
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono dark:border-slate-700 dark:bg-slate-800/60">
                 <p className="text-xs uppercase font-sans text-slate-500">Discovered Cluster Cohorts</p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   {evalResult.clustering.clusterSizes.map((sz, idx) => (
-                    <div key={idx} className="rounded-md bg-white px-3 py-1.5 border border-slate-200">
-                      Cohort C{idx + 1}: <span className="font-bold text-teal-800">{sz} shoppers</span>
+                    <div key={idx} className="rounded-md bg-white px-3 py-1.5 border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
+                      Cohort C{idx + 1}: <span className="font-bold text-teal-800 dark:text-teal-300">{sz} shoppers</span>
                     </div>
                   ))}
                 </div>
@@ -147,7 +147,7 @@ export function MilestoneEvaluateView({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
         >
           ← Back to Experiment
         </button>

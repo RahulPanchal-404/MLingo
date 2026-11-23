@@ -18,7 +18,7 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
         aria-label="Switch to light mode"
         className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
           theme === "light"
-            ? "bg-white text-slate-900 shadow-xs font-semibold"
+            ? "bg-white text-slate-900 shadow-xs font-semibold dark:bg-slate-900 dark:text-slate-100"
             : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
         }`}
       >

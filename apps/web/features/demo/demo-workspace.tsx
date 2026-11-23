@@ -126,22 +126,22 @@ export function DemoWorkspace() {
   };
 
   return (
-    <div className="keep-light space-y-6">
+    <div className="space-y-6">
       {/* Top Navigation & Stepper Header */}
-      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-700 dark:bg-slate-900">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-md bg-teal-600 text-[10px] font-bold text-white">
               </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800">
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300">
                 MLingo Interactive Tour
               </span>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-mono text-slate-600 border border-slate-200">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-mono text-slate-600 border border-slate-200 dark:bg-slate-800/60 dark:border-slate-700">
                 Step 0{currentStepIndex} / 08
               </span>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-100">
               {activeStepMeta.title}
             </h1>
             <p className="text-xs text-slate-500">
@@ -153,13 +153,13 @@ export function DemoWorkspace() {
             <button
               type="button"
               onClick={handleRestart}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/60"
             >
               Restart Tour
             </button>
             <Link
               href="/learn"
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/60"
             >
               Skip to Curriculum
             </Link>
@@ -167,7 +167,7 @@ export function DemoWorkspace() {
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+        <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800/60">
           <div
             className="h-full bg-teal-700 transition-all duration-300"
             style={{ width: `${(currentStepIndex / 8) * 100}%` }}
@@ -176,23 +176,23 @@ export function DemoWorkspace() {
       </header>
 
       {/* Main Guided Step Content */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6 dark:border-slate-700 dark:bg-slate-900">
         {/* STEP 1: Start with a Dataset */}
         {currentStepIndex === 1 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-4">
-                <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+                <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                   Concept 01 · Data Representation
                 </span>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   All machine learning begins with raw data.
                 </h2>
                 <p className="text-xs text-slate-600 leading-relaxed">
                   Before a neural network or regression line learns anything, all it possesses is a collection of features x and targets y.
                 </p>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs text-slate-700">
-                  <div className="font-bold text-slate-800">What you are observing:</div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
+                  <div className="font-bold text-slate-800 dark:text-slate-100">What you are observing:</div>
                   <ul className="list-disc pl-4 space-y-1 text-slate-600">
                     <li>32 deterministic data points plotted in 2D space.</li>
                     <li>The true relationship is roughly y = 2x + 1, plus measurement noise.</li>
@@ -201,7 +201,7 @@ export function DemoWorkspace() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col items-center justify-center min-h-[300px]">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col items-center justify-center min-h-[300px] dark:border-slate-700 dark:bg-slate-800/60">
                 <RegressionPlot
                   points={rawPoints}
                   state={{
@@ -224,10 +224,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 2 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                 Concept 02 · Gradient Optimization
               </span>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 Watch Mean Squared Error drop as weights update.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -236,28 +236,28 @@ export function DemoWorkspace() {
             </div>
 
             {loadingA && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center text-xs text-slate-500">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800/60">
                 Recording real gradient descent updates on backend...
               </div>
             )}
 
             {errorA && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
                 {errorA}
               </div>
             )}
 
             {runA && (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="text-xs font-bold text-slate-800 mb-2">Final Converged Fit</div>
+                <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                  <div className="text-xs font-bold text-slate-800 mb-2 dark:text-slate-100">Final Converged Fit</div>
                   <RegressionPlot
                     points={runA.dataset_points}
                     state={runA.history[runA.history.length - 1]}
                   />
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="text-xs font-bold text-slate-800 mb-2">Loss Convergence Curve (MSE)</div>
+                <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                  <div className="text-xs font-bold text-slate-800 mb-2 dark:text-slate-100">Loss Convergence Curve (MSE)</div>
                   <LossChart
                     history={runA.history}
                     currentStep={runA.history.length - 1}
@@ -273,10 +273,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 3 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                 Concept 03 · Frame by Frame Timeline
               </span>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 Travel backwards and forwards through training history.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -287,18 +287,18 @@ export function DemoWorkspace() {
             {runA && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-800 mb-2">
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-800 mb-2 dark:text-slate-100">
                       <span>Regression Line Position</span>
-                      <span className="font-mono text-teal-700">{snapshotLabel(timelineA.currentStep)} · {snapshotsSummary(timelineA.totalSteps)}</span>
+                      <span className="font-mono text-teal-700 dark:text-teal-300">{snapshotLabel(timelineA.currentStep)} · {snapshotsSummary(timelineA.totalSteps)}</span>
                     </div>
                     <RegressionPlot
                       points={runA.dataset_points}
                       state={stateA}
                     />
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="text-xs font-bold text-slate-800 mb-2">Loss Playhead</div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="text-xs font-bold text-slate-800 mb-2 dark:text-slate-100">Loss Playhead</div>
                     <LossChart
                       history={runA.history}
                       currentStep={timelineA.currentStep}
@@ -332,10 +332,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 4 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                 Concept 04 · Model Telemetry & Internal Parameters
               </span>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 Observe the exact mathematical numbers driving the model.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -345,32 +345,32 @@ export function DemoWorkspace() {
 
             {stateA && (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 font-mono text-xs">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-700 dark:bg-slate-800/60">
                   <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Weight (w)</div>
-                  <div className="text-lg font-bold text-slate-900">{stateA.weights[0]?.toFixed(4)}</div>
+                  <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{stateA.weights[0]?.toFixed(4)}</div>
                   <div className="text-[10px] text-slate-400 font-sans">True slope target: 2.0</div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-700 dark:bg-slate-800/60">
                   <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Bias (b)</div>
-                  <div className="text-lg font-bold text-slate-900">{stateA.bias?.toFixed(4)}</div>
+                  <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{stateA.bias?.toFixed(4)}</div>
                   <div className="text-[10px] text-slate-400 font-sans">True intercept: 1.0</div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-700 dark:bg-slate-800/60">
                   <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Weight Gradient (∂L/∂w)</div>
-                  <div className="text-lg font-bold text-teal-700">{stateA.gradients[0]?.toFixed(4)}</div>
+                  <div className="text-lg font-bold text-teal-700 dark:text-teal-300">{stateA.gradients[0]?.toFixed(4)}</div>
                   <div className="text-[10px] text-slate-400 font-sans">Negative vector directs step</div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1 dark:border-slate-700 dark:bg-slate-800/60">
                   <div className="text-[10px] text-slate-500 font-sans font-bold uppercase">Mean Squared Error</div>
-                  <div className="text-lg font-bold text-slate-900">{stateA.loss?.toFixed(4)}</div>
+                  <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{stateA.loss?.toFixed(4)}</div>
                   <div className="text-[10px] text-slate-400 font-sans">Objective function</div>
                 </div>
               </div>
             )}
 
-            <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-4 text-xs text-teal-950 space-y-1">
-              <span className="font-bold block uppercase tracking-wider text-teal-800 text-[10px]">
+            <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-4 text-xs text-teal-950 space-y-1 dark:border-teal-500/40 dark:bg-teal-500/10 dark:text-teal-300">
+              <span className="font-bold block uppercase tracking-wider text-teal-800 text-[10px] dark:text-teal-300">
                 Mathematical Update Formula
               </span>
               <p className="font-mono text-sm">
@@ -384,10 +384,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 5 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                 Concept 05 · Grounded AI Tutor
               </span>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 Never wonder what a gradient or equation means.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -395,12 +395,12 @@ export function DemoWorkspace() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/70 to-slate-50 p-6 space-y-4">
+            <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/70 to-slate-50 p-6 space-y-4 dark:border-teal-500/40">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-600 text-xl text-white shadow-xs">
                 </span>
                 <div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
                     Ask the Tutor about {timelineA.currentStep === 0 ? "the start" : `update ${timelineA.currentStep}`}
                   </div>
                   <div className="text-xs text-slate-500">
@@ -413,14 +413,14 @@ export function DemoWorkspace() {
                 <button
                   type="button"
                   onClick={() => openTutor("Why did the loss decrease in early steps?")}
-                  className="rounded-xl border border-teal-300 bg-white px-3.5 py-2 text-xs font-semibold text-teal-900 shadow-xs hover:bg-teal-50 transition-colors cursor-pointer"
+                  className="rounded-xl border border-teal-300 bg-white px-3.5 py-2 text-xs font-semibold text-teal-900 shadow-xs hover:bg-teal-50 transition-colors cursor-pointer dark:border-teal-500/40 dark:bg-slate-900 dark:text-teal-300 dark:hover:bg-teal-500/10"
                 >
                    &quot;Why did the loss decrease in early steps?&quot;
                 </button>
                 <button
                   type="button"
                   onClick={() => openTutor("What is the mathematical reason for this gradient?")}
-                  className="rounded-xl border border-teal-300 bg-white px-3.5 py-2 text-xs font-semibold text-teal-900 shadow-xs hover:bg-teal-50 transition-colors cursor-pointer"
+                  className="rounded-xl border border-teal-300 bg-white px-3.5 py-2 text-xs font-semibold text-teal-900 shadow-xs hover:bg-teal-50 transition-colors cursor-pointer dark:border-teal-500/40 dark:bg-slate-900 dark:text-teal-300 dark:hover:bg-teal-500/10"
                 >
                    &quot;What does this gradient mean mathematically?&quot;
                 </button>
@@ -440,10 +440,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 6 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                 Concept 06 · Scientific Experimentation
               </span>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 Hypothesize, tweak a hyperparameter, and measure the effect.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -473,8 +473,8 @@ export function DemoWorkspace() {
                 }
               />
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4">
-                <label className="block space-y-2 text-xs font-bold text-slate-700">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <label className="block space-y-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                   <span>Experiment Variable: Learning Rate (α)</span>
                   <input aria-label="Experiment Variable: Learning Rate (α)"
                     type="range"
@@ -487,7 +487,7 @@ export function DemoWorkspace() {
                   />
                   <div className="flex justify-between font-mono text-[11px] text-slate-500">
                     <span>Slow (0.01)</span>
-                    <span className="font-bold text-teal-800">{expLearningRate}</span>
+                    <span className="font-bold text-teal-800 dark:text-teal-300">{expLearningRate}</span>
                     <span>Aggressive (0.80)</span>
                   </div>
                 </label>
@@ -502,11 +502,11 @@ export function DemoWorkspace() {
                 </button>
 
                 {errorB && (
-                  <div className="text-xs text-red-600">{errorB}</div>
+                  <div className="text-xs text-red-600 dark:text-red-300">{errorB}</div>
                 )}
 
                 {runB && (
-                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800">
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-300">
                     ✓ Experiment B successfully trained! Proceed to Step 7 to compare.
                   </div>
                 )}
@@ -519,10 +519,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 7 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800">
+              <span className="rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-semibold text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/40 dark:text-teal-300">
                 Concept 07 · Model Comparison
               </span>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 Side-by-side comparison: Run A vs. Run B.
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -532,8 +532,8 @@ export function DemoWorkspace() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {runA && (
-                <div className="rounded-xl border border-teal-200 bg-white p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-teal-900">
+                <div className="rounded-xl border border-teal-200 bg-white p-4 space-y-2 dark:border-teal-500/40 dark:bg-slate-900">
+                  <div className="flex items-center justify-between text-xs font-bold text-teal-900 dark:text-teal-300">
                     <span>Run A (Baseline)</span>
                     <span className="font-mono">α = 0.05</span>
                   </div>
@@ -545,8 +545,8 @@ export function DemoWorkspace() {
               )}
 
               {runB ? (
-                <div className="rounded-xl border border-amber-200 bg-white p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-amber-900">
+                <div className="rounded-xl border border-amber-200 bg-white p-4 space-y-2 dark:border-amber-500/40 dark:bg-slate-900">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-900 dark:text-amber-300">
                     <span>Run B (Experiment)</span>
                     <span className="font-mono">α = {expLearningRate}</span>
                   </div>
@@ -556,12 +556,12 @@ export function DemoWorkspace() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-xs text-slate-400 flex flex-col items-center justify-center space-y-2">
+                <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-xs text-slate-400 flex flex-col items-center justify-center space-y-2 dark:border-slate-700">
                   <span>Run B has not been trained yet.</span>
                   <button
                     type="button"
                     onClick={() => setCurrentStepIndex(6)}
-                    className="text-teal-700 font-bold hover:underline"
+                    className="text-teal-700 font-bold hover:underline dark:text-teal-300"
                   >
                     Go back to Step 6 to run Experiment B
                   </button>
@@ -575,10 +575,10 @@ export function DemoWorkspace() {
         {currentStepIndex === 8 && (
           <div className="space-y-6 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
-              <span className="rounded-md bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+              <span className="rounded-md bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-300">
                 Concept 08 · Real-World Project Studio
               </span>
-              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
                 You have completed the MLingo learning loop!
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
@@ -590,68 +590,68 @@ export function DemoWorkspace() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 pt-2">
               <Link
                 href="/projects/salary-prediction"
-                className="group rounded-2xl border border-teal-200 bg-teal-50/40 p-4 transition-all hover:border-teal-400 hover:bg-teal-50 hover:shadow-xs text-left flex flex-col justify-between space-y-3"
+                className="group rounded-2xl border border-teal-200 bg-teal-50/40 p-4 transition-all hover:border-teal-400 hover:bg-teal-50 hover:shadow-xs text-left flex flex-col justify-between space-y-3 dark:border-teal-500/40 dark:bg-teal-500/10 dark:hover:bg-teal-500/10"
               >
                 <div>
-                  <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-800">
+                  <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-800 dark:bg-teal-500/10 dark:text-teal-300">
                     Regression
                   </span>
-                  <h3 className="mt-2 text-sm font-bold text-slate-900 group-hover:text-teal-900">
+                  <h3 className="mt-2 text-sm font-bold text-slate-900 group-hover:text-teal-900 dark:text-slate-100">
                     Salary Prediction
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
                     Predict software engineer compensation based on experience and portfolio.
                   </p>
                 </div>
-                <span className="text-xs font-bold text-teal-700">Launch Project →</span>
+                <span className="text-xs font-bold text-teal-700 dark:text-teal-300">Launch Project →</span>
               </Link>
 
               <Link
                 href="/labs"
-                className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-xs text-left flex flex-col justify-between space-y-3"
+                className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-xs text-left flex flex-col justify-between space-y-3 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/60"
               >
                 <div>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
                     Labs
                   </span>
-                  <h3 className="mt-2 text-sm font-bold text-slate-900">
+                  <h3 className="mt-2 text-sm font-bold text-slate-900 dark:text-slate-100">
                     Explore Other Labs
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
                     Dive into Logistic Regression, K-Means clustering, or Neural Networks.
                   </p>
                 </div>
-                <span className="text-xs font-bold text-slate-700">Browse Labs →</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Browse Labs →</span>
               </Link>
 
               <Link
                 href="/portfolio"
-                className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-xs text-left flex flex-col justify-between space-y-3"
+                className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-xs text-left flex flex-col justify-between space-y-3 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/60"
               >
                 <div>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
                     Showcase
                   </span>
-                  <h3 className="mt-2 text-sm font-bold text-slate-900">
+                  <h3 className="mt-2 text-sm font-bold text-slate-900 dark:text-slate-100">
                     Personal ML Portfolio
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
                     Track completed projects, review case studies, and export markdown reports.
                   </p>
                 </div>
-                <span className="text-xs font-bold text-slate-700">Open Portfolio →</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Open Portfolio →</span>
               </Link>
             </div>
           </div>
         )}
 
         {/* Footer Navigation Buttons */}
-        <footer className="flex items-center justify-between border-t border-slate-100 pt-4">
+        <footer className="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700">
           <button
             type="button"
             onClick={handleBack}
             disabled={currentStepIndex === 1}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
           >
             ← Previous Step
           </button>

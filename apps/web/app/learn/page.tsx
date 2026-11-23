@@ -65,7 +65,7 @@ export default function LearnPage() {
                       </h2>
                       <p className="mt-3 text-slate-600 dark:text-slate-400">{chapter.subtitle}</p>
                     </div>
-                    <div className="hidden w-48 shrink-0 rounded-2xl border-2 border-slate-950 p-3 sm:block" style={{ background: color.fill }}>
+                    <div className="chapter-fill hidden w-48 shrink-0 rounded-2xl border-2 border-slate-950 p-3 sm:block" style={{ ["--c-fill" as string]: color.fill }}>
                       <ChapterMotif id={chapter.id} className="h-auto w-full" />
                     </div>
                   </div>
@@ -98,7 +98,7 @@ export default function LearnPage() {
                     <div className="mt-5 flex flex-wrap items-center gap-3">
                       <span className="text-sm text-slate-500">Practise it:</span>
                       {games.map((g) => (
-                        <Link key={g!.id} href={`/games/${g!.id}`} className="rounded-xl border px-4 py-2 text-sm font-semibold text-slate-950" style={{ background: color.fill }}>
+                        <Link key={g!.id} href={`/games/${g!.id}`} className="chapter-fill rounded-xl border px-4 py-2 text-sm font-semibold text-slate-950 dark:text-slate-100" style={{ ["--c-fill" as string]: color.fill }}>
                           Play {g!.title}
                         </Link>
                       ))}

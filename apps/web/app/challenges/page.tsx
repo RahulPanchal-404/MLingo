@@ -179,7 +179,7 @@ export default function ChallengesPage() {
                     {wf.step}
                   </span>
                   {idx < workflowSteps.length - 1 && (
-                    <span className="hidden lg:block text-slate-300 dark:text-slate-700 text-xs">→</span>
+                    <span className="hidden lg:block text-slate-400 dark:text-slate-500 text-xs">→</span>
                   )}
                 </div>
                 <div className="text-xs font-bold text-slate-900 dark:text-slate-100">

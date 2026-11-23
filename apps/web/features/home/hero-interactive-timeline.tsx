@@ -339,7 +339,7 @@ export function HeroInteractiveTimeline() {
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className="relative h-9 w-full rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 cursor-ew-resize flex items-center px-3 select-none touch-none dark:hover:border-slate-700 transition-colors"
+          className="relative h-9 w-full rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 cursor-ew-resize flex items-center px-3 select-none touch-none dark:hover:border-slate-700 transition-colors dark:hover:bg-slate-800/60"
           role="slider"
           aria-label="Training timeline step scrubber"
           aria-valuemin={0}

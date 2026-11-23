@@ -34,7 +34,7 @@ export function PreprocessingPlayground({
                 name="imputation"
                 checked={config.missingImputation === "none"}
                 onChange={() => onChange({ ...config, missingImputation: "none" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <span>None (Leave missing values as-is)</span>
             </label>
@@ -44,7 +44,7 @@ export function PreprocessingPlayground({
                 name="imputation"
                 checked={config.missingImputation === "mean_mode"}
                 onChange={() => onChange({ ...config, missingImputation: "mean_mode" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <div>
                 <span className="font-semibold text-teal-800 dark:text-teal-400">Mean / Most Frequent</span>
@@ -69,7 +69,7 @@ export function PreprocessingPlayground({
                 name="scaling"
                 checked={config.numericScaling === "none"}
                 onChange={() => onChange({ ...config, numericScaling: "none" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <span>None (Raw magnitudes)</span>
             </label>
@@ -79,7 +79,7 @@ export function PreprocessingPlayground({
                 name="scaling"
                 checked={config.numericScaling === "standard"}
                 onChange={() => onChange({ ...config, numericScaling: "standard" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <div>
                 <span className="font-semibold text-teal-800 dark:text-teal-400">Standardization (Z-Score)</span>
@@ -92,7 +92,7 @@ export function PreprocessingPlayground({
                 name="scaling"
                 checked={config.numericScaling === "minmax"}
                 onChange={() => onChange({ ...config, numericScaling: "minmax" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <div>
                 <span className="font-semibold text-teal-800 dark:text-teal-400">Min-Max Scaling</span>
@@ -117,7 +117,7 @@ export function PreprocessingPlayground({
                 name="encoding"
                 checked={config.categoricalEncoding === "none"}
                 onChange={() => onChange({ ...config, categoricalEncoding: "none" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <span>None (Raw string representations)</span>
             </label>
@@ -127,7 +127,7 @@ export function PreprocessingPlayground({
                 name="encoding"
                 checked={config.categoricalEncoding === "onehot"}
                 onChange={() => onChange({ ...config, categoricalEncoding: "onehot" })}
-                className="text-teal-600 focus:ring-teal-500"
+                className="text-teal-600 focus:ring-teal-500 dark:text-teal-300"
               />
               <div>
                 <span className="font-semibold text-teal-800 dark:text-teal-400">One-Hot Encoding</span>

@@ -59,8 +59,8 @@ export function ChapterIndex() {
 
       <div className="lg:sticky lg:top-24 lg:self-start">
         <article key={chapter.id} className="page-enter overflow-hidden rounded-3xl border bg-white dark:bg-slate-900">
-          <div className="flex items-center justify-between gap-4 border-b-2 border-slate-950 px-7 py-5" style={{ background: color.fill }}>
-            <span className="text-sm font-bold text-slate-950">{color.label}</span>
+          <div className="chapter-fill flex items-center justify-between gap-4 border-b-2 border-slate-950 px-7 py-5" style={{ ["--c-fill" as string]: color.fill }}>
+            <span className="text-sm font-bold text-slate-950 dark:text-slate-100">{color.label}</span>
             <ChapterMotif id={chapter.id} className="h-20 w-32" />
           </div>
           <div className="p-7">

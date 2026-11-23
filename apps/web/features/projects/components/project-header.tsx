@@ -31,7 +31,7 @@ export function ProjectHeader({ project, state, onReset }: ProjectHeaderProps) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Breadcrumb & Navigation */}
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-          <Link href="/projects" className="hover:text-teal-700 transition-colors">
+          <Link href="/projects" className="hover:text-teal-700 transition-colors dark:hover:text-teal-300">
             Projects
           </Link>
           <span>/</span>
@@ -43,13 +43,13 @@ export function ProjectHeader({ project, state, onReset }: ProjectHeaderProps) {
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:text-rose-600 transition-colors cursor-pointer"
+            className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:text-rose-600 transition-colors cursor-pointer dark:hover:bg-slate-800/60 dark:hover:text-rose-300"
           >
             Reset Project
           </button>
           <Link
             href="/projects"
-            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-colors"
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-colors dark:hover:bg-slate-800/60"
           >
             ← All Projects
           </Link>

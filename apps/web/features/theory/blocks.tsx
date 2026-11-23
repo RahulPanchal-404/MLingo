@@ -37,12 +37,12 @@ export function BlockView({ b }: { b: Block }) {
     );
   if ("example" in b)
     return (
-      <div className="light-island rounded-2xl border-2 border-slate-950 bg-[#fff4d6] p-5">
+      <div className="rounded-2xl border-2 border-slate-950 bg-[#fff4d6] p-5 dark:border-amber-400/50 dark:bg-slate-900">
         <p className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border-2 border-slate-950 bg-[#ffd166] px-2.5 py-0.5 text-xs font-bold text-slate-950">{b.example.kind === "idea" ? "Example" : "Worked example"}</span>
-          <span className="font-semibold text-slate-950"><TexText text={b.example.title} /></span>
+          <span className="rounded-full border-2 border-slate-950 bg-[#ffd166] px-2.5 py-0.5 text-xs font-bold text-slate-950 dark:border-amber-400/60 dark:bg-amber-400/10 dark:text-amber-300">{b.example.kind === "idea" ? "Example" : "Worked example"}</span>
+          <span className="font-semibold text-slate-950 dark:text-white"><TexText text={b.example.title} /></span>
         </p>
-        <div className="mt-3 space-y-3 [&_p]:text-slate-800">{b.example.blocks.map((inner, i) => <BlockView key={i} b={inner} />)}</div>
+        <div className="mt-3 space-y-3 [&_p]:text-slate-800 dark:[&_p]:text-slate-200">{b.example.blocks.map((inner, i) => <BlockView key={i} b={inner} />)}</div>
       </div>
     );
   if ("codelink" in b)
@@ -58,10 +58,10 @@ export function BlockView({ b }: { b: Block }) {
       <div className="space-y-3">
         <CodeBlock code={c.code} />
         {c.figure ? (
-          <figure className="light-island overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <figure className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#0f1117]">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG drawn by this code step */}
-            <img src={c.figure.src} alt={c.figure.alt} loading="lazy" className="mx-auto block h-auto max-w-full" />
-            <figcaption className="border-t border-slate-200 px-3 py-2 text-[13px] text-slate-600">The figure this code draws.</figcaption>
+            <img src={c.figure.src} alt={c.figure.alt} loading="lazy" className="mx-auto block h-auto max-w-full dark:invert dark:hue-rotate-180" />
+            <figcaption className="border-t border-slate-200 px-3 py-2 text-[13px] text-slate-600 dark:border-slate-700">The figure this code draws.</figcaption>
           </figure>
         ) : null}
         {c.walk?.length ? <WalkList walk={c.walk} /> : null}
@@ -75,7 +75,7 @@ export function BlockView({ b }: { b: Block }) {
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 dark:bg-slate-800 dark:text-white">
               <span>From-scratch Python (how it works under the hood)</span>
               <span className="rounded-full border-2 border-slate-950 bg-[#a7f3d0] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show the code</span>
-              <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+              <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline dark:border-slate-500 dark:bg-slate-800 dark:text-slate-200">Hide</span>
             </summary>
             <div className="pt-3">{body}</div>
           </details>
@@ -101,7 +101,7 @@ export function BlockView({ b }: { b: Block }) {
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-slate-950 dark:text-white">
           <span>From-scratch Python (how it works under the hood)</span>
           <span className="rounded-full border-2 border-slate-950 bg-[#a7f3d0] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show the code</span>
-          <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+          <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline dark:border-slate-500 dark:bg-slate-800 dark:text-slate-200">Hide</span>
         </summary>
         <div className="border-t-2 border-[var(--panel-line)] p-3"><CodeBlock code={b.code} /></div>
       </details>
@@ -117,9 +117,9 @@ export function BlockView({ b }: { b: Block }) {
     );
   if ("callout" in b)
     return (
-      <aside className="light-island rounded-2xl border-2 border-slate-950 bg-[#d3f1ff] p-5">
-        <p className="text-sm font-bold text-slate-950">{b.callout.title}</p>
-        <p className="mt-1.5 text-[16px] leading-relaxed text-slate-900"><TexText text={b.callout.body} /></p>
+      <aside className="rounded-2xl border-2 border-slate-950 bg-[#d3f1ff] p-5 dark:border-sky-400/50 dark:bg-slate-900">
+        <p className="text-sm font-bold text-slate-950 dark:text-sky-300">{b.callout.title}</p>
+        <p className="mt-1.5 text-[16px] leading-relaxed text-slate-900 dark:text-slate-100"><TexText text={b.callout.body} /></p>
       </aside>
     );
   if ("steps" in b)
@@ -141,8 +141,8 @@ export function BlockView({ b }: { b: Block }) {
       <details className="group rounded-2xl border-2 border-[var(--panel-line)] bg-white dark:bg-slate-900">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-slate-950 dark:text-white">
           <span>{b.derive.title}</span>
-          <span className="rounded-full border-2 border-slate-950 bg-[#b9a6ff] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show the derivation</span>
-          <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+          <span className="rounded-full border-2 border-slate-950 bg-[#b9a6ff] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden dark:border-violet-400/60 dark:bg-violet-400/10 dark:text-violet-300">Show the derivation</span>
+          <span className="hidden rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline dark:border-slate-500 dark:bg-slate-800 dark:text-slate-200">Hide</span>
         </summary>
         <div className="space-y-3 border-t-2 border-[var(--panel-line)] px-5 py-4">
           {b.derive.blocks.map((inner, i) => <BlockView key={i} b={inner} />)}
@@ -154,8 +154,8 @@ export function BlockView({ b }: { b: Block }) {
       <details className="group rounded-2xl border-2 border-[var(--panel-line)] bg-white dark:bg-slate-900">
         <summary className="flex cursor-pointer list-none items-start justify-between gap-3 px-5 py-4 text-[15px] font-semibold text-slate-950 dark:text-white">
           <span><TexText text={b.problem.q} /></span>
-          <span className="shrink-0 rounded-full border-2 border-slate-950 bg-[#ffd166] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden">Show solution</span>
-          <span className="hidden shrink-0 rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline">Hide</span>
+          <span className="shrink-0 rounded-full border-2 border-slate-950 bg-[#ffd166] px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:hidden dark:border-amber-400/60 dark:bg-amber-400/10 dark:text-amber-300">Show solution</span>
+          <span className="hidden shrink-0 rounded-full border-2 border-slate-950 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-950 group-open:inline dark:border-slate-500 dark:bg-slate-800 dark:text-slate-200">Hide</span>
         </summary>
         <div className="space-y-3 border-t-2 border-[var(--panel-line)] px-5 py-4">
           {b.problem.solution.map((inner, i) => <BlockView key={i} b={inner} />)}
@@ -165,10 +165,10 @@ export function BlockView({ b }: { b: Block }) {
   if ("tryit" in b) return <TryIt id={b.tryit} caption={b.caption} />;
   if ("figure" in b)
     return (
-      <figure className="light-island overflow-hidden rounded-2xl border-2 border-[var(--panel-line)] bg-white">
+      <figure className="overflow-hidden rounded-2xl border-2 border-[var(--panel-line)] bg-white dark:bg-[#0f1117]">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG graphs, no optimisation needed */}
-        <img src={b.figure.src} alt={b.figure.alt} loading="lazy" className="mx-auto block h-auto max-w-full" />
-        <figcaption className="border-t border-slate-200 px-4 py-2.5 text-[14px] leading-relaxed text-slate-700">
+        <img src={b.figure.src} alt={b.figure.alt} loading="lazy" className="mx-auto block h-auto max-w-full dark:invert dark:hue-rotate-180" />
+        <figcaption className="border-t border-slate-200 px-4 py-2.5 text-[14px] leading-relaxed text-slate-700 dark:border-slate-700 dark:text-slate-300">
           <TexText text={b.figure.caption} />
         </figcaption>
       </figure>
@@ -195,8 +195,8 @@ export function BlockView({ b }: { b: Block }) {
       <div className="grid gap-3 sm:grid-cols-2">
         {b.pitfalls.map((x) => (
           <div key={x.mistake} className="rounded-2xl border-2 border-[var(--panel-line)] bg-white p-4 dark:bg-slate-900">
-            <p className="flex gap-2 font-semibold text-slate-950 dark:text-white"><span aria-hidden="true" className="text-rose-600">✗</span><TexText text={x.mistake} /></p>
-            <p className="mt-2 flex gap-2 text-[15px] text-slate-700 dark:text-slate-300"><span aria-hidden="true" className="text-emerald-600">✓</span><span><TexText text={x.fix} /></span></p>
+            <p className="flex gap-2 font-semibold text-slate-950 dark:text-white"><span aria-hidden="true" className="text-rose-600 dark:text-rose-300">✗</span><TexText text={x.mistake} /></p>
+            <p className="mt-2 flex gap-2 text-[15px] text-slate-700 dark:text-slate-300"><span aria-hidden="true" className="text-emerald-600 dark:text-emerald-300">✓</span><span><TexText text={x.fix} /></span></p>
           </div>
         ))}
       </div>

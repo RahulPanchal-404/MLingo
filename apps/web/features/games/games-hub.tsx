@@ -36,25 +36,25 @@ function GameCard({ game }: { game: GameDef }) {
   return (
     <Link
       href={`/games/${game.id}?level=${firstOpen.id}`}
-      className={`group relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl border p-6 text-slate-950 ${CARD_ACCENT[game.accent]}`}
+      className={`group relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl border p-6 text-slate-950 dark:text-slate-100 ${CARD_ACCENT[game.accent]}`}
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="rounded-full border-2 border-slate-950 bg-white/70 px-3 py-1 text-xs font-bold">Chapter {game.chapter} · {game.chapterTitle}</span>
-          <span className="text-xs font-semibold tabular-nums text-slate-900/70">{stars} / {game.levels.length * 3} ★</span>
+          <span className="rounded-full border-2 border-slate-950 bg-white/70 px-3 py-1 text-xs font-bold dark:border-slate-600 dark:bg-slate-900/60">Chapter {game.chapter} · {game.chapterTitle}</span>
+          <span className="text-xs font-semibold tabular-nums text-slate-900/70 dark:text-slate-300">{stars} / {game.levels.length * 3} ★</span>
         </div>
         <h2 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight"><span aria-hidden="true" className="text-3xl">{game.icon}</span>{game.title}</h2>
-        <p className="text-[15px] text-slate-900/85">{game.tagline}</p>
+        <p className="text-[15px] text-slate-900/85 dark:text-slate-300">{game.tagline}</p>
         <ul className="space-y-1">
           {game.levels.map((l) => (
-            <li key={l.id} className="flex items-center justify-between border-t border-slate-950/15 pt-1 text-sm text-slate-900">
+            <li key={l.id} className="flex items-center justify-between border-t border-slate-950/15 pt-1 text-sm text-slate-900 dark:border-white/10 dark:text-slate-200">
               <span>{l.number}. {l.name}</span>
               <Stars count={bestStars(l.id)} size={11} />
             </li>
           ))}
         </ul>
       </div>
-      <span className="flex items-center gap-1 self-end rounded-xl border-2 border-slate-950 bg-white px-4 py-2 text-sm font-bold text-slate-900">
+      <span className="flex items-center gap-1 self-end rounded-xl border-2 border-slate-950 bg-white px-4 py-2 text-sm font-bold text-slate-900 dark:border-slate-500 dark:bg-slate-900 dark:text-white">
         {stars ? "Continue" : "Play"} <ArrowRightIcon size={16} className="transition-transform group-hover:translate-x-1" />
       </span>
     </Link>
@@ -140,7 +140,7 @@ export function GamesHub() {
                 <p className="text-sm text-amber-900 dark:text-amber-100">
                   You&apos;re playing as a guest{guestQueued ? ` with ${guestQueued} unsaved ${guestQueued === 1 ? "result" : "results"}` : ""}. Sign in to keep streaks, XP and badges.
                 </p>
-                <Link href="/login?mode=signup&next=/games" className="rounded-full bg-amber-500 hover:bg-amber-400 px-4 py-1.5 text-sm font-bold text-amber-950">
+                <Link href="/login?mode=signup&next=/games" className="rounded-full bg-amber-500 hover:bg-amber-400 px-4 py-1.5 text-sm font-bold text-amber-950 dark:text-amber-300">
                   Create account
                 </Link>
               </div>
@@ -248,7 +248,7 @@ export function GamesHub() {
                     : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50"
                 }`}
               >
-                <span className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl ${b.earned ? "bg-amber-400 text-amber-950" : "bg-slate-200 dark:bg-slate-800 text-slate-400"}`}>
+                <span className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl ${b.earned ? "bg-amber-400 text-amber-950 dark:text-amber-300" : "bg-slate-200 dark:bg-slate-800 text-slate-400"}`}>
                   {b.earned ? <TrophyIcon size={18} /> : <LockIcon size={16} />}
                 </span>
                 <p className={`text-sm font-bold ${b.earned ? "text-slate-900 dark:text-white" : "text-slate-500"}`}>{b.title}</p>

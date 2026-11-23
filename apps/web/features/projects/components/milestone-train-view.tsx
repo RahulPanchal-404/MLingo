@@ -74,13 +74,13 @@ export function MilestoneTrainView({
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-500/40 dark:bg-teal-500/10">
         <div className="flex items-start gap-3">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300">
               Educational Goal — Live Gradient Optimization & Step Scrubbing
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Train the model on this project&apos;s dataset with your split and preprocessing. Watch the loss
               fall epoch by epoch and inspect every weight and gradient. Evaluation uses this exact run.
             </p>
@@ -89,10 +89,10 @@ export function MilestoneTrainView({
       </div>
 
       {/* Train Launcher Card */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
               Execute Model Training: {project.modelName}
             </h3>
             <p className="mt-1 text-xs text-slate-500">
@@ -113,7 +113,7 @@ export function MilestoneTrainView({
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800">
+          <div className="mt-4 rounded-lg bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 dark:bg-rose-500/10 dark:border-rose-500/40 dark:text-rose-300">
             <strong>Training Note:</strong> {error}
           </div>
         )}
@@ -121,13 +121,13 @@ export function MilestoneTrainView({
 
       {/* Telemetry and Frame Scrubbing (when trained) */}
       {trainingRun && activeState && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-6 dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 dark:border-slate-700">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
                 Run ID: {trainingRun.id}
               </span>
-              <h4 className="text-base font-bold text-slate-900">
+              <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">
                 Training Telemetry & Parameter Inspection
               </h4>
             </div>
@@ -140,7 +140,7 @@ export function MilestoneTrainView({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-600">
               <span>Scrub Training Timeline:</span>
-              <span className="font-mono font-bold text-teal-800">
+              <span className="font-mono font-bold text-teal-800 dark:text-teal-300">
                 {currentStep === 0 ? "Start (before any update)" : `${project.type === "clustering" ? "Iteration" : "Epoch"} ${currentStep} of ${trainingRun.history.length - 1}`}
               </span>
             </div>
@@ -151,26 +151,26 @@ export function MilestoneTrainView({
               value={currentStep}
               onChange={(e) => setCurrentStep(Number(e.target.value))}
               aria-label="Training timeline"
-              className="w-full accent-teal-700 h-2 bg-slate-100 rounded-lg cursor-pointer"
+              className="w-full accent-teal-700 h-2 bg-slate-100 rounded-lg cursor-pointer dark:bg-slate-800/60"
             />
           </div>
 
           {/* Metrics & Parameters at Current Step */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono dark:border-slate-700 dark:bg-slate-800/60">
               <span className="text-[10px] font-sans uppercase font-bold text-slate-500">
                 {project.type === "clustering" ? "Inertia" : project.type === "classification" ? "Log loss" : "MSE loss"}
               </span>
-              <p className="mt-1 text-xl font-bold text-slate-900">
+              <p className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">
                 {Number(activeState.loss).toFixed(4)}
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono dark:border-slate-700 dark:bg-slate-800/60">
               <span className="text-[10px] font-sans uppercase font-bold text-slate-500">
                 Weights / Centroids
               </span>
-              <p className="mt-1 text-xs font-bold text-slate-800 break-words">
+              <p className="mt-1 text-xs font-bold text-slate-800 break-words dark:text-slate-100">
                 {activeState.weights && activeState.weights.length > 0
                   ? activeState.weights.map((w, j) => `${featureNames[j] ?? `w${j + 1}`} ${w.toFixed(3)}`).join(", ")
                   : activeState.centroids
@@ -179,20 +179,20 @@ export function MilestoneTrainView({
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono dark:border-slate-700 dark:bg-slate-800/60">
               <span className="text-[10px] font-sans uppercase font-bold text-slate-500">
                 Bias / Movement
               </span>
-              <p className="mt-1 text-xs font-bold text-slate-800">
+              <p className="mt-1 text-xs font-bold text-slate-800 dark:text-slate-100">
                 {activeState.bias !== undefined ? activeState.bias.toFixed(3) : "—"}
               </p>
             </div>
 
-            <div className="rounded-lg border border-teal-200 bg-teal-50/60 p-3 font-mono">
-              <span className="text-[10px] font-sans uppercase font-bold text-teal-900">
+            <div className="rounded-lg border border-teal-200 bg-teal-50/60 p-3 font-mono dark:border-teal-500/40 dark:bg-teal-500/10">
+              <span className="text-[10px] font-sans uppercase font-bold text-teal-900 dark:text-teal-300">
                 Gradients
               </span>
-              <p className="mt-1 text-xs font-bold text-teal-950 truncate">
+              <p className="mt-1 text-xs font-bold text-teal-950 truncate dark:text-teal-300">
                 {activeState.gradients && activeState.gradients.length > 0 && project.type !== "clustering"
                   ? activeState.gradients.map((g) => g.toFixed(3)).join(", ")
                   : "0.00"}
@@ -208,7 +208,7 @@ export function MilestoneTrainView({
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
             Live Model Demonstration & Hands-On Interface
           </span>
-          <span className="text-[11px] font-mono text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+          <span className="text-[11px] font-mono text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 dark:text-teal-300 dark:bg-teal-500/10 dark:border-teal-500/40">
             Interactive ML Sandbox
           </span>
         </div>
@@ -223,7 +223,7 @@ export function MilestoneTrainView({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
         >
           ← Back to Model Selection
         </button>

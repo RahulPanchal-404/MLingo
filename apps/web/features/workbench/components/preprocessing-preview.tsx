@@ -21,7 +21,7 @@ export function PreprocessingPreview({
 
   if (!isTransformed || originalRows.length === 0 || transformedRows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-6 text-center text-xs text-slate-500">
+      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-6 text-center text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800/60">
         Enable one or more preprocessing operations above to view before-and-after transformations on real records.
       </div>
     );

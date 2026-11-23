@@ -18,8 +18,8 @@ export function ProjectStepper({
   const completedSet = new Set(completedMilestones);
 
   return (
-    <nav aria-label="Project Milestones Navigation" className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="border-b border-slate-100 pb-3 mb-3">
+    <nav aria-label="Project Milestones Navigation" className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="border-b border-slate-100 pb-3 mb-3 dark:border-slate-700">
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
           Guided Journey / Milestones
         </p>
@@ -42,11 +42,11 @@ export function ProjectStepper({
                 onClick={() => onSelectMilestone(m.id)}
                 className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-all ${
                   isCurrent
-                    ? "bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-xs"
+                    ? "bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-xs dark:bg-teal-500/10 dark:text-teal-300 dark:border-teal-500/40"
                     : isCompleted
-                    ? "text-slate-800 font-semibold hover:bg-slate-50"
+                    ? "text-slate-800 font-semibold hover:bg-slate-50 dark:text-slate-100 dark:hover:bg-slate-800/60"
                     : isUnlocked
-                    ? "text-slate-600 hover:bg-slate-50"
+                    ? "text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/60"
                     : "text-slate-400 cursor-not-allowed opacity-60"
                 }`}
               >
@@ -57,7 +57,7 @@ export function ProjectStepper({
                         ? "bg-emerald-600 text-white"
                         : isCurrent
                         ? "bg-teal-700 text-white ring-2 ring-teal-300"
-                        : "bg-slate-200 text-slate-600"
+                        : "bg-slate-200 text-slate-600 dark:bg-slate-800/60"
                     }`}
                   >
                     {isCompleted ? "✓" : m.order}

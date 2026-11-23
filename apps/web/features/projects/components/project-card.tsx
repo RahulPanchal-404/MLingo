@@ -253,7 +253,7 @@ export function ProjectCard({ project, state }: ProjectCardProps) {
             isInProgress
               ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20"
               : isCompleted
-              ? "border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 hover:bg-emerald-100"
+              ? "border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-500/10"
               : "bg-teal-800 hover:bg-teal-700 dark:bg-teal-600 dark:hover:bg-teal-500 text-white shadow-teal-800/20"
           }`}
         >

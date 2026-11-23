@@ -96,7 +96,7 @@ export function ProfileView() {
           <button
             type="button"
             onClick={() => setMessage(null)}
-            className="text-teal-600 dark:text-teal-400 hover:text-teal-900 cursor-pointer"
+            className="text-teal-600 dark:text-teal-400 hover:text-teal-900 cursor-pointer dark:hover:text-teal-300"
           >
             ✕
           </button>

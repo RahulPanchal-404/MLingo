@@ -67,7 +67,7 @@ export default function CodeIndexPage() {
                       <h2 id={`part-${pi}`} className="scroll-mt-28 text-[clamp(1.6rem,3vw,2.4rem)] text-slate-950 dark:text-white">{part.title}</h2>
                       <p className="mt-3 text-slate-600 dark:text-slate-400">{part.summary}</p>
                     </div>
-                    <div className="hidden w-48 shrink-0 rounded-2xl border-2 border-slate-950 p-3 sm:block" style={{ background: color.fill }}>
+                    <div className="chapter-fill hidden w-48 shrink-0 rounded-2xl border-2 border-slate-950 p-3 sm:block" style={{ ["--c-fill" as string]: color.fill }}>
                       <ChapterMotif id={part.chapter} className="h-auto w-full" />
                     </div>
                   </div>

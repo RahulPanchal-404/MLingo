@@ -61,7 +61,7 @@ export function SalaryPredictionDemo() {
                   className={`rounded-xl py-2 text-xs font-mono font-bold border transition-all cursor-pointer ${
                     education === lvl
                       ? "bg-teal-800 text-white border-teal-800 shadow-xs"
-                      : "bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100"
+                      : "bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/60"
                   }`}
                 >
                   {lvl}
@@ -653,7 +653,7 @@ export function CustomerSegmentationDemo() {
             </div>
             <div className="flex justify-between text-slate-600 dark:text-slate-400">
               <span>Inertia Drop:</span>
-              <span className="font-bold text-emerald-600">-63.4% from K=2</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-300">-63.4% from K=2</span>
             </div>
           </div>
         </div>
@@ -864,21 +864,21 @@ export function DigitRecognitionDemo() {
               <button
                 type="button"
                 onClick={() => setPixels(initialZero)}
-                className="rounded px-2 py-0.5 text-[10px] font-mono border border-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 cursor-pointer"
+                className="rounded px-2 py-0.5 text-[10px] font-mono border border-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 cursor-pointer dark:border-slate-700 dark:hover:bg-slate-800/60"
               >
                 Preset 0
               </button>
               <button
                 type="button"
                 onClick={() => setPixels(initialOne)}
-                className="rounded px-2 py-0.5 text-[10px] font-mono border border-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 cursor-pointer"
+                className="rounded px-2 py-0.5 text-[10px] font-mono border border-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 cursor-pointer dark:border-slate-700 dark:hover:bg-slate-800/60"
               >
                 Preset 1
               </button>
               <button
                 type="button"
                 onClick={() => setPixels(new Array(64).fill(0))}
-                className="rounded px-2 py-0.5 text-[10px] font-mono border border-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 cursor-pointer"
+                className="rounded px-2 py-0.5 text-[10px] font-mono border border-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 cursor-pointer dark:border-slate-700 dark:hover:bg-slate-800/60"
               >
                 Clear
               </button>
@@ -911,7 +911,7 @@ export function DigitRecognitionDemo() {
           <div className="space-y-1">
             {scores.map((prob, digit) => (
               <div key={digit} className="flex items-center gap-2 text-xs font-mono">
-                <span className={`w-5 font-bold ${digit === maxProbIndex ? "text-indigo-600" : "text-slate-500"}`}>
+                <span className={`w-5 font-bold ${digit === maxProbIndex ? "text-indigo-600 dark:text-indigo-300" : "text-slate-500"}`}>
                   {digit}:
                 </span>
                 <div className="h-4 flex-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -981,7 +981,7 @@ export function MovieRecommendationDemo() {
           <div>
             <div className="flex justify-between text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1">
               <span>Inception (Sci-Fi):</span>
-              <span className="font-bold text-amber-600">{"★".repeat(inceptionRating)}{"☆".repeat(5 - inceptionRating)}</span>
+              <span className="font-bold text-amber-600 dark:text-amber-300">{"★".repeat(inceptionRating)}{"☆".repeat(5 - inceptionRating)}</span>
             </div>
             <input aria-label="Inception (Sci-Fi)"
               type="range"
@@ -997,7 +997,7 @@ export function MovieRecommendationDemo() {
           <div>
             <div className="flex justify-between text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1">
               <span>The Matrix (Sci-Fi/Action):</span>
-              <span className="font-bold text-amber-600">{"★".repeat(matrixRating)}{"☆".repeat(5 - matrixRating)}</span>
+              <span className="font-bold text-amber-600 dark:text-amber-300">{"★".repeat(matrixRating)}{"☆".repeat(5 - matrixRating)}</span>
             </div>
             <input aria-label="The Matrix (Sci-Fi/Action)"
               type="range"
@@ -1013,7 +1013,7 @@ export function MovieRecommendationDemo() {
           <div>
             <div className="flex justify-between text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1">
               <span>Titanic (Romance/Drama):</span>
-              <span className="font-bold text-amber-600">{"★".repeat(titanicRating)}{"☆".repeat(5 - titanicRating)}</span>
+              <span className="font-bold text-amber-600 dark:text-amber-300">{"★".repeat(titanicRating)}{"☆".repeat(5 - titanicRating)}</span>
             </div>
             <input aria-label="Titanic (Romance/Drama)"
               type="range"
@@ -1118,7 +1118,7 @@ export function StockPricePredictionDemo() {
             <div>
               <div className="flex justify-between text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 <span>Moving Average Window:</span>
-                <span className="font-bold text-emerald-600">{maWindow} days</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-300">{maWindow} days</span>
               </div>
               <input aria-label="Moving Average Window"
                 type="range"
@@ -1133,7 +1133,7 @@ export function StockPricePredictionDemo() {
             <div>
               <div className="flex justify-between text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 <span>Trend Slope (β):</span>
-                <span className="font-bold text-amber-600">+{trendSlope.toFixed(1)}/day</span>
+                <span className="font-bold text-amber-600 dark:text-amber-300">+{trendSlope.toFixed(1)}/day</span>
               </div>
               <input aria-label="Trend Slope (β)"
                 type="range"

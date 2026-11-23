@@ -40,13 +40,13 @@ export function MilestonePreprocessView({
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-500/40 dark:bg-teal-500/10">
         <div className="flex items-start gap-3">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300">
               Educational Goal — Data Preprocessing & Feature Engineering
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Machine learning models cannot compute dot products on raw categorical strings or missing NaN entries.
               Select appropriate scaling (<em>Z</em>-score vs MinMax), missing imputation, and one-hot encoding.
             </p>
@@ -77,7 +77,7 @@ export function MilestonePreprocessView({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
         >
           ← Back to Quality Audit
         </button>

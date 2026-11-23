@@ -23,13 +23,13 @@ export function MilestoneExploreView({
   return (
     <div className="space-y-6">
       {/* Educational Goal Header Banner */}
-      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+      <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-500/40 dark:bg-teal-500/10">
         <div className="flex items-start gap-3">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300">
               Educational Goal — Exploratory Data Analysis (EDA)
             </h4>
-            <p className="mt-1 text-sm text-teal-800">
+            <p className="mt-1 text-sm text-teal-800 dark:text-teal-300">
               Inspect the dataset surface: total sample size <em>N</em>, feature dimensionality <em>D</em>,
               data types (numeric continuous vs categorical discrete), and target value properties.
             </p>
@@ -41,22 +41,22 @@ export function MilestoneExploreView({
       <DatasetSummaryView summary={summary} />
 
       {/* Guided Exploration Takeaways */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-3 dark:text-slate-300 dark:border-slate-700">
           Dataset Exploration Insights for {project.title}
         </h3>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs text-slate-700">
-          <div className="rounded-lg bg-slate-50 p-3.5 border border-slate-200">
-            <span className="font-bold text-slate-900 block mb-1">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs text-slate-700 dark:text-slate-300">
+          <div className="rounded-lg bg-slate-50 p-3.5 border border-slate-200 dark:bg-slate-800/60 dark:border-slate-700">
+            <span className="font-bold text-slate-900 block mb-1 dark:text-slate-100">
               Input Features ({summary.features.length} columns)
             </span>
             <ul className="list-disc pl-4 space-y-1 text-slate-600">
               {summary.features.map((f) => (
                 <li key={f.name}>
-                  <strong className="text-slate-800">{f.name}</strong> ({f.dtype}):{" "}
+                  <strong className="text-slate-800 dark:text-slate-100">{f.name}</strong> ({f.dtype}):{" "}
                   {f.uniqueCount} unique values
                   {f.missingCount > 0 ? (
-                    <span className="text-amber-700 font-semibold ml-1">
+                    <span className="text-amber-700 font-semibold ml-1 dark:text-amber-300">
                       ({f.missingCount} missing!)
                     </span>
                   ) : (
@@ -67,12 +67,12 @@ export function MilestoneExploreView({
             </ul>
           </div>
 
-          <div className="rounded-lg bg-slate-50 p-3.5 border border-slate-200">
-            <span className="font-bold text-slate-900 block mb-1">Target / Optimization Scope</span>
+          <div className="rounded-lg bg-slate-50 p-3.5 border border-slate-200 dark:bg-slate-800/60 dark:border-slate-700">
+            <span className="font-bold text-slate-900 block mb-1 dark:text-slate-100">Target / Optimization Scope</span>
             {summary.target ? (
               <div className="space-y-1.5 text-slate-600">
                 <p>
-                  Target Column: <strong className="text-teal-900">{summary.target.name}</strong>
+                  Target Column: <strong className="text-teal-900 dark:text-teal-300">{summary.target.name}</strong>
                 </p>
                 {summary.target.taskType === "regression" && (
                   <p>
@@ -106,7 +106,7 @@ export function MilestoneExploreView({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60"
         >
           ← Back to Problem
         </button>

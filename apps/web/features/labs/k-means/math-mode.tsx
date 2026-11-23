@@ -27,12 +27,12 @@ export function KMeansMathMode({ state }: { state: TrainingState | null }) {
 
       {/* Beginner Intuition Helpers */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5">
-          <span className="font-bold text-teal-900 block mb-0.5">Centroid:</span>
+        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5 dark:border-teal-500/40 dark:bg-teal-500/10">
+          <span className="font-bold text-teal-900 block mb-0.5 dark:text-teal-300">Centroid:</span>
           <span className="text-slate-600">A centroid is the current center of a cluster.</span>
         </div>
-        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5">
-          <span className="font-bold text-teal-900 block mb-0.5">Inertia (Distortion):</span>
+        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5 dark:border-teal-500/40 dark:bg-teal-500/10">
+          <span className="font-bold text-teal-900 block mb-0.5 dark:text-teal-300">Inertia (Distortion):</span>
           <span className="text-slate-600">Inertia measures how far points are from their assigned cluster centers. Lower usually means tighter clusters.</span>
         </div>
       </div>

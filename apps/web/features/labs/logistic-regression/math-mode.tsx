@@ -29,12 +29,12 @@ export function LogisticMathMode({
 
       {/* Beginner Intuition Helpers */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5">
-          <span className="font-bold text-teal-900 block mb-0.5">Sigmoid Activation:</span>
+        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5 dark:border-teal-500/40 dark:bg-teal-500/10">
+          <span className="font-bold text-teal-900 block mb-0.5 dark:text-teal-300">Sigmoid Activation:</span>
           <span className="text-slate-600">Sigmoid turns a model&apos;s score into a probability between 0 and 1.</span>
         </div>
-        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5">
-          <span className="font-bold text-teal-900 block mb-0.5">Decision Threshold:</span>
+        <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2.5 dark:border-teal-500/40 dark:bg-teal-500/10">
+          <span className="font-bold text-teal-900 block mb-0.5 dark:text-teal-300">Decision Threshold:</span>
           <span className="text-slate-600">A threshold turns probability into a final class decision.</span>
         </div>
       </div>
